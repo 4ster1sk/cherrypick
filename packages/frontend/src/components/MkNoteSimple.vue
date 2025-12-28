@@ -139,11 +139,6 @@ async function deleteScheduleNote() {
 	&.isSchedule {
 		border-bottom: solid 0.5px var(--MI_THEME-divider);
 	}
-	border-bottom: solid 0.5px var(--divider);
-}
-.button{
-	margin-right: var(--margin);
-	margin-bottom: var(--margin);
 }
 
 .button{

@@ -15,6 +15,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</MkA>
 			<div v-if="note.user.isLocked" :class="$style.userBadge"><i class="ti ti-lock"></i></div>
 			<div v-if="note.user.isBot" :class="$style.userBadge"><i class="ti ti-robot"></i></div>
+			<div v-if="note.user.isProxy" :class="$style.userBadge"><i class="ti ti-ghost"></i></div>
 			<div v-if="note.user.badgeRoles" :class="$style.badgeRoles">
 				<img v-for="(role, i) in note.user.badgeRoles" :key="i" v-tooltip="role.name" :class="$style.badgeRole" :src="role.iconUrl!"/>
 			</div>

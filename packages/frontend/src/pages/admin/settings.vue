@@ -335,7 +335,6 @@ import MkKeyValue from '@/components/MkKeyValue.vue';
 import { useForm } from '@/use/use-form.js';
 import MkFormFooter from '@/components/MkFormFooter.vue';
 import MkRadios from '@/components/MkRadios.vue';
-import MkSelect from '@/components/MkSelect.vue';
 
 const meta = await misskeyApi('admin/meta');
 
@@ -446,102 +445,11 @@ const federationForm = useForm({
 	fetchInstance(true);
 });
 
-const name = ref<string | null>(null);
-const shortName = ref<string | null>(null);
-const description = ref<string | null>(null);
-const maintainerName = ref<string | null>(null);
-const maintainerEmail = ref<string | null>(null);
-const repositoryUrl = ref<string | null>(null);
-const impressumUrl = ref<string | null>(null);
-const statusUrl = ref<string | null>(null);
-const emailToReceiveAbuseReport = ref<string | null>(null);
-const pinnedUsers = ref<string>('');
-const cacheRemoteFiles = ref<boolean>(false);
-const cacheRemoteSensitiveFiles = ref<boolean>(false);
-const enableServiceWorker = ref<boolean>(false);
-const swPublicKey = ref<string | null>(null);
-const swPrivateKey = ref<string | null>(null);
-const enableFanoutTimeline = ref<boolean>(false);
-const enableFanoutTimelineDbFallback = ref<boolean>(false);
-const perLocalUserUserTimelineCacheMax = ref<number>(0);
-const perRemoteUserUserTimelineCacheMax = ref<number>(0);
-const perUserHomeTimelineCacheMax = ref<number>(0);
-const perUserListTimelineCacheMax = ref<number>(0);
-const notesPerOneAd = ref<number>(0);
-const urlPreviewEnabled = ref<boolean>(true);
-const urlPreviewTimeout = ref<number>(10000);
-const urlPreviewMaximumContentLength = ref<number>(1024 * 1024 * 10);
-const urlPreviewRequireContentLength = ref<boolean>(true);
-const urlPreviewUserAgent = ref<string | null>(null);
-const urlPreviewSummaryProxyUrl = ref<string | null>(null);
-const urlPreviewDirectSummalyProxy = ref<boolean>(false);
-
-async function init(): Promise<void> {
-	const meta = await misskeyApi('admin/meta');
-	name.value = meta.name;
-	shortName.value = meta.shortName;
-	description.value = meta.description;
-	maintainerName.value = meta.maintainerName;
-	maintainerEmail.value = meta.maintainerEmail;
-	repositoryUrl.value = meta.repositoryUrl;
-	impressumUrl.value = meta.impressumUrl;
-	statusUrl.value = meta.statusUrl;
-	emailToReceiveAbuseReport.value = meta.emailToReceiveAbuseReport;
-	pinnedUsers.value = meta.pinnedUsers.join('\n');
-	cacheRemoteFiles.value = meta.cacheRemoteFiles;
-	cacheRemoteSensitiveFiles.value = meta.cacheRemoteSensitiveFiles;
-	enableServiceWorker.value = meta.enableServiceWorker;
-	swPublicKey.value = meta.swPublickey;
-	swPrivateKey.value = meta.swPrivateKey;
-	enableFanoutTimeline.value = meta.enableFanoutTimeline;
-	enableFanoutTimelineDbFallback.value = meta.enableFanoutTimelineDbFallback;
-	perLocalUserUserTimelineCacheMax.value = meta.perLocalUserUserTimelineCacheMax;
-	perRemoteUserUserTimelineCacheMax.value = meta.perRemoteUserUserTimelineCacheMax;
-	perUserHomeTimelineCacheMax.value = meta.perUserHomeTimelineCacheMax;
-	perUserListTimelineCacheMax.value = meta.perUserListTimelineCacheMax;
-	notesPerOneAd.value = meta.notesPerOneAd;
-	urlPreviewEnabled.value = meta.urlPreviewEnabled;
-	urlPreviewTimeout.value = meta.urlPreviewTimeout;
-	urlPreviewMaximumContentLength.value = meta.urlPreviewMaximumContentLength;
-	urlPreviewRequireContentLength.value = meta.urlPreviewRequireContentLength;
-	urlPreviewUserAgent.value = meta.urlPreviewUserAgent;
-	urlPreviewSummaryProxyUrl.value = meta.urlPreviewSummaryProxyUrl;
-	urlPreviewDirectSummalyProxy.value = meta.urlPreviewDirectSummalyProxy;
-}
-
 const emailToReceiveAbuseReportForm = useForm({
 	emailToReceiveAbuseReport: meta.emailToReceiveAbuseReport,
 }, async (state) => {
 	await os.apiWithDialog('admin/update-meta', {
-		name: name.value,
-		shortName: shortName.value === '' ? null : shortName.value,
-		description: description.value,
-		maintainerName: maintainerName.value,
-		maintainerEmail: maintainerEmail.value,
-		repositoryUrl: repositoryUrl.value,
-		impressumUrl: impressumUrl.value,
-		statusUrl: statusUrl.value,
-		emailToReceiveAbuseReport: emailToReceiveAbuseReport.value ?? null,
-		pinnedUsers: pinnedUsers.value.split('\n'),
-		cacheRemoteFiles: cacheRemoteFiles.value,
-		cacheRemoteSensitiveFiles: cacheRemoteSensitiveFiles.value,
-		enableServiceWorker: enableServiceWorker.value,
-		swPublicKey: swPublicKey.value,
-		swPrivateKey: swPrivateKey.value,
-		enableFanoutTimeline: enableFanoutTimeline.value,
-		enableFanoutTimelineDbFallback: enableFanoutTimelineDbFallback.value,
-		perLocalUserUserTimelineCacheMax: perLocalUserUserTimelineCacheMax.value,
-		perRemoteUserUserTimelineCacheMax: perRemoteUserUserTimelineCacheMax.value,
-		perUserHomeTimelineCacheMax: perUserHomeTimelineCacheMax.value,
-		perUserListTimelineCacheMax: perUserListTimelineCacheMax.value,
-		notesPerOneAd: notesPerOneAd.value,
-		urlPreviewEnabled: urlPreviewEnabled.value,
-		urlPreviewTimeout: urlPreviewTimeout.value,
-		urlPreviewMaximumContentLength: urlPreviewMaximumContentLength.value,
-		urlPreviewRequireContentLength: urlPreviewRequireContentLength.value,
-		urlPreviewUserAgent: urlPreviewUserAgent.value,
-		urlPreviewSummaryProxyUrl: urlPreviewSummaryProxyUrl.value,
-		urlPreviewDirectSummalyProxy: urlPreviewDirectSummalyProxy.value,
+		emailToReceiveAbuseReport: state.emailToReceiveAbuseReport,
 	});
 	fetchInstance(true);
 });
