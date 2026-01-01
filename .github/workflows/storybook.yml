@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - develop
+      - testing
   pull_request_target:
     branches-ignore:
       # Since pull requests targets master mostly is the "develop" branch.

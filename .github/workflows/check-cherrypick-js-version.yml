@@ -2,13 +2,13 @@ name: Check CherryPick JS version
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, testing ]
     paths:
       - packages/cherrypick-js/package.json
       - package.json
       - .github/workflows/check-cherrypick-js-version.yml
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, testing ]
     paths:
       - packages/cherrypick-js/package.json
       - package.json

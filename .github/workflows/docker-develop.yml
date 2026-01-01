@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - testing
   workflow_dispatch:
 
 env:

@@ -5,12 +5,12 @@ name: Test (cherrypick.js)
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, testing ]
     paths:
       - packages/cherrypick-js/**
       - .github/workflows/test-cherrypick-js.yml
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, testing ]
     paths:
       - packages/cherrypick-js/**
       - .github/workflows/test-cherrypick-js.yml
