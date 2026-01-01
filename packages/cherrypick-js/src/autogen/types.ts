@@ -4773,7 +4773,18 @@ export type components = {
             emojis?: {
                 [key: string]: string;
             };
-            event?: Record<string, never> | null;
+            event?: {
+                title: string;
+                /** Format: date-time */
+                start: string;
+                /** Format: date-time */
+                end: string | null;
+                metadata?: {
+                    '@type'?: string;
+                    location?: string;
+                    description?: string;
+                };
+            } | null;
             /**
              * Format: id
              * @example xxxxxxxxxx
@@ -6084,7 +6095,11 @@ export type components = {
                 start: string;
                 /** Format: date-time */
                 end: string | null;
-                metadata: Record<string, never>;
+                metadata?: {
+                    '@type'?: string;
+                    location?: string;
+                    description?: string;
+                };
             } | null;
             fileIds?: string[];
             files?: components['schemas']['DriveFile'][];
