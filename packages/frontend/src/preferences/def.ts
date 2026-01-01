@@ -539,6 +539,9 @@ export const PREF_DEF = definePreferences({
 	filesGridLayoutInUserPage: {
 		default: true,
 	},
+	accountSetupWizard: {
+		default: 0,
+	},
 
 	// - Settings/Timeline and Note
 	forceCollapseAllRenotes: {

@@ -479,9 +479,10 @@ export const packedNotificationSchema = {
 			},
 			noteIds: {
 				type: 'array',
+				optional: false, nullable: false,
 				items: {
 					type: 'string',
-					optional: false, nullable: false,
+					optional: true, nullable: true,
 				},
 			},
 			users: {
