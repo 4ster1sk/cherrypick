@@ -1237,7 +1237,12 @@ async function post(ev?: MouseEvent) {
 	}
 
 	posting.value = true;
-	misskeyApi(props.updateMode ? 'notes/update' : 'notes/create', postData, token).then((res) => {
+	const p = () => props.updateMode ? misskeyApi('notes/update', {
+		...postData,
+		noteId: postData.noteId!,
+	}, token) : misskeyApi('notes/create', postData, token);
+
+	p().then((res) => {
 		if (props.freezeAfterPosted) {
 			posted.value = true;
 		} else {
@@ -1318,6 +1323,7 @@ async function post(ev?: MouseEvent) {
 			text: `${err.message}\n${(err as any).id}`,
 		});
 	});
+
 	if (textareaEl.value) textareaEl.value.style.height = '140px';
 	if (props.updateMode) sound.playMisskeySfx('noteEdited');
 	haptic();
