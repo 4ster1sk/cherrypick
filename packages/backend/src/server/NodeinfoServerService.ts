@@ -47,7 +47,7 @@ export class NodeinfoServerService {
 
 	@bindThis
 	public createServer(fastify: FastifyInstance, options: FastifyPluginOptions, done: (err?: Error) => void) {
-		const nodeinfo2 = async (version: number, userAgent?: string) => {
+		const nodeinfo2 = async (version: number) => {
 			const now = Date.now();
 
 			const notesChart = await this.notesChart.getChart('hour', 1, null);
@@ -74,21 +74,14 @@ export class NodeinfoServerService {
 
 			const basePolicies = { ...DEFAULT_POLICIES, ...meta.policies };
 
-			// JoinMisskey APIからのリクエストかどうかを判定
-			const isJoinMisskey = userAgent?.includes('JoinMisskey') ?? false;
-
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const document: any = {
 				software: {
 					/*
 					 * ソフトウェアの名前を変更すると、一部の独自機能が使用できなくなったり、CherryPickとして認識されないなどの不利益が発生する場合があります。
 					 * フォーク開発者はこの点に注意して修正を行ってください。
-					 *
-					 * CherryPickはMisskey互換性のため、JoinMisskey APIからのリクエストには"misskey"として応答します。
-					 * これにより、Misskey Hubのインスタンスリストに掲載されます。
-					 * それ以外のリクエストには"cherrypick"として応答します。
 					 */
-					name: isJoinMisskey ? 'misskey' : 'cherrypick',
+					name: 'cherrypick',
 					version: this.config.version,
 					basedMisskeyVersion: this.config.basedMisskeyVersion,
 					homepage: nodeinfo_homepage,
@@ -154,13 +147,10 @@ export class NodeinfoServerService {
 			return document;
 		};
 
-		// User-Agentによって異なる応答を返すため、キャッシュを使用しない
-		//const cache = new MemorySingleCache<Awaited<ReturnType<typeof nodeinfo2>>>(1000 * 60 * 10); // 10m
+		const cache = new MemorySingleCache<Awaited<ReturnType<typeof nodeinfo2>>>(1000 * 60 * 10); // 10m
 
 		fastify.get(nodeinfo2_1path, async (request, reply) => {
-			const userAgent = request.headers['user-agent'];
-			//const base = await cache.fetch(() => nodeinfo2(21));
-			const base = await nodeinfo2(21, userAgent);
+			const base = await cache.fetch(() => nodeinfo2(21));
 
 			reply
 				.type(
@@ -175,9 +165,7 @@ export class NodeinfoServerService {
 		});
 
 		fastify.get(nodeinfo2_0path, async (request, reply) => {
-			const userAgent = request.headers['user-agent'];
-			//const base = await cache.fetch(() => nodeinfo2(20));
-			const base = await nodeinfo2(20, userAgent);
+			const base = await cache.fetch(() => nodeinfo2(20));
 
 			delete (base as any).software.repository;
 
