@@ -16,7 +16,6 @@ import { bindThis } from '@/decorators.js';
 import { SearchService } from '@/core/SearchService.js';
 import { PageService } from '@/core/PageService.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
-import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { QueueLoggerService } from '../QueueLoggerService.js';
 import type * as Bull from 'bullmq';
 import type { DbUserDeleteJobData } from '../types.js';
@@ -47,7 +46,6 @@ export class DeleteAccountProcessorService {
 		private emailService: EmailService,
 		private queueLoggerService: QueueLoggerService,
 		private searchService: SearchService,
-		private globalEventService: GlobalEventService,
 	) {
 		this.logger = this.queueLoggerService.logger.createSubLogger('delete-account');
 	}
@@ -158,9 +156,6 @@ export class DeleteAccountProcessorService {
 		// nop
 		} else {
 			await this.usersRepository.delete(job.data.user.id);
-
-			// Trigger CacheService
-			this.globalEventService.publishInternalEvent('remoteUserUpdated', { id: job.data.user.id });
 		}
 
 		return `[${job.data.user.id}] Account deleted`;
