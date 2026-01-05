@@ -11,7 +11,7 @@ import type { Packed } from '@/misc/json-schema.js';
 import { awaitAll } from '@/misc/prelude/await-all.js';
 import type { MiUser } from '@/models/User.js';
 import type { MiNote } from '@/models/Note.js';
-import type { UsersRepository, NotesRepository, FollowingsRepository, PollsRepository, PollVotesRepository, NoteReactionsRepository, ChannelsRepository, InstancesRepository, MiMeta, EventsRepository } from '@/models/_.js';
+import type { UsersRepository, NotesRepository, FollowingsRepository, PollsRepository, PollVotesRepository, NoteReactionsRepository, ChannelsRepository, MiMeta, EventsRepository } from '@/models/_.js';
 import { bindThis } from '@/decorators.js';
 import { DebounceLoader } from '@/misc/loader.js';
 import { IdService } from '@/core/IdService.js';
@@ -99,9 +99,6 @@ export class NoteEntityService implements OnModuleInit {
 
 		@Inject(DI.channelsRepository)
 		private channelsRepository: ChannelsRepository,
-
-		@Inject(DI.instancesRepository)
-		private instancesRepository: InstancesRepository,
 
 		//private userEntityService: UserEntityService,
 		//private driveFileEntityService: DriveFileEntityService,
@@ -462,19 +459,7 @@ export class NoteEntityService implements OnModuleInit {
 			url: note.url ?? undefined,
 			hasDeliveryTargets: note.deliveryTargets != null,
 			...((meId === note.userId || iAmModerator) ? {
-				deliveryTargets: note.deliveryTargets ? await (async () => {
-					const deliveryTargets = note.deliveryTargets!;
-					const instances = await this.instancesRepository.findBy({
-						host: In(deliveryTargets.hosts),
-					});
-					const instanceMap = new Map(instances.map(i => [i.host, i.name]));
-
-					return {
-						mode: deliveryTargets.mode,
-						hosts: deliveryTargets.hosts,
-						names: deliveryTargets.hosts.map(host => instanceMap.get(host) ?? null),
-					};
-				})() : undefined,
+				deliveryTargets: note.deliveryTargets ?? undefined,
 			} : {}),
 
 			...(opts.detail ? {
