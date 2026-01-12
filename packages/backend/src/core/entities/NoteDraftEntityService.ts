@@ -144,6 +144,7 @@ export class NoteDraftEntityService implements OnModuleInit {
 				metadata: noteDraft.eventMetadata,
 			} : undefined,
 			deliveryTargets: noteDraft.deliveryTargets ?? undefined,
+			searchableBy: noteDraft.searchableBy ?? null,
 
 			...(opts.detail ? {
 				reply: noteDraft.replyId ? nullIfEntityNotFound(this.noteEntityService.pack(noteDraft.replyId, me, {

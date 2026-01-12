@@ -136,7 +136,6 @@ describe('ユーザー', () => {
 			hasUnreadSpecifiedNotes: user.hasUnreadSpecifiedNotes,
 			hasUnreadMentions: user.hasUnreadMentions,
 			hasUnreadAnnouncement: user.hasUnreadAnnouncement,
-			hasUnreadMessagingMessage: user.hasUnreadMessagingMessage,
 			hasUnreadAntenna: user.hasUnreadAntenna,
 			hasUnreadChannel: user.hasUnreadChannel,
 			hasUnreadChatMessages: user.hasUnreadChatMessages,

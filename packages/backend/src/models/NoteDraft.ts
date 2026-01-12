@@ -4,7 +4,7 @@
  */
 
 import { Entity, Index, JoinColumn, Column, PrimaryColumn, ManyToOne } from 'typeorm';
-import { noteVisibilities, noteReactionAcceptances } from '@/types.js';
+import { noteVisibilities, noteReactionAcceptances, searchableTypes } from '@/types.js';
 import * as Event from '@/models/Event.js';
 import { id } from './util/id.js';
 import { MiUser } from './User.js';
@@ -101,6 +101,19 @@ export class MiNoteDraft {
 	 */
 	@Column('enum', { enum: noteVisibilities })
 	public visibility: typeof noteVisibilities[number];
+
+	/**
+	 * public ... だれでも
+	 * followers ... フォロワーのみ
+	 * reacted ... 返信かリアクションしたユーザーのみ
+	 * null ... ユーザーのsearchableByを見る
+	 */
+	@Column('enum',
+		{
+			enum: searchableTypes,
+			nullable: true,
+		})
+	public searchableBy: typeof searchableTypes[number] | null;
 
 	@Index('IDX_NOTE_DRAFT_FILE_IDS', { synchronize: false })
 	@Column({

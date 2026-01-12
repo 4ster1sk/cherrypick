@@ -62,6 +62,7 @@ export class PostScheduledNoteProcessorService {
 					metadata: draft.eventMetadata,
 				} : null,
 				deleteAt: draft.deleteAt ? new Date(draft.deleteAt) : null,
+				searchableBy: draft.searchableBy,
 			});
 
 			// await不要

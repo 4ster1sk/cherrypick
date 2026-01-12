@@ -4804,6 +4804,8 @@ export type components = {
             disableRightClick?: boolean;
             /** @enum {string} */
             visibility: 'public' | 'home' | 'followers' | 'specified';
+            /** @enum {string|null} */
+            searchableBy: 'public' | 'private' | 'followersAndReacted' | 'reactedOnly' | null;
             visibleUserIds: string[];
             fileIds: string[];
             files?: components['schemas']['DriveFile'][];
