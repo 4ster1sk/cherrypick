@@ -1,3 +1,52 @@
+## 1.6.3
+Cherrypick 4.16.0  
+Misskey 2025.5.0
+
+### Release Date
+2025-12-24
+
+### General
+
+### Client
+- Fix: タイムラインのノート間区切りとアニメーションの問題を修正 [#816](https://github.com/yojo-art/cherrypick/pull/816)
+- Fix: 絵文字をリモートからインポート時、リモートの絵文字情報が更新されてしまうのを修正 [#818](https://github.com/yojo-art/cherrypick/pull/818)
+
+### Server
+
+## 1.6.2
+Cherrypick 4.16.0  
+Misskey 2025.5.0
+
+### Release Date
+2025-12-06
+
+### General
+
+### Client
+- Fix: リモートクリップ/play表示機能の修正 [#806](https://github.com/yojo-art/cherrypick/pull/806)
+- Enhance: 予約投稿ボタンの表記を変更 [#807](https://github.com/yojo-art/cherrypick/pull/807)
+- Fix: 高度な検索タブの内容が表示される条件を修正 [#808](https://github.com/yojo-art/cherrypick/pull/808)
+  - 高度な検索タブと通常検索タブが合体する不具合が修正されます
+- Fix: メディアタイムラインのグリッドレイアウト表示を修正 [#809](https://github.com/yojo-art/cherrypick/pull/809)
+
+### Server
+
+## 1.6.1
+Cherrypick 4.16.0  
+Misskey 2025.5.0
+
+### Release Date
+2025-12-01
+
+### General
+
+### Client
+
+### Server
+
+### Others
+- Fix: 公式Dockerイメージのビルドに失敗する問題を修正しました [#795](https://github.com/yojo-art/cherrypick/pull/795)
+
 ## 1.6.0
 Cherrypick 4.16.0  
 Misskey 2025.5.0

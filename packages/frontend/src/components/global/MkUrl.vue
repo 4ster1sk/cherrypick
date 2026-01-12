@@ -32,8 +32,8 @@ import { url as local } from '@@/js/config.js';
 import { maybeMakeRelative } from '@@/js/url.js';
 import type { MkABehavior } from '@/components/global/MkA.vue';
 import * as os from '@/os.js';
-import { useTooltip } from '@/use/use-tooltip.js';
-import { isEnabledUrlPreview } from '@/instance.js';
+import { useTooltip } from '@/composables/use-tooltip.js';
+import { isEnabledUrlPreview } from '@/utility/url-preview.js';
 import { warningExternalWebsite } from '@/utility/warning-external-website.js';
 
 function safeURIDecode(str: string): string {
@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<{
 	showUrlPreview: true,
 });
 
-const maybeRelativeUrl = maybeMakeRelative(props.url, local);
+let maybeRelativeUrl = maybeMakeRelative(props.url, local);
 let self = maybeRelativeUrl !== props.url;
 let url = new URL(props.url);
 if (!['http:', 'https:'].includes(url.protocol)) throw new Error('invalid url');
@@ -62,6 +62,7 @@ if (!['http:', 'https:'].includes(url.protocol)) throw new Error('invalid url');
 if (props.host === url.host && (url.pathname.startsWith('/clips/') || url.pathname.startsWith('/play/'))) {
 	let split = url.pathname.split('@');
 	url = new URL(local + split[0] + '@' + (split.length >= 2 ? split[1] : props.host));
+	maybeRelativeUrl = maybeMakeRelative(url.toString(), local);
 	self = true;
 }
 const url_string = url.toString();
@@ -72,7 +73,7 @@ if (props.showUrlPreview && isEnabledUrlPreview.value) {
 		const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkUrlPreviewPopup.vue')), {
 			showing,
 			url: props.url,
-			source: el.value instanceof HTMLElement ? el.value : el.value?.$el,
+			anchorElement: el.value instanceof HTMLElement ? el.value : el.value?.$el,
 		}, {
 			closed: () => dispose(),
 		});
@@ -105,7 +106,7 @@ const target = self ? undefined : '_blank';
 }
 
 .schema {
-	opacity: 0.5;
+	color: color(from currentcolor srgb r g b / 0.5); // DOMノード全体をopacityで半透明化するより文字色を半透明化した方が若干レンダリングパフォーマンスが良い
 }
 
 .hostname {
@@ -113,11 +114,11 @@ const target = self ? undefined : '_blank';
 }
 
 .pathname {
-	opacity: 0.8;
+	color: color(from currentcolor srgb r g b / 0.8); // DOMノード全体をopacityで半透明化するより文字色を半透明化した方が若干レンダリングパフォーマンスが良い
 }
 
 .query {
-	opacity: 0.5;
+	color: color(from currentcolor srgb r g b / 0.5); // DOMノード全体をopacityで半透明化するより文字色を半透明化した方が若干レンダリングパフォーマンスが良い
 }
 
 .hash {

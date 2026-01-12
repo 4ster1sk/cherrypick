@@ -20,9 +20,9 @@ import { defineAsyncComponent, ref } from 'vue';
 import { url as local } from '@@/js/config.js';
 import { maybeMakeRelative } from '@@/js/url.js';
 import type { MkABehavior } from '@/components/global/MkA.vue';
-import { useTooltip } from '@/use/use-tooltip.js';
+import { useTooltip } from '@/composables/use-tooltip.js';
 import * as os from '@/os.js';
-import { isEnabledUrlPreview } from '@/instance.js';
+import { isEnabledUrlPreview } from '@/utility/url-preview.js';
 import { warningExternalWebsite } from '@/utility/warning-external-website.js';
 
 const props = withDefaults(defineProps<{
@@ -35,12 +35,13 @@ const props = withDefaults(defineProps<{
 	hideIcon: false,
 });
 
-const maybeRelativeUrl = maybeMakeRelative(props.url, local);
+let maybeRelativeUrl = maybeMakeRelative(props.url, local);
 let self = maybeRelativeUrl !== props.url;
 let requestUrl = new URL(props.url);
 if (props.host === requestUrl.host && (requestUrl.pathname.startsWith('/clips/') || requestUrl.pathname.startsWith('/play/'))) {
 	let split = requestUrl.pathname.split('@');
 	requestUrl = new URL(local + split[0] + '@' + (split.length >= 2 ? split[1] : props.host));
+	maybeRelativeUrl = maybeMakeRelative(requestUrl.toString(), local);
 	self = true;
 }
 const url_string = requestUrl.toString();
@@ -51,10 +52,12 @@ const el = ref<HTMLElement | { $el: HTMLElement }>();
 
 if (isEnabledUrlPreview.value) {
 	useTooltip(el, (showing) => {
+		const anchorElement = el.value instanceof HTMLElement ? el.value : el.value?.$el;
+		if (anchorElement == null) return;
 		const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkUrlPreviewPopup.vue')), {
 			showing,
 			url: props.url,
-			source: el.value instanceof HTMLElement ? el.value : el.value?.$el,
+			anchorElement: anchorElement,
 		}, {
 			closed: () => dispose(),
 		});
