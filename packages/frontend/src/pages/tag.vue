@@ -128,7 +128,7 @@ function openStream() {
 		q: [[props.tag]],
 	});
 	connection.on('note', note => {
-		notes.value?.pagingComponent?.prepend(note);
+		note.value?.pagingComponent?.prepend(note);
 	});
 }
 

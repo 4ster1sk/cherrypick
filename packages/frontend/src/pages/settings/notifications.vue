@@ -124,17 +124,6 @@ function testNotification(): void {
 	misskeyApi('notifications/test-notification');
 }
 
-async function flushNotification() {
-	const { canceled } = await os.confirm({
-		type: 'warning',
-		text: i18n.ts.resetAreYouSure,
-	});
-
-	if (canceled) return;
-
-	os.apiWithDialog('notifications/flush', {});
-}
-
 const headerActions = computed(() => []);
 
 const headerTabs = computed(() => []);

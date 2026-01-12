@@ -93,11 +93,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 								</MkInput>
 							</SearchMarker>
 
-					<MkInput v-model="infoForm.state.statusUrl" type="url">
-						<template #label>{{ i18n.ts.statusUrl }}<span v-if="infoForm.modifiedStates.statusUrl" class="_modified">{{ i18n.ts.modified }}</span></template>
-						<template #prefix><i class="ti ti-link"></i></template>
-					</MkInput>
-				</div>
+							<MkInput v-model="infoForm.state.statusUrl" type="url">
+								<template #label>{{ i18n.ts.statusUrl }}<span v-if="infoForm.modifiedStates.statusUrl" class="_modified">{{ i18n.ts.modified }}</span></template>
+								<template #prefix><i class="ti ti-link"></i></template>
+							</MkInput>
+						</div>
 					</MkFolder>
 				</SearchMarker>
 
@@ -192,17 +192,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</SearchMarker>
 
 							<template v-if="urlPreviewForm.state.urlPreviewEnabled">
-							<MkSwitch v-model="urlPreviewForm.state.urlPreviewDirectSummalyProxy">
-								<template #label>{{ i18n.ts._urlPreviewSetting.directAccess }}<span v-if="urlPreviewForm.modifiedStates.urlPreviewDirectSummalyProxy" class="_modified">{{ i18n.ts.modified }}</span></template>
-							</MkSwitch>
+								<MkSwitch v-model="urlPreviewForm.state.urlPreviewDirectSummalyProxy">
+									<template #label>{{ i18n.ts._urlPreviewSetting.directAccess }}<span v-if="urlPreviewForm.modifiedStates.urlPreviewDirectSummalyProxy" class="_modified">{{ i18n.ts.modified }}</span></template>
+								</MkSwitch>
 								<SearchMarker :keywords="['allow', 'redirect']">
 									<MkSwitch v-model="urlPreviewForm.state.urlPreviewAllowRedirect">
 										<template #label><SearchLabel>{{ i18n.ts._urlPreviewSetting.allowRedirect }}</SearchLabel><span v-if="urlPreviewForm.modifiedStates.urlPreviewAllowRedirect" class="_modified">{{ i18n.ts.modified }}</span></template>
 										<template #caption>{{ i18n.ts._urlPreviewSetting.allowRedirectDescription }}</template>
 									</MkSwitch>
 								</SearchMarker>
-
-
 								<SearchMarker :keywords="['contentLength']">
 									<MkInput v-model="urlPreviewForm.state.urlPreviewMaximumContentLength" type="number">
 										<template #label><SearchLabel>{{ i18n.ts._urlPreviewSetting.maximumContentLength }}</SearchLabel><span v-if="urlPreviewForm.modifiedStates.urlPreviewMaximumContentLength" class="_modified">{{ i18n.ts.modified }}</span></template>
