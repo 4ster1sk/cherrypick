@@ -168,7 +168,7 @@ export class MiInstance {
 	public moderationNote: string;
 
 	@Column('varchar', {
-		length: 64, nullable: true,
+		length: 32, nullable: true,
 	})
 	public reversiVersion: string | null;
 }
