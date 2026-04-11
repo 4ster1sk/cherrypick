@@ -7,12 +7,12 @@ on:
       - develop
     paths:
       - packages/backend/**
-      - packages/cherrypick-js/**
+      - packages/misskey-js/**
       - .github/workflows/test-federation.yml
   pull_request:
     paths:
       - packages/backend/**
-      - packages/cherrypick-js/**
+      - packages/misskey-js/**
       - .github/workflows/test-federation.yml
   workflow_dispatch:
     inputs:
@@ -72,7 +72,7 @@ jobs:
         with:
           node-version-file: ${{ matrix.node-version-file }}
           cache: 'pnpm'
-      - name: Build CherryPick
+      - name: Build Misskey
         run: |
           pnpm i --frozen-lockfile
           pnpm build

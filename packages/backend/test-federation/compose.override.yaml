@@ -3,16 +3,16 @@ services:
     volumes:
       - type: volume
         source: node_modules
-        target: /cherrypick/node_modules
+        target: /misskey/node_modules
       - type: volume
         source: node_modules_backend
-        target: /cherrypick/packages/backend/node_modules
+        target: /misskey/packages/backend/node_modules
       - type: volume
-        source: node_modules_cherrypick-js
-        target: /cherrypick/packages/cherrypick-js/node_modules
+        source: node_modules_misskey-js
+        target: /misskey/packages/misskey-js/node_modules
       - type: volume
         source: node_modules_misskey-reversi
-        target: /cherrypick/packages/misskey-reversi/node_modules
+        target: /misskey/packages/misskey-reversi/node_modules
 
   tester:
     networks:
@@ -22,13 +22,13 @@ services:
     volumes:
       - type: volume
         source: node_modules_dev
-        target: /cherrypick/node_modules
+        target: /misskey/node_modules
       - type: volume
         source: node_modules_backend_dev
-        target: /cherrypick/packages/backend/node_modules
+        target: /misskey/packages/backend/node_modules
       - type: volume
-        source: node_modules_cherrypick-js_dev
-        target: /cherrypick/packages/cherrypick-js/node_modules
+        source: node_modules_misskey-js_dev
+        target: /misskey/packages/misskey-js/node_modules
 
   daemon:
     networks:
@@ -38,10 +38,10 @@ services:
     volumes:
       - type: volume
         source: node_modules_dev
-        target: /cherrypick/node_modules
+        target: /misskey/node_modules
       - type: volume
         source: node_modules_backend_dev
-        target: /cherrypick/packages/backend/node_modules
+        target: /misskey/packages/backend/node_modules
 
   redis.test:
     networks:
@@ -52,45 +52,45 @@ services:
     networks:
       - internal_network
 
-  cherrypick.a.test:
+  misskey.a.test:
     networks:
       - external_network
       - internal_network
     volumes:
       - type: volume
         source: node_modules
-        target: /cherrypick/node_modules
+        target: /misskey/node_modules
       - type: volume
         source: node_modules_backend
-        target: /cherrypick/packages/backend/node_modules
+        target: /misskey/packages/backend/node_modules
       - type: volume
-        source: node_modules_cherrypick-js
-        target: /cherrypick/packages/cherrypick-js/node_modules
+        source: node_modules_misskey-js
+        target: /misskey/packages/misskey-js/node_modules
       - type: volume
         source: node_modules_misskey-reversi
-        target: /cherrypick/packages/misskey-reversi/node_modules
+        target: /misskey/packages/misskey-reversi/node_modules
 
   b.test:
     networks:
       - internal_network
 
-  cherrypick.b.test:
+  misskey.b.test:
     networks:
       - external_network
       - internal_network
     volumes:
       - type: volume
         source: node_modules
-        target: /cherrypick/node_modules
+        target: /misskey/node_modules
       - type: volume
         source: node_modules_backend
-        target: /cherrypick/packages/backend/node_modules
+        target: /misskey/packages/backend/node_modules
       - type: volume
-        source: node_modules_cherrypick-js
-        target: /cherrypick/packages/cherrypick-js/node_modules
+        source: node_modules_misskey-js
+        target: /misskey/packages/misskey-js/node_modules
       - type: volume
         source: node_modules_misskey-reversi
-        target: /cherrypick/packages/misskey-reversi/node_modules
+        target: /misskey/packages/misskey-reversi/node_modules
 
 networks:
   external_network:
@@ -112,6 +112,6 @@ volumes:
   node_modules_dev:
   node_modules_backend:
   node_modules_backend_dev:
-  node_modules_cherrypick-js:
-  node_modules_cherrypick-js_dev:
+  node_modules_misskey-js:
+  node_modules_misskey-js_dev:
   node_modules_misskey-reversi:

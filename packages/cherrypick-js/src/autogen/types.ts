@@ -7,7 +7,7 @@ export type paths = {
          * admin/abuse-report-resolver/create
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *arr-create*
          */
         post: operations['admin___abuse-report-resolver___create'];
@@ -17,7 +17,7 @@ export type paths = {
          * admin/abuse-report-resolver/delete
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *No* / **Permission**: *arr-delete*
          */
         post: operations['admin___abuse-report-resolver___delete'];
@@ -27,7 +27,7 @@ export type paths = {
          * admin/abuse-report-resolver/list
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *arr-list*
          */
         post: operations['admin___abuse-report-resolver___list'];
@@ -37,7 +37,7 @@ export type paths = {
          * admin/abuse-report-resolver/update
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *arr-update*
          */
         post: operations['admin___abuse-report-resolver___update'];
@@ -47,7 +47,7 @@ export type paths = {
          * admin/abuse-report/notification-recipient/create
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
          */
         post: operations['admin___abuse-report___notification-recipient___create'];
@@ -57,7 +57,7 @@ export type paths = {
          * admin/abuse-report/notification-recipient/delete
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
          */
         post: operations['admin___abuse-report___notification-recipient___delete'];
@@ -67,7 +67,7 @@ export type paths = {
          * admin/abuse-report/notification-recipient/list
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
          */
         post: operations['admin___abuse-report___notification-recipient___list'];
@@ -77,7 +77,7 @@ export type paths = {
          * admin/abuse-report/notification-recipient/show
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *read:admin:abuse-report:notification-recipient*
          */
         post: operations['admin___abuse-report___notification-recipient___show'];
@@ -87,7 +87,7 @@ export type paths = {
          * admin/abuse-report/notification-recipient/update
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:abuse-report:notification-recipient*
          */
         post: operations['admin___abuse-report___notification-recipient___update'];
@@ -376,7 +376,7 @@ export type paths = {
          * admin/emoji/import-zip
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['admin___emoji___import-zip'];
@@ -881,7 +881,7 @@ export type paths = {
          * admin/system-webhook/create
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
          */
         post: operations['admin___system-webhook___create'];
@@ -891,7 +891,7 @@ export type paths = {
          * admin/system-webhook/delete
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
          */
         post: operations['admin___system-webhook___delete'];
@@ -901,7 +901,7 @@ export type paths = {
          * admin/system-webhook/list
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
          */
         post: operations['admin___system-webhook___list'];
@@ -911,7 +911,7 @@ export type paths = {
          * admin/system-webhook/show
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
          */
         post: operations['admin___system-webhook___show'];
@@ -921,7 +921,7 @@ export type paths = {
          * admin/system-webhook/test
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *read:admin:system-webhook*
          */
         post: operations['admin___system-webhook___test'];
@@ -931,7 +931,7 @@ export type paths = {
          * admin/system-webhook/update
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:system-webhook*
          */
         post: operations['admin___system-webhook___update'];
@@ -959,7 +959,7 @@ export type paths = {
          * admin/unset-user-mutual-link
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:unset-user-mutual-link*
          */
         post: operations['admin___unset-user-mutual-link'];
@@ -1131,7 +1131,7 @@ export type paths = {
          * auth/accept
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['auth___accept'];
@@ -1888,7 +1888,7 @@ export type paths = {
          * export-custom-emojis
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['export-custom-emojis'];
@@ -1970,7 +1970,7 @@ export type paths = {
          * fetch-external-resources
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['fetch-external-resources'];
@@ -2016,7 +2016,7 @@ export type paths = {
          * flash/gen-token
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['flash___gen-token'];
@@ -2332,7 +2332,7 @@ export type paths = {
          * i/2fa/done
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___done'];
@@ -2342,7 +2342,7 @@ export type paths = {
          * i/2fa/key-done
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___key-done'];
@@ -2352,7 +2352,7 @@ export type paths = {
          * i/2fa/password-less
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___password-less'];
@@ -2362,7 +2362,7 @@ export type paths = {
          * i/2fa/register
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___register'];
@@ -2372,7 +2372,7 @@ export type paths = {
          * i/2fa/register-key
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___register-key'];
@@ -2382,7 +2382,7 @@ export type paths = {
          * i/2fa/remove-key
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___remove-key'];
@@ -2392,7 +2392,7 @@ export type paths = {
          * i/2fa/unregister
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___unregister'];
@@ -2402,7 +2402,7 @@ export type paths = {
          * i/2fa/update-key
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___2fa___update-key'];
@@ -2412,7 +2412,7 @@ export type paths = {
          * i/apps
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___apps'];
@@ -2422,7 +2422,7 @@ export type paths = {
          * i/authorized-apps
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___authorized-apps'];
@@ -2441,7 +2441,7 @@ export type paths = {
          * i/change-password
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___change-password'];
@@ -2460,7 +2460,7 @@ export type paths = {
          * i/delete-account
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___delete-account'];
@@ -2470,7 +2470,7 @@ export type paths = {
          * i/export-antennas
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-antennas'];
@@ -2480,7 +2480,7 @@ export type paths = {
          * i/export-blocking
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-blocking'];
@@ -2490,7 +2490,7 @@ export type paths = {
          * i/export-clips
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-clips'];
@@ -2500,7 +2500,7 @@ export type paths = {
          * i/export-favorites
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-favorites'];
@@ -2510,7 +2510,7 @@ export type paths = {
          * i/export-following
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-following'];
@@ -2520,7 +2520,7 @@ export type paths = {
          * i/export-mute
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-mute'];
@@ -2530,7 +2530,7 @@ export type paths = {
          * i/export-notes
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-notes'];
@@ -2540,7 +2540,7 @@ export type paths = {
          * i/export-user-lists
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___export-user-lists'];
@@ -2577,7 +2577,7 @@ export type paths = {
          * i/import-antennas
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___import-antennas'];
@@ -2587,7 +2587,7 @@ export type paths = {
          * i/import-blocking
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___import-blocking'];
@@ -2597,7 +2597,7 @@ export type paths = {
          * i/import-following
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___import-following'];
@@ -2607,7 +2607,7 @@ export type paths = {
          * i/import-muting
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___import-muting'];
@@ -2617,7 +2617,7 @@ export type paths = {
          * i/import-user-lists
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___import-user-lists'];
@@ -2627,7 +2627,7 @@ export type paths = {
          * i/move
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___move'];
@@ -2700,7 +2700,7 @@ export type paths = {
          * i/regenerate-token
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___regenerate-token'];
@@ -2764,7 +2764,7 @@ export type paths = {
          * i/registry/scopes-with-domain
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___registry___scopes-with-domain'];
@@ -2783,7 +2783,7 @@ export type paths = {
          * i/revoke-token
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___revoke-token'];
@@ -2793,7 +2793,7 @@ export type paths = {
          * i/signin-history
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___signin-history'];
@@ -2803,7 +2803,7 @@ export type paths = {
          * i/truncate-account
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___truncate-account'];
@@ -2840,7 +2840,7 @@ export type paths = {
          * i/update-email
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['i___update-email'];
@@ -2895,7 +2895,7 @@ export type paths = {
          * i/webhooks/test
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *read:account*
          */
         post: operations['i___webhooks___test'];
@@ -2959,7 +2959,7 @@ export type paths = {
          * miauth/gen-token
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['miauth___gen-token'];
@@ -3437,7 +3437,7 @@ export type paths = {
          * official-tags/update
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:official-tags*
          */
         post: operations['official-tags___update'];
@@ -3447,7 +3447,7 @@ export type paths = {
          * page-push
          * @description No description provided.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['page-push'];
@@ -3727,7 +3727,7 @@ export type paths = {
          * sw/register
          * @description Register to receive push notifications.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['sw___register'];
@@ -3737,7 +3737,7 @@ export type paths = {
          * sw/show-registration
          * @description Check push notification registration exists.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['sw___show-registration'];
@@ -3756,7 +3756,7 @@ export type paths = {
          * sw/update-registration
          * @description Update push notification registration.
          *
-         *     **Internal Endpoint**: This endpoint is an API for the cherrypick mainframe and is not intended for use by third parties.
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes*
          */
         post: operations['sw___update-registration'];
