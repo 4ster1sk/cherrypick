@@ -18,7 +18,7 @@ import type {
 	PublicKeyCredentialRequestOptionsJSON,
 	RegistrationResponseJSON,
 } from '@simplewebauthn/types';
-import type * as misskey from 'cherrypick-js';
+import type * as misskey from 'misskey-js';
 import { loadConfig } from '@/config.js';
 
 describe('2要素認証', () => {
