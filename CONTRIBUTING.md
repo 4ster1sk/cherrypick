@@ -220,7 +220,7 @@ There are three types of test codes for the backend:
 #### Running Unit Tests or Single-server E2E Tests
 1. Create a config file:
 ```sh
-cp .github/cherrypick/test.yml .config/
+cp .github/misskey/test.yml .config/
 ```
 
 2. Start DB and Redis servers for testing:

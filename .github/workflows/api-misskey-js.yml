@@ -1,4 +1,4 @@
-name: API report (cherrypick.js)
+name: API report (misskey.js)
 
 on:
   push:

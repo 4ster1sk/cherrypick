@@ -1,4 +1,4 @@
-name: Check CherryPick JS version
+name: Check Misskey JS version
 
 on:
   push:

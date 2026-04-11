@@ -1,4 +1,4 @@
-name: Check CherryPick JS autogen
+name: Check Misskey JS autogen
 
 on:
   pull_request_target:
@@ -45,7 +45,7 @@ jobs:
       - name: Generate API JSON
         run: pnpm --filter backend generate-api-json
 
-      # build cherrypick js
+      # build misskey js
       - name: Build misskey-js
         run: |-
           cp packages/backend/built/api.json packages/misskey-js/generator/api.json
