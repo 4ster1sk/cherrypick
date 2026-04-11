@@ -67,14 +67,14 @@ repliedBy: "{user}が返信を作成しました"
 collapseLongNoteContent: "内容の長いノートを省略して表示"
 alwaysShowCw: "「内容を隠す」で設定した内容を常に表示する"
 forceRenoteVisibilitySelector: "リノートの公開範囲を指定"
-cherrypickLabs: "CherryPick研究室"
+cherrypickLabs: "Misskey研究室"
 cherrypickLabsDescription: "まだ開発中の機能を試してみませんか。一部の機能はちゃんと動かないかもしれません。"
 copiedLink: "リンクをコピーしました！"
 copiedContent: "内容をコピーしました！"
 welcome: "ようこそ！"
 cherrypickMigrated: "yojo-artへの移行が完了しました！"
 cherrypickMigratedCacheClearTitle: "キャッシュクリアのご案内"
-cherrypickMigratedCacheClear: "このサーバーは<b>Misskey</b>または<b>CherryPick</b>から移行されました。\nバージョン管理方式が異なり、残っているキャッシュが問題を引き起こす可能性があるため、移行後、最初の接続時にキャッシュを削除する作業を行う必要があります。\n\nこの作業は最初一度だけ行われます。"
+cherrypickMigratedCacheClear: "このサーバーは<b>Misskey</b>または<b>Misskey</b>から移行されました。\nバージョン管理方式が異なり、残っているキャッシュが問題を引き起こす可能性があるため、移行後、最初の接続時にキャッシュを削除する作業を行う必要があります。\n\nこの作業は最初一度だけ行われます。"
 showMultipleRenoteWarning: "同じノートを連続してリノートしようとしたときに警告する"
 showReactionCheckDialog: "リアクションする時に確認する"
 showRenoteVisibilitySelector: "リノートの公開範囲オプションを表示"
@@ -88,7 +88,7 @@ noNyaization: "ニャ化を表示しない"
 revertNoNyaization: "ニャ化を含めて表示する"
 viewTextSource: "テキストのソースを表示する"
 disableNoteEditConfirm: "ノート編集を続行しますか？"
-disableNoteEditConfirmWarn: "ノート編集に対応しているソフトウェア<small>（Mastodon、CherryPick、FireFishなど）</small>でのみ、編集された内容と履歴を見ることができます。\nノート編集に対応していないソフトウェアでは、ノートを編集する前の内容が表示されるので、すべての連合サーバーで修正した内容を反映させたい場合は、<b>「削除して編集」</b>でノートを書き直してください。"
+disableNoteEditConfirmWarn: "ノート編集に対応しているソフトウェア<small>（Mastodon、Misskey、FireFishなど）</small>でのみ、編集された内容と履歴を見ることができます。\nノート編集に対応していないソフトウェアでは、ノートを編集する前の内容が表示されるので、すべての連合サーバーで修正した内容を反映させたい場合は、<b>「削除して編集」</b>でノートを書き直してください。"
 disableNoteEditOk: "ノートを編集する"
 nsfwOpenBehavior: "センシティブなメディアを開くとき"
 previewNoteProfile: "プロフィールを表示"
@@ -119,7 +119,7 @@ showSubNoteFooterButtonDescription: "この設定を有効にすると、返信�
 alreadyFollowed: "フォローしました！"
 enableMarkByDate: "ノート時刻を日付で表示"
 renoteConfirm: "Renoteしますか？"
-renoteConfirmDescription: "この設定は「設定 → CherryPick」で変更できます。"
+renoteConfirmDescription: "この設定は「設定 → Misskey」で変更できます。"
 inviteRevoke: "全ての招待コードを失効する"
 inviteRevokeConfirm: "本当に全ての招待コードを失効させますか？"
 enableAbsoluteTime: "絶対時刻表記を使用する"
@@ -1699,7 +1699,7 @@ _emojiPalette:
   paletteForReaction: "リアクションで使用するパレット"
 
 _settings:
-  cherrypickBanner: "CherryPickの独自機能、パッチ、UIに関する設定を行えます。"
+  cherrypickBanner: "Misskeyの独自機能、パッチ、UIに関する設定を行えます。"
   driveBanner: "ドライブの管理と設定、使用量の確認、ファイルをアップロードする際の設定を行えます。"
   pluginBanner: "プラグインを利用するとクライアントの機能を拡張することができます。プラグインのインストール、個別の設定と管理が行えます。"
   notificationsBanner: "サーバーからの受信する通知の種類と範囲や、プッシュ通知の設定が行えます。"
@@ -1831,7 +1831,7 @@ _group:
 
 _cherrypick:
   function: "独自機能"
-  functionDescription: "CherryPickが追加する独自機能を有効または無効にします。"
+  functionDescription: "Misskeyが追加する独自機能を有効または無効にします。"
   nickname: "ニックネーム機能"
   nicknameDescription: "ユーザーページにて、ユーザーの名前をクリック/タップすることで好きなものに変更できるようになります。変更は自分にのみ反映されます。\n頻繁に名前を変更するユーザーを識別するときなどに使えます。"
   useEnterToSend: "Enterキーを押して送信"
@@ -2239,10 +2239,10 @@ _achievements:
     _viewAchievements3min:
       title: "実績好き"
       description: "実績一覧を3分以上眺め続けた"
-    _iLoveCherryPick:
-      title: "I Love CherryPick"
-      description: "\"I ❤ #CherryPick\"を投稿した"
-      flavor: "CherryPickを使ってくださりありがとうございます！ by 開発チーム"
+    _iLoveMisskey:
+      title: "I Love Misskey"
+      description: "\"I ❤ #Misskey\"を投稿した"
+      flavor: "Misskeyを使ってくださりありがとうございます！ by 開発チーム"
     _foundTreasure:
       title: "宝探し"
       description: "隠されたお宝を発見した"
@@ -2294,7 +2294,7 @@ _achievements:
       title: "神様コンプレックス"
       description: "名前を syuilo に設定した"
     _setNameToNoriDev:
-      title: "神様コンプレックス（CherryPick）"
+      title: "神様コンプレックス（Misskey）"
       description: "名前を noridev に設定した"
     _setNameToYojo:
       title: "ロリータコンプレックス"
@@ -2565,7 +2565,7 @@ _registry:
   createKey: "キーを作成"
 
 _aboutMisskey:
-  about: "yojo-artは、CherryPickをベースに2024年から開発中のカスタマイズオープンソースのソフトウェアです。"
+  about: "yojo-artは、Misskeyをベースに2024年から開発中のカスタマイズオープンソースのソフトウェアです。"
   contributors: "コントリビューター"
   allContributors: "全てのコントリビューター"
   source: "ソースコード"
@@ -2580,8 +2580,8 @@ _aboutMisskey:
     serverStatus: "サーバ状態"
     donate: "ココネクトに寄付"
   _cherrypick:
-    translation: "CherryPickを翻訳"
-    donate: "CherryPickに寄付"
+    translation: "Misskeyを翻訳"
+    donate: "Misskeyに寄付"
     relayServer: "リレーサーバー"
     community: "コミュニティー"
   _yojoArt:
@@ -3674,7 +3674,7 @@ _selfXssPrevention:
   title: "「この画面に何か貼り付けろ」はすべて詐欺です。"
   description1: "ここに何かを貼り付けると、悪意のあるユーザーにアカウントを乗っ取られたり、個人情報を盗まれたりする可能性があります。"
   description2: "貼り付けようとしているものが何なのかを正確に理解していない場合は、%c今すぐ作業を中止してこのウィンドウを閉じてください。"
-  description3: "貼り付けようとする項目が何なのか正確に理解しているのであれば、私たちと一緒にCherryPickを開発するのはいかがでしょうか？ {link}"
+  description3: "貼り付けようとする項目が何なのか正確に理解しているのであれば、私たちと一緒にMisskeyを開発するのはいかがでしょうか？ {link}"
   description4: "詳しくはこちらをご確認ください。 {link}"
 
 _followRequest:
@@ -3724,7 +3724,7 @@ _bootErrors:
   otherOption1: "クライアント設定とキャッシュを削除"
   otherOption2: "簡易クライアントを起動"
   otherOption3: "修復ツールを起動"
-  otherOption4: "CherryPickをセーフモードで起動"
+  otherOption4: "Misskeyをセーフモードで起動"
 
 _search:
   searchScopeAll: "全て"
@@ -3733,7 +3733,7 @@ _search:
   searchScopeUser: "ユーザー指定"
   pleaseEnterServerHost: "サーバーのホストを入力してください"
   pleaseSelectUser: "ユーザーを選択してください"
-  serverHostPlaceholder: "例: cherrypick.example.com"
+  serverHostPlaceholder: "例: misskey.example.com"
 
 _abuse:
   _resolver:
@@ -3816,7 +3816,7 @@ _keyboardShortCut:
   _postForm:
     toggleVisibility: "公開範囲を切り替える"
     toggleLocalOnly: "連合なしを切り替える"
-    featureWarn: "この機能は「設定 → CherryPick」から該当の機能を有効にすることで利用できます。"
+    featureWarn: "この機能は「設定 → Misskey」から該当の機能を有効にすることで利用できます。"
     sendPost: "投稿する"
 
 _weather:
@@ -3825,13 +3825,13 @@ _weather:
   precipitation: "降水量"
 
 _serverSetupWizard:
-  installCompleted: "CherryPickのインストールが完了しました！"
+  installCompleted: "Misskeyのインストールが完了しました！"
   firstCreateAccount: "まずは、管理者アカウントを作成しましょう。"
   accountCreated: "管理者アカウントが作成されました！"
   serverSetting: "サーバーの設定"
   youCanEasilyConfigureOptimalServerSettingsWithThisWizard: "このウィザードで簡単に最適なサーバーの設定が行えます。"
   settingsYouMakeHereCanBeChangedLater: "ここでの設定は、あとからでも変更できます。"
-  howWillYouUseMisskey: "CherryPickをどのように使いますか？"
+  howWillYouUseMisskey: "Misskeyをどのように使いますか？"
   _use:
     single: "お一人様サーバー"
     single_description: "自分専用のサーバーとして、一人で使う"
@@ -3865,7 +3865,7 @@ _serverSetupWizard:
   settingsCompleted_description2: "詳細なサーバー設定は、「コントロールパネル」から行えます。"
   donationRequest: "寄付のお願い"
   _donationRequest:
-    text1: "CherryPickは有志によって開発されている無料のソフトウェアです。"
+    text1: "Misskeyは有志によって開発されている無料のソフトウェアです。"
     text2: "今後も開発を続けられるように、よろしければぜひカンパをお願いいたします。"
     text3: "支援者向け特典もあります！"
 

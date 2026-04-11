@@ -288,7 +288,7 @@ export interface Locale extends ILocale {
      */
     "forceRenoteVisibilitySelector": string;
     /**
-     * CherryPick研究室
+     * Misskey研究室
      */
     "cherrypickLabs": string;
     /**
@@ -316,7 +316,7 @@ export interface Locale extends ILocale {
      */
     "cherrypickMigratedCacheClearTitle": string;
     /**
-     * このサーバーは<b>Misskey</b>または<b>CherryPick</b>から移行されました。
+     * このサーバーは<b>Misskey</b>または<b>Misskey</b>から移行されました。
      * バージョン管理方式が異なり、残っているキャッシュが問題を引き起こす可能性があるため、移行後、最初の接続時にキャッシュを削除する作業を行う必要があります。
      *
      * この作業は最初一度だけ行われます。
@@ -375,7 +375,7 @@ export interface Locale extends ILocale {
      */
     "disableNoteEditConfirm": string;
     /**
-     * ノート編集に対応しているソフトウェア<small>（Mastodon、CherryPick、FireFishなど）</small>でのみ、編集された内容と履歴を見ることができます。
+     * ノート編集に対応しているソフトウェア<small>（Mastodon、Misskey、FireFishなど）</small>でのみ、編集された内容と履歴を見ることができます。
      * ノート編集に対応していないソフトウェアでは、ノートを編集する前の内容が表示されるので、すべての連合サーバーで修正した内容を反映させたい場合は、<b>「削除して編集」</b>でノートを書き直してください。
      */
     "disableNoteEditConfirmWarn": string;
@@ -501,7 +501,7 @@ export interface Locale extends ILocale {
      */
     "renoteConfirm": string;
     /**
-     * この設定は「設定 → CherryPick」で変更できます。
+     * この設定は「設定 → Misskey」で変更できます。
      */
     "renoteConfirmDescription": string;
     /**
@@ -6780,7 +6780,7 @@ export interface Locale extends ILocale {
     };
     "_settings": {
         /**
-         * CherryPickの独自機能、パッチ、UIに関する設定を行えます。
+         * Misskeyの独自機能、パッチ、UIに関する設定を行えます。
          */
         "cherrypickBanner": string;
         /**
@@ -7243,7 +7243,7 @@ export interface Locale extends ILocale {
          */
         "function": string;
         /**
-         * CherryPickが追加する独自機能を有効または無効にします。
+         * Misskeyが追加する独自機能を有効または無効にします。
          */
         "functionDescription": string;
         /**
@@ -8692,17 +8692,17 @@ export interface Locale extends ILocale {
                  */
                 "description": string;
             };
-            "_iLoveCherryPick": {
+            "_iLoveMisskey": {
                 /**
-                 * I Love CherryPick
+                 * I Love Misskey
                  */
                 "title": string;
                 /**
-                 * "I ❤ #CherryPick"を投稿した
+                 * "I ❤ #Misskey"を投稿した
                  */
                 "description": string;
                 /**
-                 * CherryPickを使ってくださりありがとうございます！ by 開発チーム
+                 * Misskeyを使ってくださりありがとうございます！ by 開発チーム
                  */
                 "flavor": string;
             };
@@ -8876,7 +8876,7 @@ export interface Locale extends ILocale {
             };
             "_setNameToNoriDev": {
                 /**
-                 * 神様コンプレックス（CherryPick）
+                 * 神様コンプレックス（Misskey）
                  */
                 "title": string;
                 /**
@@ -9838,7 +9838,7 @@ export interface Locale extends ILocale {
     };
     "_aboutMisskey": {
         /**
-         * yojo-artは、CherryPickをベースに2024年から開発中のカスタマイズオープンソースのソフトウェアです。
+         * yojo-artは、Misskeyをベースに2024年から開発中のカスタマイズオープンソースのソフトウェアです。
          */
         "about": string;
         /**
@@ -9893,11 +9893,11 @@ export interface Locale extends ILocale {
         };
         "_cherrypick": {
             /**
-             * CherryPickを翻訳
+             * Misskeyを翻訳
              */
             "translation": string;
             /**
-             * CherryPickに寄付
+             * Misskeyに寄付
              */
             "donate": string;
             /**
@@ -13850,7 +13850,7 @@ export interface Locale extends ILocale {
          */
         "description2": string;
         /**
-         * 貼り付けようとする項目が何なのか正確に理解しているのであれば、私たちと一緒にCherryPickを開発するのはいかがでしょうか？ {link}
+         * 貼り付けようとする項目が何なのか正確に理解しているのであれば、私たちと一緒にMisskeyを開発するのはいかがでしょうか？ {link}
          */
         "description3": ParameterizedString<"link">;
         /**
@@ -14010,7 +14010,7 @@ export interface Locale extends ILocale {
          */
         "otherOption3": string;
         /**
-         * CherryPickをセーフモードで起動
+         * Misskeyをセーフモードで起動
          */
         "otherOption4": string;
     };
@@ -14040,7 +14040,7 @@ export interface Locale extends ILocale {
          */
         "pleaseSelectUser": string;
         /**
-         * 例: cherrypick.example.com
+         * 例: misskey.example.com
          */
         "serverHostPlaceholder": string;
     };
@@ -14309,7 +14309,7 @@ export interface Locale extends ILocale {
              */
             "toggleLocalOnly": string;
             /**
-             * この機能は「設定 → CherryPick」から該当の機能を有効にすることで利用できます。
+             * この機能は「設定 → Misskey」から該当の機能を有効にすることで利用できます。
              */
             "featureWarn": string;
             /**
@@ -14334,7 +14334,7 @@ export interface Locale extends ILocale {
     };
     "_serverSetupWizard": {
         /**
-         * CherryPickのインストールが完了しました！
+         * Misskeyのインストールが完了しました！
          */
         "installCompleted": string;
         /**
@@ -14358,7 +14358,7 @@ export interface Locale extends ILocale {
          */
         "settingsYouMakeHereCanBeChangedLater": string;
         /**
-         * CherryPickをどのように使いますか？
+         * Misskeyをどのように使いますか？
          */
         "howWillYouUseMisskey": string;
         "_use": {
@@ -14487,7 +14487,7 @@ export interface Locale extends ILocale {
         "donationRequest": string;
         "_donationRequest": {
             /**
-             * CherryPickは有志によって開発されている無料のソフトウェアです。
+             * Misskeyは有志によって開発されている無料のソフトウェアです。
              */
             "text1": string;
             /**
