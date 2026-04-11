@@ -32,51 +32,51 @@ services:
     volumes:
       - type: bind
         source: ../package.json
-        target: /cherrypick/packages/backend/package.json
+        target: /misskey/packages/backend/package.json
         read_only: true
       - type: bind
         source: ../test/resources
-        target: /cherrypick/packages/backend/test/resources
+        target: /misskey/packages/backend/test/resources
         read_only: true
       - type: bind
         source: ./test
-        target: /cherrypick/packages/backend/test-federation/test
+        target: /misskey/packages/backend/test-federation/test
         read_only: true
       - type: bind
         source: ../jest.config.cjs
-        target: /cherrypick/packages/backend/jest.config.cjs
+        target: /misskey/packages/backend/jest.config.cjs
         read_only: true
       - type: bind
         source: ../jest.config.fed.cjs
-        target: /cherrypick/packages/backend/jest.config.fed.cjs
+        target: /misskey/packages/backend/jest.config.fed.cjs
         read_only: true
       - type: bind
         source: ../jest.js
-        target: /cherrypick/packages/backend/jest.js
+        target: /misskey/packages/backend/jest.js
         read_only: true
       - type: bind
         source: ../../misskey-js/built
-        target: /cherrypick/packages/misskey-js/built
+        target: /misskey/packages/misskey-js/built
         read_only: true
       - type: bind
         source: ../../misskey-js/package.json
-        target: /cherrypick/packages/misskey-js/package.json
+        target: /misskey/packages/misskey-js/package.json
         read_only: true
       - type: bind
         source: ../../../package.json
-        target: /cherrypick/package.json
+        target: /misskey/package.json
         read_only: true
       - type: bind
         source: ../../../pnpm-lock.yaml
-        target: /cherrypick/pnpm-lock.yaml
+        target: /misskey/pnpm-lock.yaml
         read_only: true
       - type: bind
         source: ../../../pnpm-workspace.yaml
-        target: /cherrypick/pnpm-workspace.yaml
+        target: /misskey/pnpm-workspace.yaml
         read_only: true
       - type: bind
         source: ../../../patches
-        target: /cherrypick/patches
+        target: /misskey/patches
         read_only: true
       - type: bind
         source: ./certificates/rootCA.crt
@@ -100,31 +100,31 @@ services:
     volumes:
       - type: bind
         source: ../package.json
-        target: /cherrypick/packages/backend/package.json
+        target: /misskey/packages/backend/package.json
         read_only: true
       - type: bind
         source: ./daemon.ts
-        target: /cherrypick/packages/backend/test-federation/daemon.ts
+        target: /misskey/packages/backend/test-federation/daemon.ts
         read_only: true
       - type: bind
         source: ./tsconfig.json
-        target: /cherrypick/packages/backend/test-federation/tsconfig.json
+        target: /misskey/packages/backend/test-federation/tsconfig.json
         read_only: true
       - type: bind
         source: ../../../package.json
-        target: /cherrypick/package.json
+        target: /misskey/package.json
         read_only: true
       - type: bind
         source: ../../../pnpm-lock.yaml
-        target: /cherrypick/pnpm-lock.yaml
+        target: /misskey/pnpm-lock.yaml
         read_only: true
       - type: bind
         source: ../../../pnpm-workspace.yaml
-        target: /cherrypick/pnpm-workspace.yaml
+        target: /misskey/pnpm-workspace.yaml
         read_only: true
       - type: bind
         source: ../../../patches
-        target: /cherrypick/patches
+        target: /misskey/patches
         read_only: true
     working_dir: /cherrypick
     command: >

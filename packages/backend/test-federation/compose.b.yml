@@ -38,7 +38,7 @@ services:
     volumes:
       - type: bind
         source: ./.config/b.test.default.yml
-        target: /cherrypick/.config/default.yml
+        target: /misskey/.config/default.yml
         read_only: true
 
   db.b.test:
