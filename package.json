@@ -28,7 +28,7 @@
 		"build-storybook": "pnpm --filter frontend build-storybook",
 		"build-cherrypick-js-with-types": "pnpm build-pre && pnpm --filter backend... --filter=!cherrypick-js build && pnpm --filter backend generate-api-json --no-build && ncp packages/backend/built/api.json packages/cherrypick-js/generator/api.json && pnpm --filter cherrypick-js update-autogen-code && pnpm --filter cherrypick-js build && pnpm --filter cherrypick-js api",
 		"start": "pnpm check:connect && cd packages/backend && node ./built/boot/entry.js",
-		"start:test": "ncp ./.github/cherrypick/test.yml ./.config/test.yml && cd packages/backend && cross-env NODE_ENV=test node ./built/boot/entry.js",
+		"start:test": "ncp ./.github/misskey/test.yml ./.config/test.yml && cd packages/backend && cross-env NODE_ENV=test node ./built/boot/entry.js",
 		"cli": "cd packages/backend && pnpm cli",
 		"init": "pnpm migrate",
 		"migrate": "cd packages/backend && pnpm migrate",
