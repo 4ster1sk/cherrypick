@@ -13,6 +13,7 @@ export const meta = {
 	requireCredential: true,
 	requireAdmin: true,
 	kind: 'write:admin:reindex',
+	secure: true,
 } as const;
 
 export const paramDef = {
@@ -21,7 +22,7 @@ export const paramDef = {
 		index: {
 			type: 'string',
 			enum: ['notes', 'reaction', 'pollVote', 'clipNotes', 'Favorites'],
-		 },
+		},
 	},
 	required: ['index'],
 } as const;
