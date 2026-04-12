@@ -7,7 +7,6 @@ import { vi } from 'vitest';
 import createFetchMock from 'vitest-fetch-mock';
 import type { Ref } from 'vue';
 import { ref } from 'vue';
-
 const fetchMocker = createFetchMock(vi);
 fetchMocker.enableMocks();
 
@@ -51,6 +50,16 @@ vi.mock('@/preferences.js', () => {
 	};
 });
 
+vi.mock('@/instance.js', () => {
+    const { reactive } = require('vue');
+    return {
+        instance: reactive({
+            urlPreviewEndpoint: 'http://localhost:3000/url',
+        }),
+        fetchInstance: vi.fn(),
+    };
+});
+
 // Add mocks for Web Audio API
 const AudioNodeMock = vi.fn(() => ({
 	connect: vi.fn(() => ({ connect: vi.fn() })),
@@ -68,3 +77,4 @@ const AudioContextMock = vi.fn(() => ({
 }));
 
 vi.stubGlobal('AudioContext', AudioContextMock);
+
