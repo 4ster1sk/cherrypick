@@ -138,7 +138,6 @@ import { i18n } from '@/i18n.js';
 import { login } from '@/accounts.js';
 import MkLink from '@/components/MkLink.vue';
 import MkServerSetupWizard from '@/components/MkServerSetupWizard.vue';
-import { donateCherryPick } from '@/utility/donate-cherrypick.js';
 
 const username = ref('');
 const password = ref('');

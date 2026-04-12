@@ -42,7 +42,6 @@ import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { instance } from '@/instance.js';
-import { donateCherryPick } from '@/utility/donate-cherrypick.js';
 
 const emit = defineEmits<{
 	(ev: 'closed'): void;

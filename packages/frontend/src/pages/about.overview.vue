@@ -92,14 +92,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #icon><i class="ti ti-message"></i></template>
 					<template #default>{{ i18n.ts.feedback }}</template>
 				</FormLink>
-				<button :class="$style.main" class="_button" @click="donateCherryPick">
-					<span :class="$style.icon"><i class="ti ti-pig-money"></i></span>
-					<!-- <span :class="$style.text">{{ i18n.tsx.supportThisInstance({ name: instance.name ?? host }) }}</span> -->
-					<span :class="$style.text">{{ i18n.tsx.supportThisInstance({ name: 'CherryPick' }) }}</span>
-					<span :class="$style.suffix">
-						<i class="ti ti-external-link"></i>
-					</span>
-				</button>
 				<FormLink v-if="instance.statusUrl" :to="instance.statusUrl" external>
 					<template #icon><i class="ti ti-activity"></i></template>
 					{{ i18n.ts.statusUrl }}
@@ -150,7 +142,6 @@ import MkFolder from '@/components/MkFolder.vue';
 import MkKeyValue from '@/components/MkKeyValue.vue';
 import MkLink from '@/components/MkLink.vue';
 import MkInfo from '@/components/MkInfo.vue';
-import { donateCherryPick } from '@/utility/donate-cherrypick.js';
 
 const initStats = () => misskeyApi('stats', {});
 </script>

@@ -67,18 +67,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<template #suffix>Crowdin</template>
 						</FormLink>
 						-->
-						<FormLink to="https://discord.gg/V8qghB28Aj" external>
-							<template #icon><i class="ti ti-brand-discord"></i></template>
-							{{ i18n.ts._aboutMisskey._cherrypick.community }}
-							<template #suffix>Discord</template>
-						</FormLink>
-						<button :class="$style.main" class="_button" @click="donateCherryPick">
-							<span :class="$style.icon"><i class="ti ti-pig-money"></i></span>
-							<span :class="$style.text">{{ i18n.ts._aboutMisskey._cherrypick.donate }}</span>
-							<span :class="$style.suffix">
-								<i class="ti ti-external-link"></i>
-							</span>
-						</button>
 					</div>
 				</FormSection>
 				<FormSection>
@@ -278,7 +266,6 @@ import { definePage } from '@/page.js';
 import { claimAchievement, claimedAchievements } from '@/utility/achievements.js';
 import { $i } from '@/i.js';
 import { prefer } from '@/preferences.js';
-import { donateCherryPick } from '@/utility/donate-cherrypick.js';
 import { openCommitPage } from '@/utility/fetch-releases.js';
 
 const patronsWithIconWithYojoArt = [];
