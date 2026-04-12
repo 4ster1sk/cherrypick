@@ -60,7 +60,6 @@ export const paramDef = {
 			default: false,
 			description: 'Only show notes that have attached files.',
 		},
-		withCats: { type: 'boolean', default: false },
 	},
 	required: ['listId'],
 } as const;
@@ -109,7 +108,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					includeLocalRenotes: ps.includeLocalRenotes,
 					withFiles: ps.withFiles,
 					withRenotes: ps.withRenotes,
-					withCats: ps.withCats,
 				}, me);
 
 				this.activeUsersChart.read(me);
@@ -127,7 +125,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				redisTimelines: ps.withFiles ? [`userListTimelineWithFiles:${list.id}`] : [`userListTimeline:${list.id}`],
 				alwaysIncludeMyNotes: true,
 				excludePureRenotes: !ps.withRenotes,
-				withCats: ps.withCats,
 				dbFallback: async (untilId, sinceId, limit) => await this.getFromDb(list, {
 					untilId,
 					sinceId,
@@ -137,7 +134,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					includeLocalRenotes: ps.includeLocalRenotes,
 					withFiles: ps.withFiles,
 					withRenotes: ps.withRenotes,
-					withCats: ps.withCats,
 				}, me),
 			});
 
@@ -156,7 +152,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		includeLocalRenotes: boolean,
 		withFiles: boolean,
 		withRenotes: boolean,
-		withCats: boolean,
 	}, me: MiLocalUser) {
 		//#region Construct query
 		const query = this.queryService.makePaginationQuery(this.notesRepository.createQueryBuilder('note'), ps.sinceId, ps.untilId)
@@ -237,9 +232,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			query.andWhere('note.fileIds != \'{}\'');
 		}
 
-		if (ps.withCats) {
-			query.andWhere('(select "isCat" from "user" where id = note."userId")');
-		}
 		//#endregion
 
 		return await query.limit(ps.limit).getMany();

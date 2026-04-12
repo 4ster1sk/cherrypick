@@ -39,7 +39,6 @@ type TimelineOptions = {
 	excludeReplies?: boolean;
 	excludePureRenotes: boolean;
 	ignoreAuthorFromUserSuspension?: boolean;
-	withCats: boolean;
 	dbFallback: (untilId: string | null, sinceId: string | null, limit: number) => Promise<MiNote[]>,
 };
 
@@ -103,11 +102,6 @@ export class FanoutTimelineEndpointService {
 			if (ps.excludePureRenotes) {
 				const parentFilter = filter;
 				filter = (note) => (!isRenote(note) || isQuote(note)) && parentFilter(note);
-			}
-
-			if (ps.withCats) {
-				const parentFilter = filter;
-				filter = (note) => (note.user ? note.user.isCat : false) && parentFilter(note);
 			}
 
 			if (ps.me) {

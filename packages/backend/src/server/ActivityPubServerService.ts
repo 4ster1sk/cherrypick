@@ -677,7 +677,6 @@ export class ActivityPubServerService {
 				useDbFallback: true,
 				ignoreAuthorFromMute: true,
 				excludePureRenotes: false,
-				withCats: false,
 				noteFilter: (note) => {
 					if (note.visibility !== 'home' && note.visibility !== 'public') return false;
 					if (note.localOnly) return false;

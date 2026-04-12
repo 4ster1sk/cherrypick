@@ -66,7 +66,6 @@ export const paramDef = {
 		withFiles: { type: 'boolean', default: false },
 		withRenotes: { type: 'boolean', default: true },
 		withReplies: { type: 'boolean', default: false },
-		withCats: { type: 'boolean', default: false },
 	},
 	required: [],
 } as const;
@@ -113,7 +112,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					includeLocalRenotes: ps.includeLocalRenotes,
 					withFiles: ps.withFiles,
 					withReplies: ps.withReplies,
-					withCats: ps.withCats,
 				}, me);
 
 				process.nextTick(() => {
@@ -160,7 +158,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				useDbFallback: this.serverSettings.enableFanoutTimelineDbFallback,
 				alwaysIncludeMyNotes: true,
 				excludePureRenotes: !ps.withRenotes,
-				withCats: ps.withCats,
 				noteFilter: note => {
 					if (note.reply && note.reply.visibility === 'followers') {
 						if (!Object.hasOwn(followings, note.reply.userId) && note.reply.userId !== me.id) return false;
@@ -177,7 +174,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					includeLocalRenotes: ps.includeLocalRenotes,
 					withFiles: ps.withFiles,
 					withReplies: ps.withReplies,
-					withCats: ps.withCats,
 				}, me),
 			});
 
@@ -198,7 +194,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		includeLocalRenotes: boolean,
 		withFiles: boolean,
 		withReplies: boolean,
-		withCats: boolean,
 	}, me: MiLocalUser) {
 		const followees = await this.userFollowingService.getFollowees(me.id);
 		const followingChannels = await this.channelFollowingsRepository.find({
@@ -285,9 +280,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			query.andWhere('note.fileIds != \'{}\'');
 		}
 
-		if (ps.withCats) {
-			query.andWhere('(select "isCat" from "user" where id = note."userId")');
-		}
 		//#endregion
 
 		return await query.limit(ps.limit).getMany();

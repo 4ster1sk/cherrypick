@@ -30096,8 +30096,6 @@ export interface operations {
                 'application/json': {
                     /** @default false */
                     withFiles?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                     /** @default true */
                     withBots?: boolean;
                     /** @default true */
@@ -31313,8 +31311,6 @@ export interface operations {
                     withFiles?: boolean;
                     /** @default true */
                     withRenotes?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                     /** @default 10 */
                     limit?: number;
                     /** Format: misskey:id */
@@ -31481,8 +31477,6 @@ export interface operations {
                     withRenotes?: boolean;
                     /** @default false */
                     withReplies?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                 };
             };
         };
@@ -31553,8 +31547,6 @@ export interface operations {
                     withRenotes?: boolean;
                     /** @default false */
                     withReplies?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                     /** @default 10 */
                     limit?: number;
                     /** Format: misskey:id */
@@ -32812,8 +32804,6 @@ export interface operations {
                     withFiles?: boolean;
                     /** @default true */
                     withRenotes?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                 };
             };
         };
@@ -33147,8 +33137,6 @@ export interface operations {
                      * @default false
                      */
                     withFiles?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                 };
             };
         };
@@ -38472,8 +38460,6 @@ export interface operations {
                     allowPartial?: boolean;
                     /** @default false */
                     withFiles?: boolean;
-                    /** @default false */
-                    withCats?: boolean;
                 };
             };
         };

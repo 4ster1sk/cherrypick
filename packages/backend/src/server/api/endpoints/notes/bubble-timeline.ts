@@ -41,7 +41,6 @@ export const paramDef = {
 	type: 'object',
 	properties: {
 		withFiles: { type: 'boolean', default: false },
-		withCats: { type: 'boolean', default: false },
 		withBots: { type: 'boolean', default: true },
 		withRenotes: { type: 'boolean', default: true },
 		limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
@@ -107,10 +106,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 						qb.orWhere('note.fileIds != \'{}\'');
 					}));
 				}));
-			}
-
-			if (ps.withCats) {
-				query.andWhere('(select "isCat" from "user" where id = note."userId")');
 			}
 
 			if (!ps.withBots) {

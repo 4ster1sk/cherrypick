@@ -13,13 +13,11 @@ export type FanoutTimelineName = (
 	// home timeline
 	| `homeTimeline:${string}`
 	| `homeTimelineWithFiles:${string}` // only notes with files are included
-	| `homeTimelineWithCats:${string}` // only notes with cats are included
 	// local timeline
-	| 'localTimeline' // replies are not included
-	| 'localTimelineWithFiles' // only non-reply notes with files are included
-	| 'localTimelineWithReplies' // only replies are included
+	| `localTimeline` // replies are not included
+	| `localTimelineWithFiles` // only non-reply notes with files are included
+	| `localTimelineWithReplies` // only replies are included
 	| `localTimelineWithReplyTo:${string}` // Only replies to specific local user are included. Parameter is reply user id.
-	| 'localTimelineWithCats' // only notes with cats are included
 
 	// antenna
 	| `antennaTimeline:${string}`
@@ -29,12 +27,10 @@ export type FanoutTimelineName = (
 	| `userTimelineWithFiles:${string}` // only non-reply notes with files are included
 	| `userTimelineWithReplies:${string}` // only replies are included
 	| `userTimelineWithChannel:${string}` // only channel notes are included, replies are included
-	| `userTimelineWithCats:${string}` // only notes with cats are included
 
 	// user list timelines
 	| `userListTimeline:${string}`
 	| `userListTimelineWithFiles:${string}` // only notes with files are included
-	| `userListTimelineWithCats:${string}` // only notes with cats are included
 
 	// channel timelines
 	| `channelTimeline:${string}` // replies are included

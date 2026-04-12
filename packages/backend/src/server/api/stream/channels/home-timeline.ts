@@ -21,7 +21,6 @@ export class HomeTimelineChannel extends Channel {
 	public static kind = 'read:account';
 	private withRenotes: boolean;
 	private withFiles: boolean;
-	private withCats: boolean;
 
 	constructor(
 		@Inject(REQUEST)
@@ -38,7 +37,6 @@ export class HomeTimelineChannel extends Channel {
 	public async init(params: JsonObject) {
 		this.withRenotes = !!(params.withRenotes ?? true);
 		this.withFiles = !!(params.withFiles ?? false);
-		this.withCats = !!(params.withCats ?? false);
 
 		this.subscriber.on('notesStream', this.onNote);
 	}
@@ -48,7 +46,6 @@ export class HomeTimelineChannel extends Channel {
 		const isMe = this.user!.id === note.userId;
 
 		if (this.withFiles && (note.fileIds == null || note.fileIds.length === 0)) return;
-		if (this.withCats && (note.user.isCat == null || note.user.isCat === false)) return;
 
 		if (note.channelId) {
 			if (!this.followingChannels.has(note.channelId)) return;

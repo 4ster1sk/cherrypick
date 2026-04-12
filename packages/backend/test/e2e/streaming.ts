@@ -306,33 +306,6 @@ describe('Streaming', () => {
 				assert.strictEqual(fired, true);
 			});
 
-			test('withCats: true のときノートが流れる', async () => {
-				await api('i/update', {
-					isCat: true,
-				}, kyoko);
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'meow' }, kyoko),	// cat kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, true);
-				await api('i/update', {
-					isCat: false,
-				}, kyoko);
-			});
-
-			test('withCats: true のときノートが流れない', async () => {
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'test' }, kyoko),	// kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, false);
-			});
 			test('withReplies: true のとき自分のfollowers投稿に対するリプライが流れる', async () => {
 				const erinNote = await post(erin, { text: 'hi', visibility: 'followers' });
 				const fired = await waitFire(
@@ -428,35 +401,6 @@ describe('Streaming', () => {
 
 				assert.strictEqual(fired, false);
 			});
-
-			test('withCats: true のときノートが流れる', async () => {
-				await api('i/update', {
-					isCat: true,
-				}, kyoko);
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'meow' }, kyoko),	// cat kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, true);
-				await api('i/update', {
-					isCat: false,
-				}, kyoko);
-			});
-
-			test('withCats: true のときノートが流れない', async () => {
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'test' }, kyoko),	// kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, false);
-			});
-		});
 
 		describe('Hybrid Timeline', () => {
 			test('自分の投稿が流れる', async () => {
@@ -593,35 +537,6 @@ describe('Streaming', () => {
 				assert.strictEqual(fired, false);
 			});
 
-			test('withCats: true のときノートが流れる', async () => {
-				await api('i/update', {
-					isCat: true,
-				}, kyoko);
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'meow' }, kyoko),	// cat kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, true);
-				await api('i/update', {
-					isCat: false,
-				}, kyoko);
-			});
-
-			test('withCats: true のときノートが流れない', async () => {
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'test' }, kyoko),	// kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, false);
-			});
-		});
-
 		describe('Global Timeline', () => {
 			test('フォローしていないローカルユーザーの投稿が流れる', async () => {
 				const fired = await waitFire(
@@ -664,35 +579,6 @@ describe('Streaming', () => {
 
 				assert.strictEqual(fired, true);
 			});
-
-			test('withCats: true のときノートが流れる', async () => {
-				await api('i/update', {
-					isCat: true,
-				}, kyoko);
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'meow' }, kyoko),	// cat kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, true);
-				await api('i/update', {
-					isCat: false,
-				}, kyoko);
-			});
-
-			test('withCats: true のときノートが流れない', async () => {
-				const fired = await waitFire(
-					ayano, 'homeTimeline',	// ayano:home
-					() => api('notes/create', { text: 'test' }, kyoko),	// kyoko note
-					msg => msg.type === 'note' && msg.body.userId === kyoko.id,	// wait kyoko
-					{ withCats: true },
-				);
-
-				assert.strictEqual(fired, false);
-			});
-		});
 
 		describe('UserList Timeline', () => {
 			test('リストに入れているユーザーの投稿が流れる', async () => {

@@ -165,7 +165,6 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -175,7 +174,6 @@ if (props.src === 'antenna') {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -185,7 +183,6 @@ if (props.src === 'antenna') {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -194,7 +191,6 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -204,7 +200,6 @@ if (props.src === 'antenna') {
 			withRenotes: props.withRenotes,
 			withReplies: false,
 			withFiles: true,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -213,7 +208,6 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		})),
 		useShallowRef: true,
 	}));
@@ -233,7 +227,6 @@ if (props.src === 'antenna') {
 		computedParams: computed(() => ({
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 			listId: props.list!,
 		})),
 		useShallowRef: true,
@@ -400,7 +393,6 @@ function connectChannel() {
 		connections.homeTimeline = stream.useChannel('homeTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		});
 		connections.main = stream.useChannel('main');
 		connections.homeTimeline.on('note', prepend);
@@ -409,7 +401,6 @@ function connectChannel() {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		});
 		connections.localTimeline.on('note', prepend);
 	} else if (props.src === 'social') {
@@ -417,14 +408,12 @@ function connectChannel() {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		});
 		connections.hybridTimeline.on('note', prepend);
 	} else if (props.src === 'global') {
 		connections.globalTimeline = stream.useChannel('globalTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		});
 		connections.globalTimeline.on('note', prepend);
 	} else if (props.src === 'media') {
@@ -432,14 +421,12 @@ function connectChannel() {
 			withRenotes: props.withRenotes,
 			withReplies: false,
 			withFiles: true,
-			withCats: props.onlyCats,
 		});
 		connections.hybridTimeline.on('note', prepend);
 	} else if (props.src === 'bubble') {
 		connections.bubbleTimeline = stream.useChannel('bubbleTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 		});
 		connections.bubbleTimeline.on('note', prepend);
 	} else if (props.src === 'mentions') {
@@ -458,7 +445,6 @@ function connectChannel() {
 		connections.userList = stream.useChannel('userList', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
-			withCats: props.onlyCats,
 			listId: props.list,
 		});
 		connections.userList.on('note', prepend);

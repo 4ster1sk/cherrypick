@@ -22,7 +22,6 @@ export class BubbleTimelineChannel extends Channel {
 	public static requireCredential = false as const;
 	private withRenotes: boolean;
 	private withFiles: boolean;
-	private withCats: boolean;
 	private withBots: boolean;
 	private instance: MiMeta;
 
@@ -46,7 +45,6 @@ export class BubbleTimelineChannel extends Channel {
 
 		this.withRenotes = !!(params.withRenotes ?? true);
 		this.withFiles = !!(params.withFiles ?? false);
-		this.withCats = !!(params.withCats ?? false);
 		this.withBots = !!(params.withBots ?? true);
 		this.instance = await this.metaService.fetch();
 
@@ -57,7 +55,6 @@ export class BubbleTimelineChannel extends Channel {
 	@bindThis
 	private async onNote(note: Packed<'Note'>) {
 		if (this.withFiles && (note.fileIds == null || note.fileIds.length === 0)) return;
-		if (this.withCats && (note.user.isCat == null || note.user.isCat === false)) return;
 		if (!this.withBots && note.user.isBot) return;
 		if (this.instance.bubbleInstances == null) return;
 

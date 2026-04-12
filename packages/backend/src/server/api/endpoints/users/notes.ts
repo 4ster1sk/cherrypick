@@ -65,7 +65,6 @@ export const paramDef = {
 		untilDate: { type: 'integer' },
 		allowPartial: { type: 'boolean', default: false }, // true is recommended but for compatibility false by default
 		withFiles: { type: 'boolean', default: false },
-		withCats: { type: 'boolean', default: false },
 	},
 	required: ['userId'],
 } as const;
@@ -109,7 +108,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					withChannelNotes: ps.withChannelNotes,
 					withFiles: ps.withFiles,
 					withRenotes: ps.withRenotes,
-					withCats: ps.withCats,
 				}, me);
 
 				return await this.noteEntityService.packMany(timeline, me);
@@ -136,7 +134,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				excludeReplies: ps.withChannelNotes && !ps.withReplies, // userTimelineWithChannel may include replies
 				excludeNoFiles: ps.withChannelNotes && ps.withFiles, // userTimelineWithChannel may include notes without files
 				excludePureRenotes: !ps.withRenotes,
-				withCats: ps.withCats,
 				noteFilter: note => {
 					if (note.channel?.isSensitive && !isSelf) return false;
 					if (note.visibility === 'specified' && (!me || (me.id !== note.userId && !note.visibleUserIds.some(v => v === me.id)))) return false;
@@ -152,7 +149,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					withChannelNotes: ps.withChannelNotes,
 					withFiles: ps.withFiles,
 					withRenotes: ps.withRenotes,
-					withCats: ps.withCats,
 				}, me),
 			});
 
@@ -167,7 +163,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		userId: string,
 		withChannelNotes: boolean,
 		withFiles: boolean,
-		withCats: boolean,
 		withRenotes: boolean,
 	}, me: MiLocalUser | null) {
 		const isSelf = me && (me.id === ps.userId);
@@ -208,10 +203,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				qb.orWhere('note.fileIds != \'{}\'');
 				qb.orWhere('0 < (SELECT COUNT(*) FROM poll WHERE poll."noteId" = note.id)');
 			}));
-		}
-
-		if (ps.withCats) {
-			query.andWhere('(select "isCat" from "user" where id = note."userId")');
 		}
 
 		return await query.limit(ps.limit).getMany();
