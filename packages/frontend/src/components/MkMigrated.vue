@@ -63,11 +63,6 @@ const whatIsNewYojo = () => {
  * }
  */
 
-function whatIsNewCherryPick() {
-	// modal.value?.close();
-	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${version.replace(/\./g, '')}`, '_blank');
-}
-
 const close = async () => {
 	modal.value?.close();
 	await os.alert({
