@@ -20,6 +20,32 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</template>
 			<FormInfo v-else>{{ i18n.ts.loading }}</FormInfo>
 
+			<FormSection first>
+				<template #label>{{ instanceName }}</template>
+				<MkKeyValue @click="whatIsNewCherryPick">
+					<template #key>{{ i18n.ts.currentVersion }} <i class="ti ti-external-link"></i></template>
+					<template #value>{{ version }} <span :class="$style.commitHash" @click.stop="openCommitPage('yojo-art/cherrypick', gitHash)">({{ gitHash.substring(0, 8) }})</span></template>
+				</MkKeyValue>
+				<MkKeyValue v-if="version < releasesYojoArt[0].tag_name && !skipVersion" style="margin-top: 10px;" @click="whatIsNewLatestCherryPick">
+					<template #key>{{ i18n.ts.latestVersion }} <i class="ti ti-external-link"></i></template>
+					<template #value>{{ releasesYojoArt[0].tag_name }} <span :class="$style.commitHash" @click.stop="openCommitPage('yojo-art/cherrypick', yojoArtTagsMap.get(releasesYojoArt[0].tag_name) || '')">({{ (yojoArtTagsMap.get(releasesYojoArt[0].tag_name) || 'unknown').substring(0, 8) }})</span></template>
+				</MkKeyValue>
+				<MkButton v-if="releasesYojoArt.length > 0 && !skipVersion && (compareVersions(version, releasesYojoArt[0].tag_name) < 0)" style="margin-top: 10px;" @click="skipThisVersion">{{ i18n.ts.skipThisVersion }}</MkButton>
+			</FormSection>
+
+			<FormSection @click="whatIsNewLatestCherryPick">
+				<template #label>CherryPick <i class="ti ti-external-link"></i></template>
+				<MkKeyValue>
+					<template #key>{{ i18n.ts.latestVersion }}</template>
+					<template v-if="releasesCherryPick" #value>{{ releasesCherryPick[0].tag_name }} <span :class="$style.commitHash" @click.stop="openCommitPage('kokonect-link/cherrypick', cherryPickTagsMap.get(releasesCherryPick[0].tag_name) || '')">({{ (cherryPickTagsMap.get(releasesCherryPick[0].tag_name) || 'unknown').substring(0, 8) }})</span></template>
+					<template v-else #value><MkEllipsis/></template>
+				</MkKeyValue>
+				<MkKeyValue style="margin: 8px 0 0; color: color(from var(--MI_THEME-fg) srgb r g b / 0.75); font-size: 0.85em;">
+					<template v-if="releasesCherryPick" #value><MkTime :time="releasesCherryPick[0].published_at" mode="detail"/></template>
+					<template v-else #value><MkEllipsis/></template>
+				</MkKeyValue>
+			</FormSection>
+
 			<FormSection @click="whatIsNewLatestMisskey">
 				<template #label>Misskey <i class="ti ti-external-link"></i></template>
 				<MkKeyValue>
@@ -61,11 +87,21 @@ const skipYojoArtVersion = ref(meta.skipCherryPickVersion);
 const yojoArtResponse = await window.fetch('https://api.github.com/repos/yojo-art/cherrypick/releases');
 const yojoArtData = await yojoArtResponse.json();
 const releasesYojoArt = ref(meta.enableReceivePrerelease ? yojoArtData : yojoArtData.filter(x => !x.prerelease));
+const skipCherryPickVersion = ref(meta.skipCherryPickVersion);
+const cherryPickResponse = await window.fetch('https://api.github.com/repos/kokonect-link/cherrypick/releases');
+const cherryPickData = await cherryPickResponse.json();
+const releasesCherryPick = ref(meta.enableReceivePrerelease ? cherryPickData : cherryPickData.filter(x => !x.prerelease));
 const misskeyResponse = await window.fetch('https://api.github.com/repos/misskey-dev/misskey/releases');
 const misskeyData = await misskeyResponse.json();
 const releasesMisskey = ref(meta.enableReceivePrerelease ? misskeyData : misskeyData.filter(x => !x.prerelease));
 const yojoArtTagsMap = new Map<string, string>();
+const cherryPickTagsMap = new Map<string, string>();
 const misskeyTagsMap = new Map<string, string>();
+
+if (releasesCherryPick.value.length > 0) {
+	const hash = await getCommitHashForRelease('kokonect-link/cherrypick', releasesCherryPick.value[0]);
+	cherryPickTagsMap.set(releasesCherryPick.value[0].tag_name, hash);
+}
 
 if (releasesMisskey.value.length > 0) {
 	const hash = await getCommitHashForRelease('misskey-dev/misskey', releasesMisskey.value[0]);
@@ -78,6 +114,13 @@ const whatIsNewYojoArt = () => {
 
 const whatIsNewLatestYojoArt = () => {
 	window.open(`https://github.com/yojo-art/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${releasesCherryPick.value[0].tag_name.replace(/\./g, '')}`, '_blank');
+};
+const whatIsNewCherryPick = () => {
+	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${version.replace(/\./g, '')}`, '_blank');
+};
+
+const whatIsNewLatestCherryPick = () => {
+	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${releasesCherryPick.value[0].tag_name.replace(/\./g, '')}`, '_blank');
 };
 
 /**
@@ -99,10 +142,12 @@ function save() {
 }
 
 function skipThisVersion() {
+	skipCherryPickVersion.value = releasesYojoArt.value[0].tag_name;
 	skipVersion.value = true;
 
 	os.apiWithDialog('admin/update-meta', {
 		skipVersion: skipVersion.value,
+		skipCherryPickVersion: skipCherryPickVersion.value,
 	}).then(() => {
 		fetchInstance(true);
 	});
