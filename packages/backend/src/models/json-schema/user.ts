@@ -91,6 +91,11 @@ export const packedUserLiteSchema = {
 						type: 'boolean',
 						nullable: false, optional: true,
 					},
+					url: {
+						type: 'string',
+						format: 'url',
+						nullable: false, optional: false,
+					},
 					offsetX: {
 						type: 'number',
 						nullable: false, optional: true,
@@ -106,11 +111,6 @@ export const packedUserLiteSchema = {
 					opacity: {
 						type: 'number',
 						nullable: false, optional: true,
-					},
-					url: {
-						type: 'string',
-						format: 'url',
-						nullable: false, optional: false,
 					},
 				},
 			},
