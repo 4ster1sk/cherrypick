@@ -31,9 +31,6 @@ export default [
 				_BASEDMISSKEYVERSION_: false,
 				_ENV_: false,
 				_PERF_PREFIX_: false,
-
-				// yojo-art
-				_BASEDCHERRYPICKVERSION_: false,
 			},
 			parser,
 			parserOptions: {
