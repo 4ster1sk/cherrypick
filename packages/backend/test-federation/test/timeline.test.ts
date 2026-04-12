@@ -105,9 +105,10 @@ describe('Timeline', () => {
 				await postAndCheckReception(homeTimeline, true, { visibility: 'specified', visibleUserIds: [bobInA.id] });
 			});
 
+			/* yojo-artではlocalOnlyが存在しないためテストから除外
 			test('Don\'t receive remote followee\'s localOnly Note', async () => {
 				await postAndCheckReception(homeTimeline, false, { localOnly: true });
-			});
+			});*/
 
 			test('Don\'t receive remote followee\'s invisible specified-only Note', async () => {
 				await postAndCheckReception(homeTimeline, false, { visibility: 'specified' });
