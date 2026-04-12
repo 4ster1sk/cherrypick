@@ -2134,7 +2134,7 @@ _achievements:
     _login3:
       title: "ビギナーⅠ"
       description: "通算ログイン日数が3日"
-      flavor: "今日からね僕は チェリーピキストってことで"
+      flavor: "今日からね僕は ミスキストってことで"
     _login7:
       title: "ビギナーⅡ"
       description: "通算ログイン日数が7日"
