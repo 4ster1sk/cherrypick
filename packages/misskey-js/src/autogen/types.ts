@@ -503,6 +503,7 @@ export type paths = {
          * admin/full-index
          * @description No description provided.
          *
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:reindex*
          */
         post: operations['admin___full-index'];
@@ -692,6 +693,7 @@ export type paths = {
          * admin/recreate-index
          * @description No description provided.
          *
+         *     **Internal Endpoint**: This endpoint is an API for the misskey mainframe and is not intended for use by third parties.
          *     **Credential required**: *Yes* / **Permission**: *write:admin:reindex*
          */
         post: operations['admin___recreate-index'];
