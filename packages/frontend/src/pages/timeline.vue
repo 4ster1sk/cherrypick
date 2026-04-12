@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<MkStreamingNotesTimeline
 			v-else
 			ref="tlComponent"
-			:key="src + withRenotes + withReplies + onlyFiles + onlyCats + withSensitive"
+			:key="src + withRenotes + withReplies + onlyFiles + withSensitive"
 			:class="$style.tl"
 			:src="(src.split(':')[0] as (BasicTimelineType | 'list'))"
 			:list="src.split(':')[1]"
@@ -33,7 +33,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 			:withReplies="withReplies"
 			:withSensitive="withSensitive"
 			:onlyFiles="onlyFiles"
-			:onlyCats="onlyCats"
 			:sound="true"
 		/>
 	</div>
@@ -93,10 +92,9 @@ const withRenotes = computed<boolean>({
 });
 
 // computed内での無限ループを防ぐためのフラグ
-const localSocialTLFilterSwitchStore = ref<'withReplies' | 'onlyFiles' | 'onlyCats' | false>(
+const localSocialTLFilterSwitchStore = ref<'withReplies' | 'onlyFiles' | false>(
 	store.r.tl.value.filter.withReplies ? 'withReplies' :
 	store.r.tl.value.filter.onlyFiles ? 'onlyFiles' :
-	store.r.tl.value.filter.onlyCats ? 'onlyCats' :
 	false,
 );
 
@@ -121,18 +119,12 @@ const onlyFiles = computed<boolean>({
 	},
 	set: (x) => saveTlFilter('onlyFiles', x),
 });
-const onlyCats = computed({
-	get: () => store.r.tl.value.filter.onlyCats,
-	set: (x: boolean) => saveTlFilter('onlyCats', x),
-});
 
-watch([withReplies, onlyFiles, onlyCats], ([withRepliesTo, onlyFilesTo, onlyCatsTo]) => {
+watch([withReplies, onlyFiles], ([withRepliesTo, onlyFilesTo]) => {
 	if (withRepliesTo) {
 		localSocialTLFilterSwitchStore.value = 'withReplies';
 	} else if (onlyFilesTo) {
 		localSocialTLFilterSwitchStore.value = 'onlyFiles';
-	} else if (onlyCatsTo) {
-		localSocialTLFilterSwitchStore.value = 'onlyCats';
 	} else {
 		localSocialTLFilterSwitchStore.value = false;
 	}
@@ -559,11 +551,6 @@ const headerActions = computed(() => {
 						text: i18n.ts.fileAttachedOnly,
 						ref: onlyFiles,
 						disabled: isBasicTimeline(src.value) && hasWithReplies(src.value) ? withReplies : false,
-					}, {
-						type: 'switch',
-						icon: 'ti ti-cat',
-						text: i18n.ts.showCatOnly,
-						ref: onlyCats,
 					}, { type: 'divider' }, {
 						type: 'switch',
 						text: i18n.ts.forceCollapseAllRenotes,

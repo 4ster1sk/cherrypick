@@ -6404,10 +6404,6 @@ export interface Locale extends ILocale {
      */
     "showUnreadNotificationsCount": string;
     /**
-     * ネコミミ付きのみ
-     */
-    "showCatOnly": string;
-    /**
      * Playへの追加許可
      */
     "additionalPermissionsForFlash": string;

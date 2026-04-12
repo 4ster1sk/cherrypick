@@ -1572,7 +1572,6 @@ deviceInfoDescription: "When making technical inquiries, including the following
 draftNoteList: "List of draft notes"
 saveAsDraft: "Save as Draft"
 showUnreadNotificationsCount: "Show the number of unread notifications"
-showCatOnly: "Show only cats"
 additionalPermissionsForFlash: "Allow to add permission to Play"
 thisFlashRequiresTheFollowingPermissions: "This Play requires the following permissions"
 doYouWantToAllowThisPlayToAccessYourAccount: "Do you want to allow this Play to access your account?"
