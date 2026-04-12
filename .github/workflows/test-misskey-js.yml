@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Test (cherrypick.js)
+name: Test (misskey.js)
 
 on:
   push:
@@ -16,7 +16,7 @@ on:
       - .github/workflows/test-misskey-js.yml
 jobs:
   test:
-    name: Unit tests (cherrypick.js)
+    name: Unit tests (misskey.js)
 
     runs-on: ubuntu-latest
 
