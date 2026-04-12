@@ -1,12 +1,12 @@
 import assert from 'assert';
 import { mkdir, readFile, writeFile } from 'fs/promises';
+import type { OpenAPIV3_1 } from 'openapi-types';
 import { toPascal } from 'ts-case-convert';
 import { parse } from '@readme/openapi-parser';
 import openapiTS, { astToString } from 'openapi-typescript';
+import type { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import ts from 'typescript';
 import { removeNeverPropertiesFromAST } from './ast-transformer.js';
-import type { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
-import type { OpenAPIV3_1 } from 'openapi-types';
 
 async function generateBaseTypes(
 	openApiDocs: OpenAPIV3_1.Document,
@@ -96,7 +96,7 @@ async function generateEndpoints(
 	const endpointReqMediaTypes: EndpointReqMediaType[] = [];
 	const endpointReqMediaTypesSet = new Set<string>();
 
-	// cherrypick-jsはPOST固定で送っているので、こちらも決め打ちする。別メソッドに対応することがあればこちらも直す必要あり
+	// misskey-jsはPOST固定で送っているので、こちらも決め打ちする。別メソッドに対応することがあればこちらも直す必要あり
 	const paths = openApiDocs.paths ?? {};
 	const postPathItems = Object.keys(paths)
 		.map(it => ({
@@ -214,7 +214,7 @@ async function generateApiClientJSDoc(
 		description: string;
 	}[] = [];
 
-	// cherrypick-jsはPOST固定で送っているので、こちらも決め打ちする。別メソッドに対応することがあればこちらも直す必要あり
+	// misskey-jsはPOST固定で送っているので、こちらも決め打ちする。別メソッドに対応することがあればこちらも直す必要あり
 	const paths = openApiDocs.paths ?? {};
 	const postPathItems = Object.keys(paths)
 		.map(it => ({
@@ -297,7 +297,7 @@ function toImportPath(fileName: string, fromPath = '/built/autogen', toPath = ''
 
 enum OperationsAliasType {
 	REQUEST = 'Request',
-	RESPONSE = 'Response',
+	RESPONSE = 'Response'
 }
 
 interface IOperationTypeAlias {

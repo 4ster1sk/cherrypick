@@ -29,9 +29,9 @@ type AllNullOrOptionalRecord<T> = {
 };
 
 export type PureRenote =
-	Omit<Note, 'renote' | 'renoteId' | 'reply' | 'replyId' | 'text' | 'cw' | 'files' | 'fileIds' | 'poll' | 'event'>
+	Omit<Note, 'renote' | 'renoteId' | 'reply' | 'replyId' | 'text' | 'cw' | 'files' | 'fileIds' | 'poll'>
 	& AllNullRecord<Pick<Note, 'text'>>
-	& AllNullOrOptionalRecord<Pick<Note, 'reply' | 'replyId' | 'cw' | 'poll' | 'event'>>
+	& AllNullOrOptionalRecord<Pick<Note, 'reply' | 'replyId' | 'cw' | 'poll'>>
 	& { files: []; fileIds: []; }
 	& NonNullableRecord<Pick<Note, 'renoteId'>>
 	& Pick<Note, 'renote'>; // リノート対象が削除された場合、renoteIdはあるがrenoteはnullになる
@@ -206,12 +206,6 @@ export type ModerationLog = {
 } | {
 	type: 'updateProxyAccountDescription';
 	info: ModerationLogPayloads['updateProxyAccountDescription'];
-} | {
-	type: 'quarantineRemoteInstance';
-	info: ModerationLogPayloads['quarantineRemoteInstance'];
-} | {
-	type: 'unquarantineRemoteInstance';
-	info: ModerationLogPayloads['unquarantineRemoteInstance'];
 });
 
 export type ServerStats = {

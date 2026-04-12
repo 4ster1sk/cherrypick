@@ -49,7 +49,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import * as Misskey from 'cherrypick-js';
+import * as Misskey from 'misskey-js';
 import type { Paginator } from '@/utility/paginator.js';
 import { ref, watch } from 'vue';
 import MkPagination from '@/components/MkPagination.vue';

@@ -6,7 +6,7 @@ describe('API', () => {
 		const fetchMock = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async (url, options) => {
-				if (url === 'https://cherrypick.test/api/i' && options?.method === 'POST') {
+				if (url === 'https://misskey.test/api/i' && options?.method === 'POST') {
 					if (options.body) {
 						const body = JSON.parse(options.body as string);
 						if (body.i === 'TOKEN') {
@@ -21,7 +21,7 @@ describe('API', () => {
 			});
 
 		const cli = new APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN',
 		});
 
@@ -31,11 +31,11 @@ describe('API', () => {
 			id: 'foo'
 		});
 
-		fetch('https://cherrypick.test/api/i', {
+		fetch('https://misskey.test/api/i', {
 			method: 'POST',
 		})
 
-		expect(fetchMock).toHaveBeenCalledWith('https://cherrypick.test/api/i', {
+		expect(fetchMock).toHaveBeenCalledWith('https://misskey.test/api/i', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ describe('API', () => {
 		const fetchMock = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async (url, options) => {
-				if (url === 'https://cherrypick.test/api/notes/show' && options?.method === 'POST') {
+				if (url === 'https://misskey.test/api/notes/show' && options?.method === 'POST') {
 					if (options.body) {
 						const body = JSON.parse(options.body as string);
 						if (body.i === 'TOKEN' && body.noteId === 'aaaaa') {
@@ -65,7 +65,7 @@ describe('API', () => {
 			});
 
 		const cli = new APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN',
 		});
 
@@ -75,7 +75,7 @@ describe('API', () => {
 			id: 'foo'
 		});
 
-		expect(fetchMock).toHaveBeenCalledWith('https://cherrypick.test/api/notes/show', {
+		expect(fetchMock).toHaveBeenCalledWith('https://misskey.test/api/notes/show', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ describe('API', () => {
 		const fetchMock = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async (url, options) => {
-				if (url === 'https://cherrypick.test/api/drive/files/create' && options?.method === 'POST') {
+				if (url === 'https://misskey.test/api/drive/files/create' && options?.method === 'POST') {
 					if (options.body instanceof FormData) {
 						const file = options.body.get('file');
 						if (file instanceof File && file.name === 'foo.txt') {
@@ -105,7 +105,7 @@ describe('API', () => {
 			});
 
 		const cli = new APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN',
 		});
 
@@ -120,7 +120,7 @@ describe('API', () => {
 			id: 'foo'
 		});
 
-		expect(fetchMock).toHaveBeenCalledWith('https://cherrypick.test/api/drive/files/create', {
+		expect(fetchMock).toHaveBeenCalledWith('https://misskey.test/api/drive/files/create', {
 			method: 'POST',
 			body: expect.any(FormData),
 			headers: {},
@@ -135,14 +135,14 @@ describe('API', () => {
 		const fetchMock = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async (url, options) => {
-				if (url === 'https://cherrypick.test/api/reset-password' && options?.method === 'POST') {
+				if (url === 'https://misskey.test/api/reset-password' && options?.method === 'POST') {
 					return new Response(null, { status: 204 });
 				}
 				return new Response(null, { status: 404 });
 			});
 
 		const cli = new APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN',
 		});
 
@@ -150,7 +150,7 @@ describe('API', () => {
 
 		expect(res).toEqual(null);
 
-		expect(fetchMock).toHaveBeenCalledWith('https://cherrypick.test/api/reset-password', {
+		expect(fetchMock).toHaveBeenCalledWith('https://misskey.test/api/reset-password', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ describe('API', () => {
 		const fetchMock = vi
 			.spyOn(globalThis, 'fetch')
 			.mockImplementation(async (url, options) => {
-				if (url === 'https://cherrypick.test/api/i' && options?.method === 'POST') {
+				if (url === 'https://misskey.test/api/i' && options?.method === 'POST') {
 					if (options.body) {
 						const body = JSON.parse(options.body as string);
 						if (typeof body.i === 'string') {
@@ -189,7 +189,7 @@ describe('API', () => {
 
 		try {
 			const cli = new APIClient({
-				origin: 'https://cherrypick.test',
+				origin: 'https://misskey.test',
 				credential: 'TOKEN',
 			});
 
@@ -217,7 +217,7 @@ describe('API', () => {
 
 		try {
 			const cli = new APIClient({
-				origin: 'https://cherrypick.test',
+				origin: 'https://misskey.test',
 				credential: 'TOKEN',
 			});
 
@@ -239,7 +239,7 @@ describe('API', () => {
 
 		try {
 			const cli = new APIClient({
-				origin: 'https://cherrypick.test',
+				origin: 'https://misskey.test',
 				credential: 'TOKEN',
 			});
 
@@ -260,7 +260,7 @@ describe('API', () => {
 
 		try {
 			const cli = new APIClient({
-				origin: 'https://cherrypick.test',
+				origin: 'https://misskey.test',
 				credential: 'TOKEN',
 			});
 
@@ -281,7 +281,7 @@ describe('API', () => {
 			});
 
 		const cli = new APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN',
 		});
 		await cli.request('admin/roles/create', {

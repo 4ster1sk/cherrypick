@@ -8,7 +8,6 @@ import {
 	Notification,
 	Signin,
 	User,
-	UserGroup,
 	UserDetailed,
 	UserDetailedNotMe,
 	UserLite,
@@ -49,14 +48,7 @@ export type Channels = {
 			urlUploadFinished: (payload: { marker: string; file: DriveFile; }) => void;
 			readAllNotifications: () => void;
 			unreadNotification: (payload: Notification) => void;
-			unreadMention: (payload: Note['id']) => void;
-			readAllUnreadMentions: () => void;
 			notificationFlushed: () => void;
-			notificationDeleted: () => void;
-			unreadSpecifiedNote: (payload: Note['id']) => void;
-			readAllUnreadSpecifiedNotes: () => void;
-			readAllMessagingMessages: () => void;
-			readAllAntennas: () => void;
 			unreadAntenna: (payload: Antenna) => void;
 			newChatMessage: (payload: ChatMessage) => void;
 			readAllAnnouncements: () => void;
@@ -79,7 +71,6 @@ export type Channels = {
 		params: {
 			withRenotes?: boolean;
 			withFiles?: boolean;
-			withCats?: boolean;
 		};
 		events: {
 			note: (payload: Note) => void;
@@ -91,7 +82,6 @@ export type Channels = {
 			withRenotes?: boolean;
 			withReplies?: boolean;
 			withFiles?: boolean;
-			withCats?: boolean;
 		};
 		events: {
 			note: (payload: Note) => void;
@@ -103,7 +93,6 @@ export type Channels = {
 			withRenotes?: boolean;
 			withReplies?: boolean;
 			withFiles?: boolean;
-			withCats?: boolean;
 		};
 		events: {
 			note: (payload: Note) => void;
@@ -114,18 +103,6 @@ export type Channels = {
 		params: {
 			withRenotes?: boolean;
 			withFiles?: boolean;
-			withCats?: boolean;
-		};
-		events: {
-			note: (payload: Note) => void;
-		};
-		receives: null;
-	};
-	bubbleTimeline: {
-		params: {
-			withRenotes?: boolean;
-			withFiles?: boolean;
-			withCats?: boolean;
 		};
 		events: {
 			note: (payload: Note) => void;
@@ -137,7 +114,6 @@ export type Channels = {
 			listId: string;
 			withFiles?: boolean;
 			withRenotes?: boolean;
-			withCats?: boolean;
 		};
 		events: {
 			note: (payload: Note) => void;
@@ -249,7 +225,6 @@ export type Channels = {
 			changeReadyStates: (payload: { user1: boolean; user2: boolean; }) => void;
 			updateSettings: <K extends ReversiUpdateKey>(payload: { userId: User['id']; key: K; value: ReversiGameDetailed[K]; }) => void;
 			log: (payload: Record<string, unknown>) => void;
-			reacted: (payload: { userId: User['id']; reaction: string; }) => void;
 		};
 		receives: {
 			putStone: {
@@ -260,7 +235,6 @@ export type Channels = {
 			cancel: null | Record<string, never>;
 			updateSettings: ReversiUpdateSettings<ReversiUpdateKey>;
 			claimTimeIsUp: null | Record<string, never>;
-			reaction: string;
 		}
 	};
 	chatUser: {
@@ -330,12 +304,6 @@ export type NoteUpdatedEvent = { id: Note['id'] } & ({
 	type: 'deleted';
 	body: {
 		deletedAt: string;
-	};
-} | {
-	type: 'updated';
-	body: {
-		cw: string | null;
-		text: string;
 	};
 } | {
 	type: 'pollVoted';

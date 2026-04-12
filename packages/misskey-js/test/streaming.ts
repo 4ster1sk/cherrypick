@@ -4,8 +4,8 @@ import Stream from '../src/streaming.js';
 
 describe('Streaming', () => {
 	test('useChannel', async () => {
-		const server = new WS('wss://cherrypick.test/streaming');
-		const stream = new Stream('https://cherrypick.test', { token: 'TOKEN' });
+		const server = new WS('wss://misskey.test/streaming');
+		const stream = new Stream('https://misskey.test', { token: 'TOKEN' });
 		const mainChannelReceived: any[] = [];
 		const main = stream.useChannel('main');
 		main.on('meUpdated', payload => {
@@ -41,8 +41,8 @@ describe('Streaming', () => {
 	});
 
 	test('useChannel with parameters', async () => {
-		const server = new WS('wss://cherrypick.test/streaming');
-		const stream = new Stream('https://cherrypick.test', { token: 'TOKEN' });
+		const server = new WS('wss://misskey.test/streaming');
+		const stream = new Stream('https://misskey.test', { token: 'TOKEN' });
 		const chatChannelReceived: any[] = [];
 		const chat = stream.useChannel('chat', { other: 'aaa' });
 		chat.on('message', payload => {
@@ -79,8 +79,8 @@ describe('Streaming', () => {
 	});
 
 	test('ちゃんとチャンネルごとにidが異なる', async () => {
-		const server = new WS('wss://cherrypick.test/streaming');
-		const stream = new Stream('https://cherrypick.test', { token: 'TOKEN' });
+		const server = new WS('wss://misskey.test/streaming');
+		const stream = new Stream('https://misskey.test', { token: 'TOKEN' });
 
 		stream.useChannel('chat', { other: 'aaa' });
 		stream.useChannel('chat', { other: 'bbb' });
@@ -102,8 +102,8 @@ describe('Streaming', () => {
 	});
 
 	test('Connection#send', async () => {
-		const server = new WS('wss://cherrypick.test/streaming');
-		const stream = new Stream('https://cherrypick.test', { token: 'TOKEN' });
+		const server = new WS('wss://misskey.test/streaming');
+		const stream = new Stream('https://misskey.test', { token: 'TOKEN' });
 
 		const chat = stream.useChannel('chat', { other: 'aaa' });
 		chat.send('read', { id: 'aaa' });
@@ -125,8 +125,8 @@ describe('Streaming', () => {
 	});
 
 	test('Connection#dispose', async () => {
-		const server = new WS('wss://cherrypick.test/streaming');
-		const stream = new Stream('https://cherrypick.test', { token: 'TOKEN' });
+		const server = new WS('wss://misskey.test/streaming');
+		const stream = new Stream('https://misskey.test', { token: 'TOKEN' });
 		const mainChannelReceived: any[] = [];
 		const main = stream.useChannel('main');
 		main.on('meUpdated', payload => {

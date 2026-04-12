@@ -41,7 +41,7 @@ export interface IStream extends EventEmitter<StreamEvents> {
 }
 
 /**
- * CherryPick stream connection
+ * Misskey stream connection
  */
 // eslint-disable-next-line import/no-default-export
 export default class Stream extends EventEmitter<StreamEvents> implements IStream {

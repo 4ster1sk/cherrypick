@@ -5,7 +5,7 @@ import * as Misskey from '../src/index.js';
 describe('API', () => {
 	test('success', async () => {
 		const cli = new Misskey.api.APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN'
 		});
 		const res = await cli.request('meta', { detail: true });
@@ -14,7 +14,7 @@ describe('API', () => {
 
 	test('conditional response type (meta)', async () => {
 		const cli = new Misskey.api.APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN'
 		});
 
@@ -33,7 +33,7 @@ describe('API', () => {
 
 	test('conditional response type (users/show)', async () => {
 		const cli = new Misskey.api.APIClient({
-			origin: 'https://cherrypick.test',
+			origin: 'https://misskey.test',
 			credential: 'TOKEN'
 		});
 

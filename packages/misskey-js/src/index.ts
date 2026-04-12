@@ -16,7 +16,6 @@ export const moderationLogTypes = consts.moderationLogTypes;
 export const rolePolicies = consts.rolePolicies;
 export const queueTypes = consts.queueTypes;
 export const reversiUpdateKeys = consts.reversiUpdateKeys;
-export const noteSearchbility = consts.noteSearchbility;
 
 // api extractor not supported yet
 //export * as api from './api.js';

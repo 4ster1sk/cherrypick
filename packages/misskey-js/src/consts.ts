@@ -30,7 +30,6 @@ export const notificationTypes = [
 	'scheduledNotePostFailed',
 	'receiveFollowRequest',
 	'followRequestAccepted',
-	'groupInvited',
 	'app',
 	'roleAssigned',
 	'chatRoomInvitationReceived',
@@ -39,7 +38,6 @@ export const notificationTypes = [
 	'test',
 	'login',
 	'createToken',
-	'pollVote',
 ] as const;
 
 export const noteVisibilities = ['public', 'home', 'followers', 'specified'] as const;
@@ -49,8 +47,6 @@ export const mutedNoteReasons = ['word', 'manual', 'spam', 'other'] as const;
 export const followingVisibilities = ['public', 'followers', 'private'] as const;
 
 export const followersVisibilities = ['public', 'followers', 'private'] as const;
-
-export const noteSearchbility = ['public', 'followersAndReacted', 'reactedOnly', 'private'] as const;
 
 export const permissions = [
 	'read:account',
@@ -79,6 +75,8 @@ export const permissions = [
 	'read:page-likes',
 	'read:user-groups',
 	'write:user-groups',
+	'read:channels',
+	'write:channels',
 	'read:gallery',
 	'write:gallery',
 	'read:gallery-likes',
@@ -136,8 +134,6 @@ export const permissions = [
 	'write:report-abuse',
 	'write:chat',
 	'read:chat',
-	'write:admin:official-tags',
-	'write:admin:reindex',
 ] as const;
 
 export const moderationLogTypes = [
@@ -192,17 +188,13 @@ export const moderationLogTypes = [
 	'deleteFlash',
 	'deleteGalleryPost',
 	'deleteChatRoom',
-	'unquarantineRemoteInstance',
 	'updateProxyAccountDescription',
-	'quarantineRemoteInstance',
 ] as const;
 
 export const rolePolicies = [
 	'gtlAvailable',
 	'ltlAvailable',
-	'btlAvailable',
 	'canPublicNote',
-	'canEditNote',
 	'mentionLimit',
 	'canInvite',
 	'inviteLimit',
@@ -213,7 +205,6 @@ export const rolePolicies = [
 	'canSearchNotes',
 	'canSearchUsers',
 	'canUseTranslator',
-	'canUseAutoTranslate',
 	'canHideAds',
 	'driveCapacityMb',
 	'maxFileSizeMb',
@@ -239,10 +230,6 @@ export const rolePolicies = [
 	'noteDraftLimit',
 	'scheduledNoteLimit',
 	'watermarkAvailable',
-	'canSetFederationAvatarShape',
-	'canAdvancedSearchNotes',
-	'mutualLinkSectionLimit',
-	'mutualLinkLimit',
 ] as const;
 
 export const queueTypes = [
@@ -278,8 +265,6 @@ type AvatarDecoration = {
 	flipH?: boolean;
 	offsetX?: number;
 	offsetY?: number;
-	scale?: number;
-	opacity?: number;
 };
 
 type ReceivedAbuseReport = {
@@ -546,12 +531,4 @@ export type ModerationLogPayloads = {
 		before: string | null;
 		after: string | null;
 	}
-	quarantineRemoteInstance: {
-		id: string;
-		host: string;
-	};
-	unquarantineRemoteInstance: {
-		id: string;
-		host: string;
-	};
 };

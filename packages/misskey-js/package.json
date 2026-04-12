@@ -1,23 +1,19 @@
 {
 	"type": "module",
-	"name": "cherrypick-js",
-	"version": "1.7.2",
-	"basedCherrypickVersion": "4.17.0",
-	"basedMisskeyVersion": "2025.10.2",
-	"description": "yojo-art SDK for JavaScript",
+	"name": "misskey-js",
+	"version": "2025.10.2",
+	"description": "Misskey SDK for JavaScript",
 	"license": "MIT",
 	"main": "./built/index.js",
 	"types": "./built/index.d.ts",
 	"exports": {
 		".": {
 			"import": "./built/index.js",
-			"types": "./built/index.d.ts",
-			"default": "./built/index.js"
+			"types": "./built/index.d.ts"
 		},
 		"./*": {
 			"import": "./built/*",
-			"types": "./built/*",
-			"default": "./built/*"
+			"types": "./built/*"
 		}
 	},
 	"scripts": {
@@ -31,26 +27,22 @@
 		"lint": "pnpm typecheck && pnpm eslint",
 		"vitest": "vitest run --coverage",
 		"test": "pnpm vitest && pnpm tsd",
-		"update-autogen-code": "pnpm --filter cherrypick-js-type-generator generate && ncp generator/built/autogen src/autogen",
-		"biome-lint": "pnpm typecheck && pnpm biome lint src",
-		"format": "pnpm biome format",
-		"format:write": "pnpm biome format --write"
+		"update-autogen-code": "pnpm --filter misskey-js-type-generator generate && ncp generator/built/autogen src/autogen"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/yojo-art/cherrypick.git",
-		"directory": "packages/cherrypick-js"
+		"url": "https://github.com/misskey-dev/misskey.git",
+		"directory": "packages/misskey-js"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.1",
-		"@microsoft/api-extractor": "7.55.1",
-		"@types/node": "24.9.1",
-		"@typescript-eslint/eslint-plugin": "8.48.1",
-		"@typescript-eslint/parser": "8.48.1",
+		"@microsoft/api-extractor": "7.53.1",
+		"@types/node": "22.18.10",
+		"@typescript-eslint/eslint-plugin": "8.46.1",
+		"@typescript-eslint/parser": "8.46.1",
 		"@vitest/coverage-v8": "3.2.4",
 		"esbuild": "0.25.10",
 		"execa": "9.6.0",
-		"glob": "11.1.0",
+		"glob": "11.0.3",
 		"ncp": "2.0.0",
 		"nodemon": "3.1.10",
 		"tsd": "0.33.0",
