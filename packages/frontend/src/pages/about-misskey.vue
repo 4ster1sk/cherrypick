@@ -25,18 +25,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 					{{ i18n.ts._aboutMisskey.about }}<br><a href="https://misskey-hub.net/docs/about-misskey/" target="_blank" class="_link">{{ i18n.ts.learnMore }}</a>
 				</div>
 				<div v-if="$i != null" style="text-align: center;">
-					<MkButton primary rounded inline @click="iLoveCherryPick">I <Mfm text="$[jelly ❤]"/> #CherryPick</MkButton>
+					<MkButton primary rounded inline @click="iLoveMisskey">I <Mfm text="$[jelly ❤]"/> #Misskey</MkButton>
 				</div>
-				<FormSection v-if="isKokonect">
-					<template #label>_KOKONECT_</template>
-					<div class="_gaps_s">
-						<FormLink to="https://status.kokonect.link" external>
-							<template #icon><i class="ti ti-activity"></i></template>
-							{{ i18n.ts._aboutMisskey._kokonect.serverStatus }}
-							<template #suffix>Server Status</template>
-						</FormLink>
-					</div>
-				</FormSection>
 				<FormSection>
 					<template #label>yojo-art</template>
 					<div class="_gaps_s">
@@ -553,8 +543,6 @@ const patronsWithMisskey = [
 	'蒼井よみこ',
 ];
 
-let isKokonect = false;
-
 const thereIsTreasure = ref($i && !claimedAchievements.includes('foundTreasure'));
 
 let easterEggReady = false;
@@ -601,9 +589,9 @@ function gravity() {
 	easterEggEngine.value = physics(containerEl.value);
 }
 
-function iLoveCherryPick() {
+function iLoveMisskey() {
 	os.post({
-		initialText: 'I $[jelly ❤] #CherryPick',
+		initialText: 'I $[jelly ❤] #Misskey',
 		instant: true,
 	});
 }
@@ -612,15 +600,6 @@ function getTreasure() {
 	thereIsTreasure.value = false;
 	claimAchievement('foundTreasure');
 }
-
-onMounted(() => {
-	if (window.location.host === 'localhost:3000') isKokonect = true;
-	else if (window.location.host === '127.0.0.1:3000') isKokonect = true;
-	else if (window.location.host === '0.0.0.0:3000') isKokonect = true;
-	else if (window.location.host === 'kokonect.link') isKokonect = true;
-	else if (window.location.host === 'beta.kokonect.link') isKokonect = true;
-	else if (window.location.host === 'universe.noridev.moe') isKokonect = true;
-});
 
 onBeforeUnmount(() => {
 	if (easterEggEngine.value) {
