@@ -241,7 +241,7 @@ jobs:
       - name: Check pnpm-lock.yaml
         run: git diff --exit-code pnpm-lock.yaml
       - name: Copy Configure
-        run: cp .github/cherrypick/test-opensearch.yml .config/test.yml
+        run: cp .github/misskey/test-opensearch.yml .config/test.yml
       - name: Build
         run: pnpm build
       - name: Test
