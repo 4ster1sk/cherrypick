@@ -13,7 +13,7 @@ import { i18n } from '@/i18n.js';
 /**
  * MFMの装飾のリストを表示する
  */
-export function mfmFunctionPicker(anchorElement: HTMLElement | EventTarget | null, textArea: HTMLInputElement | HTMLTextAreaElement, textRef: Ref<string>) {
+export function mfmFunctionPicker(anchorElement: HTMLElement | EventTarget | null, onChosen: (tag: string) => void, onClosed?: () => void) {
 	os.popupMenu([{
 		text: i18n.ts.addMfmFunction,
 		type: 'label',
@@ -112,3 +112,4 @@ function add(textArea: HTMLInputElement | HTMLTextAreaElement, textRef: Ref<stri
 		textArea.setSelectionRange(nextCaretStart, nextCaretEnd);
 	});
 }
+

@@ -7,7 +7,6 @@ import { URL } from 'node:url';
 import { Inject, Injectable } from '@nestjs/common';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import type { InboxQueue } from '@/core/QueueModule.js';
-import { ApiLoggerService } from '@/server/api/ApiLoggerService.js';
 
 export const meta = {
 	tags: ['admin'],
@@ -49,33 +48,18 @@ export const paramDef = {
 export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-disable-line import/no-default-export
 	constructor(
 		@Inject('queue:inbox') public inboxQueue: InboxQueue,
-
-		private apiLoggerService: ApiLoggerService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
 			const jobs = await this.inboxQueue.getJobs(['delayed']);
 
-			const res = [] as [string, number][];
+			const counts = new Map<string, number>();
 
 			for (const job of jobs) {
-				let host: string;
-				try {
-					host = new URL(job.data.signature.keyId).host;
-				} catch (e) {
-					this.apiLoggerService.logger.warn(`failed to parse url in ${job.id}: ${e}`);
-					this.apiLoggerService.logger.warn(`id: ${job.id}, data: ${JSON.stringify(job.data)}`);
-					continue;
-				}
-
-				const found = res.find(x => x[0] === host);
-				if (found) {
-					found[1]++;
-				} else {
-					res.push([host, 1]);
-				}
+				const host = new URL(job.data.signature.keyId).host;
+				counts.set(host, (counts.get(host) ?? 0) + 1);
 			}
 
-			res.sort((a, b) => b[1] - a[1]);
+			const res = [...counts.entries()].sort((a, b) => b[1] - a[1]);
 
 			return res;
 		});

@@ -32,6 +32,7 @@ import { unisonReload } from '@/utility/unison-reload.js';
 import { userName } from '@/filters/user.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import * as os from '@/os.js';
+import { isBirthday } from '@/utility/is-birthday.js';
 
 export async function mainBoot() {
 	const { isClientUpdated, isClientMigrated, lastVersion } = await common(async () => {
@@ -158,12 +159,8 @@ export async function mainBoot() {
 		const m = now.getMonth() + 1;
 		const d = now.getDate();
 
-		if ($i.birthday) {
-			const bm = parseInt($i.birthday.split('-')[1]);
-			const bd = parseInt($i.birthday.split('-')[2]);
-			if (m === bm && d === bd) {
-				claimAchievement('loggedInOnBirthday');
-			}
+		if (isBirthday($i, now)) {
+			claimAchievement('loggedInOnBirthday');
 		}
 
 		if (m === 1 && d === 1) {
@@ -316,13 +313,6 @@ export async function mainBoot() {
 			});
 		}
 
-		if ('Notification' in window) {
-			// 許可を得ていなかったらリクエスト
-			if (Notification.permission === 'default') {
-				Notification.requestPermission();
-			}
-		}
-
 		if (store.s.realtimeMode) {
 			const stream = useStream();
 
@@ -373,38 +363,38 @@ export async function mainBoot() {
 				});
 			});
 
-		main.on('unreadNotification', () => {
-			const unreadNotificationsCount = ($i?.unreadNotificationsCount ?? 0) + 1;
-			updateCurrentAccountPartial({
-				hasUnreadNotification: true,
-				unreadNotificationsCount,
+			main.on('unreadNotification', () => {
+				const unreadNotificationsCount = ($i?.unreadNotificationsCount ?? 0) + 1;
+				updateCurrentAccountPartial({
+					hasUnreadNotification: true,
+					unreadNotificationsCount,
+				});
 			});
-		});
 
-		main.on('unreadMention', () => {
-			updateCurrentAccountPartial({ hasUnreadMentions: true });
-		});
+			main.on('unreadMention', () => {
+				updateCurrentAccountPartial({ hasUnreadMentions: true });
+			});
 
-		main.on('readAllUnreadMentions', () => {
-			updateCurrentAccountPartial({ hasUnreadMentions: false });
-		});
+			main.on('readAllUnreadMentions', () => {
+				updateCurrentAccountPartial({ hasUnreadMentions: false });
+			});
 
-		main.on('unreadSpecifiedNote', () => {
-			updateCurrentAccountPartial({ hasUnreadSpecifiedNotes: true });
-		});
+			main.on('unreadSpecifiedNote', () => {
+				updateCurrentAccountPartial({ hasUnreadSpecifiedNotes: true });
+			});
 
-		main.on('readAllUnreadSpecifiedNotes', () => {
-			updateCurrentAccountPartial({ hasUnreadSpecifiedNotes: false });
-		});
+			main.on('readAllUnreadSpecifiedNotes', () => {
+				updateCurrentAccountPartial({ hasUnreadSpecifiedNotes: false });
+			});
 
-		main.on('readAllAntennas', () => {
-			updateCurrentAccountPartial({ hasUnreadAntenna: false });
-		});
+			main.on('readAllAntennas', () => {
+				updateCurrentAccountPartial({ hasUnreadAntenna: false });
+			});
 
-		main.on('unreadAntenna', () => {
-			updateCurrentAccountPartial({ hasUnreadAntenna: true });
-			sound.playMisskeySfx('antenna');
-		});
+			main.on('unreadAntenna', () => {
+				updateCurrentAccountPartial({ hasUnreadAntenna: true });
+				sound.playMisskeySfx('antenna');
+			});
 
 			main.on('newChatMessage', () => {
 				updateCurrentAccountPartial({ hasUnreadChatMessages: true });

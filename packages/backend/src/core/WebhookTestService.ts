@@ -121,6 +121,7 @@ function generateDummyNote(override?: Partial<MiNote>): MiNote {
 		hasEvent: false,
 		disableRightClick: false,
 		deleteAt: null,
+		renoteChannelId: null,
 		...override,
 	};
 }

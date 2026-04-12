@@ -14,6 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<MkPostForm
 		ref="form"
 		:class="$style.form"
+		class="_popup"
 		v-bind="props"
 		autofocus
 		freezeAfterPosted

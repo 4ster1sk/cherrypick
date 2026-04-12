@@ -177,6 +177,18 @@ export const meta = {
 			code: 'CANNOT_SCHEDULE_DELETE_EARLIER_THAN_NOW',
 			id: '9f04994a-3aa2-11ef-a495-177eea74788f',
 		},
+
+		scheduledAtRequired: {
+			message: 'scheduledAt is required when isActuallyScheduled is true.',
+			code: 'SCHEDULED_AT_REQUIRED',
+			id: 'fe9737d5-cc41-498c-af9d-149207307530',
+		},
+
+		scheduledAtMustBeInFuture: {
+			message: 'scheduledAt must be in the future.',
+			code: 'SCHEDULED_AT_MUST_BE_IN_FUTURE',
+			id: 'ed1a6673-d0d1-4364-aaae-9bf3f139cbc5',
+		},
 	},
 
 	limit: {
@@ -332,6 +344,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 							throw new ApiError(meta.errors.containsTooManyMentions);
 						case 'bacdf856-5c51-4159-b88a-804fa5103be5':
 							throw new ApiError(meta.errors.tooManyScheduledNotes);
+						case '94a89a43-3591-400a-9c17-dd166e71fdfa':
+							throw new ApiError(meta.errors.scheduledAtRequired);
+						case 'b34d0c1b-996f-4e34-a428-c636d98df457':
+							throw new ApiError(meta.errors.scheduledAtMustBeInFuture);
 						default:
 							throw err;
 					}

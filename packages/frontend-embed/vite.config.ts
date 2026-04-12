@@ -1,10 +1,10 @@
 import path from 'path';
 import pluginVue from '@vitejs/plugin-vue';
-import { type UserConfig, defineConfig } from 'vite';
+import { defineConfig, type UserConfig } from 'vite';
 import * as yaml from 'js-yaml';
 import { promises as fsp } from 'fs';
 
-import locales from '../../locales/index.js';
+import locales from 'i18n';
 import meta from '../../package.json';
 import packageInfo from './package.json' with { type: 'json' };
 import pluginJson5 from './vite.json5.js';
@@ -12,6 +12,19 @@ import { pluginRemoveUnrefI18n } from '../frontend-builder/rollup-plugin-remove-
 
 const url = process.env.NODE_ENV === 'development' ? yaml.load(await fsp.readFile('../../.config/default.yml', 'utf-8')).url : null;
 const host = url ? (new URL(url)).hostname : undefined;
+
+// Get local git commit hash
+function getGitHash(): string {
+	try {
+		const result = execaSync('git', ['rev-parse', 'HEAD'], { cwd: path.resolve(__dirname, '../..') });
+		return result.stdout.trim();
+	} catch (error) {
+		console.warn('Failed to get git hash:', error);
+		return 'unknown';
+	}
+}
+
+const gitHash = getGitHash();
 
 const extensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.json', '.json5', '.svg', '.sass', '.scss', '.css', '.vue'];
 
@@ -132,6 +145,7 @@ export function getConfig(): UserConfig {
 		define: {
 			_VERSION_: JSON.stringify(meta.version),
 			_BASEDMISSKEYVERSION_: JSON.stringify(meta.basedMisskeyVersion),
+			_GIT_HASH_: JSON.stringify(gitHash),
 			_LANGS_: JSON.stringify(Object.entries(locales).map(([k, v]) => [k, v._lang_])),
 			_ENV_: JSON.stringify(process.env.NODE_ENV),
 			_DEV_: process.env.NODE_ENV !== 'production',

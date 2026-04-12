@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div
-	v-if="!muted && !isDeleted"
+	v-if="!muted && !hideByPlugin && !isDeleted"
 	ref="rootEl"
 	v-hotkey="keymap"
 	:class="$style.root"
@@ -181,12 +181,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkPoll
 					v-if="appearNote.poll"
 					:noteId="appearNote.id"
-					:multiple="appearNote.poll.multiple"
-					:expiresAt="appearNote.poll.expiresAt"
-					:choices="$appearNote.pollChoices"
-					:author="appearNote.user"
-					:emojiUrls="appearNote.emojis"
-					:class="$style.poll"
 				/>
 				<div v-if="isEnabledUrlPreview">
 					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="true" :host="appearNote.user.host" style="margin-top: 6px;"/>
@@ -209,7 +203,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<MkTime :class="$style.time" :time="appearNote.createdAt" mode="detail" colored/>
 				</MkA>
 				<span style="margin-left: 0.5em;">
-					<span style="border: 1px solid var(--MI_THEME-divider); margin-right: 0.5em;"/>
+					<span style="border: 1px solid var(--MI_THEME-divider); margin-right: 0.5em;"></span>
 					<i v-if="appearNote.visibility === 'public'" class="ti ti-world"></i>
 					<i v-else-if="appearNote.visibility === 'home'" class="ti ti-home"></i>
 					<i v-else-if="appearNote.visibility === 'followers'" class="ti ti-lock"></i>
@@ -349,6 +343,42 @@ SPDX-License-Identifier: AGPL-3.0-only
 				#{{ tag }}
 			</MkA>
 		</div>
+		<div>
+			<div v-if="tab === 'replies'">
+				<div v-if="!repliesLoaded" style="padding: 16px">
+					<MkButton style="margin: 0 auto;" primary rounded @click="loadReplies">{{ i18n.ts.loadReplies }}</MkButton>
+				</div>
+				<MkNoteSub v-for="note in replies" :key="note.id" :note="note" :class="$style.reply" :detail="true"/>
+			</div>
+			<div v-else-if="tab === 'renotes'" :class="$style.tab_renotes">
+				<MkPagination :paginator="renotesPaginator" :forceDisableInfiniteScroll="true">
+					<template #default="{ items }">
+						<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); grid-gap: 12px;">
+							<MkA v-for="item in items" :key="item.id" :to="userPage(item.user)">
+								<MkUserCardMini :user="item.user" :withChart="false"/>
+							</MkA>
+						</div>
+					</template>
+				</MkPagination>
+			</div>
+			<div v-else-if="tab === 'reactions'" :class="$style.tab_reactions">
+				<div :class="$style.reactionTabs">
+					<button v-for="reaction in Object.keys($appearNote.reactions)" :key="reaction" :class="[$style.reactionTab, { [$style.reactionTabActive]: reactionTabType === reaction }]" class="_button" @click="reactionTabType = reaction">
+						<MkReactionIcon :reaction="reaction"/>
+						<span style="margin-left: 4px;">{{ $appearNote.reactions[reaction] }}</span>
+					</button>
+				</div>
+				<MkPagination v-if="reactionTabType" :key="reactionTabType" :paginator="reactionsPaginator" :forceDisableInfiniteScroll="true">
+					<template #default="{ items }">
+						<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); grid-gap: 12px;">
+							<MkA v-for="item in items" :key="item.id" :to="userPage(item.user)">
+								<MkUserCardMini :user="item.user" :withChart="false"/>
+							</MkA>
+						</div>
+					</template>
+				</MkPagination>
+			</div>
+		</div>
 	</div>
 </div>
 <div v-else-if="muted" class="_panel" :class="$style.muted" @click="muted = false">
@@ -440,6 +470,7 @@ let note = deepClone(props.note);
 
 // plugin
 const noteViewInterruptors = getPluginHandlers('note_view_interruptor');
+const hideByPlugin = ref(false);
 if (noteViewInterruptors.length > 0) {
 	let result: Misskey.entities.Note | null = deepClone(note);
 	for (const interruptor of noteViewInterruptors) {
@@ -449,7 +480,11 @@ if (noteViewInterruptors.length > 0) {
 			console.error(err);
 		}
 	}
-	note = result as Misskey.entities.Note;
+	if (result == null) {
+		hideByPlugin.value = true;
+	} else {
+		note = result as Misskey.entities.Note;
+	}
 }
 
 const isRenote = Misskey.note.isPureRenote(note);
@@ -515,7 +550,9 @@ const keymap = {
 		if (!prefer.s.showClipButtonInNoteFooter) return;
 		clip();
 	},
-	'o': () => galleryEl.value?.openGallery(),
+	'o': () => {
+		galleryEl.value?.openGallery();
+	},
 	'v|enter': () => {
 		if (appearNote.cw != null) {
 			showContent.value = !showContent.value;
@@ -608,9 +645,9 @@ if (appearNote.reactionAcceptance === 'likeOnly') {
 if (prefer.s.alwaysShowCw) showContent.value = true;
 
 async function renote() {
-	haptic();
+	const isLoggedIn = await pleaseLogin({ openOnRemote: pleaseLoginContext.value });
+	if (!isLoggedIn) return;
 
-	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 
 	const { menu } = await getRenoteMenu({ note: note, renoteButton });
@@ -664,10 +701,10 @@ function reply(): void {
 	});
 }
 
-function react(): void {
-	haptic();
+async function react() {
+	const isLoggedIn = await pleaseLogin({ openOnRemote: pleaseLoginContext.value });
+	if (!isLoggedIn) return;
 
-	pleaseLogin({ openOnRemote: pleaseLoginContext.value });
 	showMovedDialog();
 	if (appearNote.reactionAcceptance === 'likeOnly') {
 		notesReactionsCreate({
@@ -802,6 +839,14 @@ function undoReact(targetNote: Misskey.entities.Note): void {
 	});
 }
 
+function toggleReact() {
+	if (appearNote.myReaction == null) {
+		react();
+	} else {
+		undoReact(appearNote);
+	}
+}
+
 function onContextmenu(ev: MouseEvent): void {
 	if (ev.target && isLink(ev.target as HTMLElement)) return;
 	if (window.getSelection()?.toString() !== '') return;
@@ -878,24 +923,27 @@ async function clip(): Promise<void> {
 	os.popupMenu(await getNoteClipMenu({ note: note }), clipButton.value).then(focus);
 }
 
-function showRenoteMenu(): void {
-	if (isMyRenote) {
-		pleaseLogin({ openOnRemote: pleaseLoginContext.value });
-		os.popupMenu([{
-			text: i18n.ts.unrenote,
-			icon: 'ti ti-trash',
-			danger: true,
-			action: () => {
-				misskeyApi('notes/delete', {
-					noteId: note.id,
-				}).then(() => {
-					globalEvents.emit('noteDeleted', note.id);
-				});
-			},
-		}], renoteTime.value);
-	} else {
+async function showRenoteMenu() {
+	if (!isMyRenote) {
 		os.popupMenu([getAbuseNoteMenu(note, i18n.ts.reportAbuseRenote)], renoteTime.value);
+		return;
 	}
+
+	const isLoggedIn = await pleaseLogin({ openOnRemote: pleaseLoginContext.value });
+	if (!isLoggedIn) return;
+
+	os.popupMenu([{
+		text: i18n.ts.unrenote,
+		icon: 'ti ti-trash',
+		danger: true,
+		action: () => {
+			misskeyApi('notes/delete', {
+				noteId: note.id,
+			}).then(() => {
+				globalEvents.emit('noteDeleted', note.id);
+			});
+		},
+	}], renoteTime.value);
 }
 
 function focus() {
