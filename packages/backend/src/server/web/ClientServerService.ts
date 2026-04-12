@@ -213,7 +213,6 @@ export class ClientServerService {
 			defaultContext: {
 				version: this.config.version,
 				basedMisskeyVersion: this.config.basedMisskeyVersion,
-				basedCherrypickVersion: this.config.basedCherrypickVersion,
 				config: this.config,
 			},
 		});
@@ -877,7 +876,6 @@ export class ClientServerService {
 			return await reply.view('info-card', {
 				version: this.config.version,
 				basedMisskeyVersion: this.config.basedMisskeyVersion,
-				basedCherrypickVersion: this.config.basedCherrypickVersion,
 				host: this.config.host,
 				meta: this.meta,
 				originalUsersCount: await this.usersRepository.countBy({ host: IsNull() }),
@@ -890,7 +888,6 @@ export class ClientServerService {
 			return await reply.view('bios', {
 				version: this.config.version,
 				basedMisskeyVersion: this.config.basedMisskeyVersion,
-				basedCherrypickVersion: this.config.basedCherrypickVersion,
 			});
 		});
 
@@ -898,7 +895,6 @@ export class ClientServerService {
 			return await reply.view('cli', {
 				version: this.config.version,
 				basedMisskeyVersion: this.config.basedMisskeyVersion,
-				basedCherrypickVersion: this.config.basedCherrypickVersion,
 			});
 		});
 

@@ -6,7 +6,6 @@
 export type Keys = (
 	'v' |
 	'basedMisskeyVersion' |
-	'basedCherrypickVersion' |
 	'lastVersion' |
 	'lastBasedMisskeyVersion' |
 	'lastBasedCherrypickVersion' |

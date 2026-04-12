@@ -13,7 +13,7 @@ export function genOpenapiSpec(config: Config, includeSelfRef = false) {
 		openapi: '3.1.0',
 
 		info: {
-			version: `${config.version} (${config.basedCherrypickVersion}) (${config.basedMisskeyVersion})`,
+			version: `${config.version} (${config.basedMisskeyVersion})`,
 			title: 'yojo-art API',
 		},
 

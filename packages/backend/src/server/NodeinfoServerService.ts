@@ -89,7 +89,6 @@ export class NodeinfoServerService {
 					name: 'yojo-art',
 					version: this.config.version,
 					basedMisskeyVersion: this.config.basedMisskeyVersion,
-					basedCherrypickVersion: this.config.basedCherrypickVersion,
 					homepage: nodeinfo_homepage,
 					repository: meta.repositoryUrl,
 				},

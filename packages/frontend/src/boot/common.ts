@@ -5,7 +5,7 @@
 
 import { computed, watch, version as vueVersion, defineAsyncComponent } from 'vue';
 import { compareVersions } from 'compare-versions';
-import { version, basedMisskeyVersion, basedCherrypickVersion, lang, apiUrl, isSafeMode } from '@@/js/config.js';
+import { version, basedMisskeyVersion, lang, apiUrl, isSafeMode } from '@@/js/config.js';
 import defaultLightTheme from '@@/themes/l-cherrypick.json5';
 import defaultDarkTheme from '@@/themes/d-cherrypick.json5';
 import { storeBootloaderErrors } from '@@/js/store-boot-errors';
@@ -79,14 +79,13 @@ export async function common(createVue: () => Promise<App<Element>>) {
 	const lastVersion = miLocalStorage.getItem('lastVersion');
 	const lastBasedMisskeyVersion = miLocalStorage.getItem('lastBasedMisskeyVersion');
 	const lastBasedCherrypickVersion = miLocalStorage.getItem('lastBasedCherrypickVersion');
-	if (lastVersion !== version || lastBasedMisskeyVersion !== basedMisskeyVersion || lastBasedCherrypickVersion !== basedCherrypickVersion) {
+	if (lastVersion !== version || lastBasedMisskeyVersion !== basedMisskeyVersion ) {
 		if (lastVersion == null) miLocalStorage.setItem('lastVersion', version);
 		else if (compareVersions(version, lastVersion) === 0 || compareVersions(version, lastVersion) === 1) miLocalStorage.setItem('lastVersion', version);
 		miLocalStorage.setItem('lastBasedMisskeyVersion', basedMisskeyVersion);
-		miLocalStorage.setItem('lastBasedCherrypickVersion', basedCherrypickVersion);
 
 		try { // 変なバージョン文字列来るとcompareVersionsでエラーになるため
-			if ((lastVersion != null && compareVersions(version, lastVersion) === 1) || (lastBasedMisskeyVersion != null && compareVersions(basedMisskeyVersion, lastBasedMisskeyVersion) === 1) || (lastBasedCherrypickVersion != null && compareVersions(basedCherrypickVersion, lastBasedCherrypickVersion) === 1)) {
+			if ((lastVersion != null && compareVersions(version, lastVersion) === 1) || (lastBasedMisskeyVersion != null && compareVersions(basedMisskeyVersion, lastBasedMisskeyVersion) === 1)) {
 				isClientUpdated = true;
 			} else if (lastVersion != null && compareVersions(version, lastVersion) === -1) isClientMigrated = true;
 		} catch (err) { /* empty */ }
@@ -145,7 +144,6 @@ export async function common(createVue: () => Promise<App<Element>>) {
 	fetchInstanceMetaPromise.then(() => {
 		miLocalStorage.setItem('v', instance.version);
 		miLocalStorage.setItem('basedMisskeyVersion', instance.basedMisskeyVersion);
-		miLocalStorage.setItem('basedCherrypickVersion', instance.basedCherrypickVersion);
 	});
 
 	//#region loginId

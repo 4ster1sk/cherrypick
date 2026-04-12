@@ -23,10 +23,6 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: false,
 		},
-		basedCherrypickVersion: {
-			type: 'string',
-			optional: false, nullable: false,
-		},
 		providesTarball: {
 			type: 'boolean',
 			optional: false, nullable: false,

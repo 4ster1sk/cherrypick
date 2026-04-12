@@ -13,7 +13,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<img src="/client-assets/about-icon.png" alt="" class="icon" draggable="false" @load="iconLoaded" @click="gravity"/>
 						<div class="cherrypick">yojo-art</div>
 						<div class="version" @click="whatIsNewYojo">v{{ version }} <span class="commit-hash" @click.stop="openCommitPage('yojo-art/cherrypick', gitHash)">({{ gitHash.substring(0, 8) }})</span></div>
-						<div class="version" style="font-size: 11px;" @click="whatIsNewCherryPick">v{{ basedCherrypickVersion }} (Based on CherryPick)</div>
 						<div class="version" style="font-size: 11px;" @click="whatIsNewMisskey">v{{ basedMisskeyVersion }} (Based on Misskey)</div>
 						<span v-for="emoji in easterEggEmojis" :key="emoji.id" class="emoji" :data-physics-x="emoji.left" :data-physics-y="emoji.top" :class="{ _physics_circle_: !emoji.emoji.startsWith(':') }">
 							<MkCustomEmoji v-if="emoji.emoji[0] === ':'" class="emoji" :name="emoji.emoji" :normal="true" :noStyle="true" :fallbackToImage="true"/>
@@ -266,7 +265,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, computed } from 'vue';
-import { host, version, basedMisskeyVersion, gitHash, basedCherrypickVersion } from '@@/js/config.js';
+import { host, version, basedMisskeyVersion, gitHash } from '@@/js/config.js';
 import FormLink from '@/components/form/link.vue';
 import FormSection from '@/components/form/section.vue';
 import MkButton from '@/components/MkButton.vue';
@@ -584,10 +583,6 @@ const containerEl = useTemplateRef('containerEl');
 const whatIsNewYojo = () => {
 	// modal.value?.close();
 	window.open(`https://github.com/yojo-art/cherrypick/blob/develop/CHANGELOG_YOJO.md#${version.replace(/\./g, '')}`, '_blank');
-};
-const whatIsNewCherryPick = () => {
-	// modal.value?.close();
-	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${basedCherrypickVersion.replace(/\./g, '')}`, '_blank');
 };
 
 const whatIsNewMisskey = () => {

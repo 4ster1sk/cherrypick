@@ -15,7 +15,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 		<div :class="$style.version">
 			<div>✨{{ version }}🚀</div>
-			<div style="font-size: 0.8em;">Cherrypick {{ basedCherrypickVersion }}</div>
 			<div style="font-size: 0.8em;">Misskey {{ basedMisskeyVersion }}</div>
 		</div>
 		<div v-if="isBeta" :class="$style.beta">{{ i18n.ts.thankYouForTestingBeta }}</div>
@@ -38,7 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { onMounted, ref, useTemplateRef } from 'vue';
-import { version, basedMisskeyVersion, basedCherrypickVersion } from '@@/js/config.js';
+import { version, basedMisskeyVersion } from '@@/js/config.js';
 import MkModal from '@/components/MkModal.vue';
 import MkButton from '@/components/MkButton.vue';
 import MkSparkle from '@/components/MkSparkle.vue';
@@ -59,11 +58,6 @@ const isBeta = version.includes('-beta') || version.includes('-alpha') || versio
  * 	window.open(`https://misskey-hub.net/docs/releases/#_${basedMisskeyVersion.replace(/\./g, '')}`, '_blank');
  * }
  */
-
-function whatIsNewCherryPick() {
-	// modal.value?.close();
-	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${basedCherrypickVersion.replace(/\./g, '')}`, '_blank');
-}
 
 function whatIsNewYojo() {
 	// modal.value?.close();

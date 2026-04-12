@@ -51,7 +51,6 @@ function greet() {
 
 	bootLogger.info('Welcome to yojo-art!');
 	bootLogger.info(`yojo-art v${meta.version}`, null, true);
-	bootLogger.info(`Based on Cherrypick v${meta.basedCherrypickVersion}`, null, true);
 	bootLogger.info(`Based on Misskey v${meta.basedMisskeyVersion}`, null, true);
 }
 

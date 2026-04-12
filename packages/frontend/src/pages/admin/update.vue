@@ -65,7 +65,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
-import { version, instanceName, basedMisskeyVersion, gitHash, basedCherrypickVersion } from '@@/js/config.js';
+import { version, instanceName, basedMisskeyVersion, gitHash } from '@@/js/config.js';
 import { compareVersions } from 'compare-versions';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
