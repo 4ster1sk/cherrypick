@@ -26,7 +26,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { definePage } from '@/page.js';
 
 definePage(() => ({
-	title: 'CherryPick Games',
+	title: 'Misskey Games',
 	icon: 'ti ti-device-gamepad',
 }));
 </script>
