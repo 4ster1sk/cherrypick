@@ -401,6 +401,7 @@ describe('Streaming', () => {
 
 				assert.strictEqual(fired, false);
 			});
+		});
 
 		describe('Hybrid Timeline', () => {
 			test('自分の投稿が流れる', async () => {
@@ -536,6 +537,7 @@ describe('Streaming', () => {
 
 				assert.strictEqual(fired, false);
 			});
+		});
 
 		describe('Global Timeline', () => {
 			test('フォローしていないローカルユーザーの投稿が流れる', async () => {
@@ -579,6 +581,7 @@ describe('Streaming', () => {
 
 				assert.strictEqual(fired, true);
 			});
+		});
 
 		describe('UserList Timeline', () => {
 			test('リストに入れているユーザーの投稿が流れる', async () => {
