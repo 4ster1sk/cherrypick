@@ -50,6 +50,10 @@ const showChangelog = ref(false);
 
 const modal = useTemplateRef('modal');
 
+const emit = defineEmits<{
+	(ev: 'closed'): void;
+}>();
+
 const isBeta = version.includes('-beta') || version.includes('-alpha') || version.includes('-rc');
 
 /**

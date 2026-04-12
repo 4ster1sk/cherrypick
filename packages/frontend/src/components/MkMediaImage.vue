@@ -117,7 +117,7 @@ const clickToShowMessage = computed(() => prefer.s.nsfwOpenBehavior === 'click'
 		: '',
 );
 
-async function reveal(ev: MouseEvent) {
+async function reveal(ev: PointerEvent) {
 	if (!props.controls) {
 		return;
 	}
@@ -173,7 +173,7 @@ watch(() => props.image, () => {
 	immediate: true,
 });
 
-function showMenu(ev: MouseEvent) {
+function getMenu() {
 	const menuItems: MenuItem[] = [];
 
 	menuItems.push({
@@ -238,7 +238,7 @@ function showMenu(ev: MouseEvent) {
 		});
 	}
 
-	os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
+	return menuItems;
 }
 
 onMounted(() => {
@@ -304,8 +304,8 @@ onUnmounted(() => {
 	padding: 5px 8px;
 	text-align: center;
 	cursor: pointer;
-	top: 12px;
-	right: 12px;
+	top: 0;
+	right: 0;
 }
 
 .hiddenTextWrapper {
@@ -336,17 +336,17 @@ html[data-color-scheme=light] .visible {
 .menu {
 	display: block;
 	position: absolute;
-	border-radius: 999px;
 	background-color: rgba(0, 0, 0, 0.3);
 	-webkit-backdrop-filter: var(--MI-blur, blur(15px));
 	backdrop-filter: var(--MI-blur, blur(15px));
+	border-radius: 9px 0 0 0;
 	color: #fff;
 	font-size: 0.8em;
 	width: 28px;
 	height: 28px;
 	text-align: center;
-	bottom: 10px;
-	right: 10px;
+	bottom: 0;
+	right: 0;
 }
 
 .imageContainer {

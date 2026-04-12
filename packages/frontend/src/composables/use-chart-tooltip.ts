@@ -4,6 +4,7 @@
  */
 
 import { onUnmounted, onDeactivated, ref } from 'vue';
+import type { Chart, ChartType, TooltipModel } from 'chart.js';
 import * as os from '@/os.js';
 import MkChartTooltip from '@/components/MkChartTooltip.vue';
 
@@ -40,7 +41,7 @@ export function useChartTooltip(opts: { position: 'top' | 'middle', total?: numb
 		tooltipShowing.value = false;
 	});
 
-	function handler(context) {
+	function handler(context: { chart: Chart; tooltip: TooltipModel<ChartType> }) {
 		if (context.tooltip.opacity === 0) {
 			tooltipShowing.value = false;
 			return;

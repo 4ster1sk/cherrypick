@@ -149,10 +149,10 @@ async function search() {
 		});
 		if (!confirm.canceled) {
 			router.push('/user-tags/:tag', {
-					params: {
-						tag: query.substring(1),
-					},
-				});
+				params: {
+					tag: query.substring(1),
+				},
+			});
 			return;
 		}
 	}

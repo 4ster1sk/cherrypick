@@ -207,7 +207,7 @@ export class AnnouncementService {
 				announcementId: announcementId,
 				userId: user.id,
 			});
-		} catch (e) {
+		} catch (_) {
 			return;
 		}
 

@@ -413,7 +413,7 @@ async function leaveRoom() {
 	router.push('/chat');
 }
 
-function showMenu(ev: MouseEvent) {
+function showMenu(ev: PointerEvent) {
 	const menuItems: MenuItem[] = [];
 
 	if (room.value) {
@@ -469,7 +469,6 @@ const headerTabs = computed(() => room.value ? [{
 
 const headerActions = computed<PageHeaderItem[]>(() => [{
 	icon: 'ti ti-dots',
-	text: '',
 	handler: showMenu,
 }]);
 

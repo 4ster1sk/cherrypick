@@ -126,6 +126,7 @@ import { $i, iAmModerator } from '@/i.js';
 import { prefer } from '@/preferences.js';
 import MkRippleEffect from '@/components/MkRippleEffect.vue';
 import { confirmR18, wasConfirmR18 } from '@/utility/check-r18.js';
+import { shouldHideFileByDefault, canRevealFile } from '@/utility/sensitive-file.js';
 
 const props = defineProps<{
 	video: Misskey.entities.DriveFile;
@@ -178,7 +179,7 @@ function hasFocus() {
 }
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const hide = ref((prefer.s.nsfw === 'force' || prefer.s.dataSaver.media) ? true : (props.video.isSensitive && prefer.s.nsfw !== 'ignore'));
+const hide = ref(shouldHideFileByDefault(props.video));
 
 async function reveal() {
 	if (props.video.isSensitive && !await confirmR18()) return;
@@ -196,7 +197,7 @@ async function reveal() {
 // Menu
 const menuShowing = ref(false);
 
-function showMenu(ev: MouseEvent) {
+function showMenu(ev: PointerEvent) {
 	const menu: MenuItem[] = [
 		// TODO: 再生キューに追加
 		{
@@ -723,7 +724,7 @@ onDeactivated(() => {
 	.controlButton {
 		padding: 6px;
 		border-radius: calc(var(--MI-radius) / 2);
-		transition: background-color .2s ease-in-out;
+		transition: background-color .15s ease;
 		font-size: 1.05rem;
 
 		&:hover {
@@ -776,6 +777,23 @@ onDeactivated(() => {
 			display: block;
 			flex-grow: 1;
 		}
+	}
+}
+
+@container (max-width: 300px) {
+	.videoControls {
+		grid-template-areas:
+			"left . right"
+			"seekbar seekbar seekbar";
+		grid-template-columns: auto 1fr auto;
+	}
+
+	.controlsTime {
+		display: none;
+	}
+
+	.controlsVolume {
+		display: none;
 	}
 }
 </style>

@@ -13,8 +13,8 @@ import { DI } from '@/di-symbols.js';
 import type { NoteHistoryRepository, PollsRepository, EventsRepository } from '@/models/_.js';
 import { bindThis } from '@/decorators.js';
 import { NoteHistory } from '@/models/NoteHistory.js';
+import { acquireApObjectLock } from '@/misc/distributed-lock.js';
 import { LoggerService } from './LoggerService.js';
-import { AppLockService } from './AppLockService.js';
 
 type Option = {
 	updatedAt?: Date | null;
@@ -37,7 +37,6 @@ export class NoteHistorySerivce implements OnApplicationShutdown {
 		private idService: IdService,
 
 		private loggerService: LoggerService,
-		private appLockService: AppLockService,
 
 	) {
 		this.logger = this.loggerService.getLogger('NoteHistorySerivce');
@@ -59,7 +58,7 @@ export class NoteHistorySerivce implements OnApplicationShutdown {
 		originalEvent: NoteHistory['event'] | null,
 		options: Option,
 	) {
-		const unlock = await this.appLockService.getApLock(`record-note-history:${originalNote.id}`);
+		const unlock = await acquireApObjectLock(this.redisClient, `record-note-history:${originalNote.id}`);
 
 		try {
 			// 이전에 이미 기록된 히스토리가 있는 경우 가장 최근의 히스토리를 가져오기
