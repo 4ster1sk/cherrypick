@@ -78,7 +78,6 @@ export async function common(createVue: () => Promise<App<Element>>) {
 	//#region クライアントが更新されたかチェック
 	const lastVersion = miLocalStorage.getItem('lastVersion');
 	const lastBasedMisskeyVersion = miLocalStorage.getItem('lastBasedMisskeyVersion');
-	const lastBasedCherrypickVersion = miLocalStorage.getItem('lastBasedCherrypickVersion');
 	if (lastVersion !== version || lastBasedMisskeyVersion !== basedMisskeyVersion ) {
 		if (lastVersion == null) miLocalStorage.setItem('lastVersion', version);
 		else if (compareVersions(version, lastVersion) === 0 || compareVersions(version, lastVersion) === 1) miLocalStorage.setItem('lastVersion', version);

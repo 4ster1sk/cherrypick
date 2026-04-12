@@ -8,7 +8,6 @@ export type Keys = (
 	'basedMisskeyVersion' |
 	'lastVersion' |
 	'lastBasedMisskeyVersion' |
-	'lastBasedCherrypickVersion' |
 	'instance' |
 	'instanceCachedAt' |
 	'account' |
