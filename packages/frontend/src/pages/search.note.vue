@@ -81,7 +81,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 								<MkUserCardMini
 									:user="user"
 									:withChart="false"
-									:class="$style.userSelectedCard"
 								/>
 							</div>
 							<div>
@@ -126,6 +125,7 @@ import { computed, markRaw, ref, shallowRef, toRef, useTemplateRef } from 'vue';
 import { host as localHost } from '@@/js/config.js';
 import type * as Misskey from 'misskey-js';
 import type { MkSelectItem } from '@/components/MkSelect.vue';
+import type { MkRadiosOption } from '@/components/MkRadios.vue';
 import { $i } from '@/i.js';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';

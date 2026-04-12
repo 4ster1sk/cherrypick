@@ -41,8 +41,6 @@ import * as config from '@@/js/config.js';
 import MkButton from '@/components/MkButton.vue';
 import MkInput from '@/components/MkInput.vue';
 import MkSwitch from '@/components/MkSwitch.vue';
-import MkTextarea from '@/components/MkTextarea.vue';
-import MkRadio from '@/components/MkRadio.vue';
 import * as os from '@/os.js';
 import { $i } from '@/i.js';
 import { chooseDriveFile } from '@/utility/drive.js';
@@ -90,7 +88,7 @@ const selectUser = async () => {
 	await os.selectUser();
 };
 
-const openMenu = async (ev: Event) => {
+const openMenu = async (ev: PointerEvent) => {
 	os.popupMenu([{
 		type: 'label',
 		text: 'Fruits',

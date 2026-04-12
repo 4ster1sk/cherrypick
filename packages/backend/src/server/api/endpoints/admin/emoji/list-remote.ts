@@ -11,7 +11,7 @@ import { UtilityService } from '@/core/UtilityService.js';
 import { EmojiEntityService } from '@/core/entities/EmojiEntityService.js';
 import { DI } from '@/di-symbols.js';
 import { sqlLikeEscape } from '@/misc/sql-like-escape.js';
-import { emojiCopyPermissions } from "@/types.js";
+import { emojiCopyPermissions } from '@/types.js';
 
 export const meta = {
 	tags: ['admin'],

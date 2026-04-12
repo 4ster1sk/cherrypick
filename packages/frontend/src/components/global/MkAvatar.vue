@@ -33,23 +33,23 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<div v-if="user.isCat && !isToastAvatar" :class="[$style.ears]">
 		<div :class="$style.earLeft">
 			<div v-if="false" :class="$style.layer">
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
 			</div>
 		</div>
 		<div :class="$style.earRight">
 			<div v-if="false" :class="$style.layer">
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
-				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"/>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
+				<div :class="$style.plot" :style="{ backgroundImage: `url(${JSON.stringify(url)})` }"></div>
 			</div>
 		</div>
 	</div>
 	<template v-if="showDecoration || showDecorationWithFloatingBtn">
 		<img
 			v-for="decoration in decorations ?? user.avatarDecorations"
-			:class="[$style.decoration, { [$style.decorationBlink]: decoration.blink }]"
+			:class="[$style.decoration, { [$style.decorationBlink]: getDecorationIsBrink(decoration) }]"
 			:src="getDecorationUrl(decoration)"
 			:style="{
 				rotate: getDecorationAngle(decoration),
@@ -82,13 +82,16 @@ const { showEl } = scrollToVisibility();
 
 const animation = ref(prefer.s.animation);
 
+type Decoration = Misskey.entities.UserDetailed['avatarDecorations'][number];
+type DecorationEditorDecoration = Omit<Misskey.entities.UserDetailed['avatarDecorations'][number], 'id'> & { blink?: boolean; };
+
 const props = withDefaults(defineProps<{
 	user: Misskey.entities.User;
 	target?: string | null;
 	link?: boolean;
 	preview?: boolean;
 	indicator?: boolean;
-	decorations?: (Omit<Misskey.entities.UserDetailed['avatarDecorations'][number], 'id'> & { blink?: boolean; })[];
+	decorations?: DecorationEditorDecoration[];
 	forceShowDecoration?: boolean;
 	noteClick?: boolean;
 	forceOpacity?: boolean;
@@ -108,7 +111,7 @@ const props = withDefaults(defineProps<{
 });
 
 const emit = defineEmits<{
-	(ev: 'click', v: MouseEvent): void;
+	(ev: 'click', v: PointerEvent): void;
 }>();
 
 const squareAvatars = ref((!prefer.s.setFederationAvatarShape && prefer.s.squareAvatars) || (prefer.s.setFederationAvatarShape && !props.user.setFederationAvatarShape && prefer.s.squareAvatars) || (prefer.s.setFederationAvatarShape && props.user.setFederationAvatarShape && props.user.isSquareAvatars));
@@ -127,7 +130,7 @@ const url = computed(() => {
 	return props.user.avatarUrl;
 });
 
-function onClick(ev: MouseEvent): void {
+function onClick(ev: PointerEvent): void {
 	if (props.noteClick) ev.stopPropagation();
 	if (props.link) return;
 	emit('click', ev);
@@ -138,17 +141,17 @@ function getDecorationUrl(decoration: Omit<Misskey.entities.UserDetailed['avatar
 	return decoration.url;
 }
 
-function getDecorationAngle(decoration: Omit<Misskey.entities.UserDetailed['avatarDecorations'][number], 'id'>) {
+function getDecorationAngle(decoration: Decoration | DecorationEditorDecoration) {
 	const angle = decoration.angle ?? 0;
 	return angle === 0 ? undefined : `${angle * 360}deg`;
 }
 
-function getDecorationScale(decoration: Omit<Misskey.entities.UserDetailed['avatarDecorations'][number], 'id'>) {
+function getDecorationScale(decoration: Decoration | DecorationEditorDecoration) {
 	const scaleX = decoration.flipH ? -1 : 1;
 	return scaleX === 1 ? undefined : `${scaleX} 1`;
 }
 
-function getDecorationOffset(decoration: Omit<Misskey.entities.UserDetailed['avatarDecorations'][number], 'id'>) {
+function getDecorationOffset(decoration: Decoration | DecorationEditorDecoration) {
 	const offsetX = decoration.offsetX ?? 0;
 	const offsetY = decoration.offsetY ?? 0;
 	return offsetX === 0 && offsetY === 0 ? undefined : `${offsetX * 100}% ${offsetY * 100}%`;
@@ -168,6 +171,10 @@ function resetTimer() {
 	playAnimation.value = true;
 	window.clearTimeout(playAnimationTimer);
 	playAnimationTimer = window.setTimeout(() => playAnimation.value = false, 5000);
+}
+
+function getDecorationIsBrink(decoration: Decoration | DecorationEditorDecoration) {
+	return 'blink' in decoration && decoration.blink === true;
 }
 
 const color = ref<string | undefined>();

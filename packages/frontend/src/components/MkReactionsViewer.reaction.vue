@@ -190,7 +190,9 @@ async function toggleReaction(ev: MouseEvent) {
 
 function stealReaction(ev: MouseEvent) {
 	haptic();
+}
 
+async function menu(ev: PointerEvent) {
 	let menuItems: MenuItem[] = [];
 
 	menuItems.push({
@@ -284,7 +286,7 @@ function stealReaction(ev: MouseEvent) {
 
 	os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
 }
-
+/*
 async function menu(ev) {
 	const isCustomEmoji = props.reaction.endsWith(':');
 	let menuItems: MenuItem[] = [];
@@ -397,7 +399,7 @@ async function menu(ev) {
 		}
 	}
 	os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
-}
+}*/
 
 function anime() {
 	if (window.document.hidden || !prefer.s.animation || buttonEl.value == null) return;

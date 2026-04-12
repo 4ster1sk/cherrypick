@@ -7,27 +7,22 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 import { Inject, Injectable } from '@nestjs/common';
-import rename from 'rename';
-import sharp from 'sharp';
-import { sharpBmp } from '@misskey-dev/sharp-read-bmp';
 import type { Config } from '@/config.js';
-import type { MiDriveFile, DriveFilesRepository } from '@/models/_.js';
+import type { DriveFilesRepository } from '@/models/_.js';
 import { DI } from '@/di-symbols.js';
-import { createTemp } from '@/misc/create-temp.js';
-import { FILE_TYPE_BROWSERSAFE } from '@/const.js';
 import { StatusError } from '@/misc/status-error.js';
 import type Logger from '@/logger.js';
 import { DownloadService } from '@/core/DownloadService.js';
-import { IImageStreamable, ImageProcessingService, webpDefault } from '@/core/ImageProcessingService.js';
-import { VideoProcessingService } from '@/core/VideoProcessingService.js';
 import { InternalStorageService } from '@/core/InternalStorageService.js';
-import { contentDisposition } from '@/misc/content-disposition.js';
 import { FileInfoService } from '@/core/FileInfoService.js';
+import { ImageProcessingService } from '@/core/ImageProcessingService.js';
+import { VideoProcessingService } from '@/core/VideoProcessingService.js';
 import { LoggerService } from '@/core/LoggerService.js';
 import { bindThis } from '@/decorators.js';
-import { isMimeImage } from '@/misc/is-mime-image.js';
-import { correctFilename } from '@/misc/correct-filename.js';
 import { handleRequestRedirectToOmitSearch } from '@/misc/fastify-hook-handlers.js';
+import { FileServerDriveHandler } from './file/FileServerDriveHandler.js';
+import { FileServerFileResolver } from './file/FileServerFileResolver.js';
+import { FileServerProxyHandler } from './file/FileServerProxyHandler.js';
 import type { FastifyInstance, FastifyRequest, FastifyReply, FastifyPluginOptions } from 'fastify';
 
 const _filename = fileURLToPath(import.meta.url);
@@ -38,6 +33,9 @@ const assets = `${_dirname}/../../server/file/assets/`;
 @Injectable()
 export class FileServerService {
 	private logger: Logger;
+	private driveHandler: FileServerDriveHandler;
+	private proxyHandler: FileServerProxyHandler;
+	private fileResolver: FileServerFileResolver;
 
 	constructor(
 		@Inject(DI.config)
@@ -54,6 +52,24 @@ export class FileServerService {
 		private loggerService: LoggerService,
 	) {
 		this.logger = this.loggerService.getLogger('server', 'gray');
+		this.fileResolver = new FileServerFileResolver(
+			this.driveFilesRepository,
+			this.fileInfoService,
+			this.downloadService,
+			this.internalStorageService,
+		);
+		this.driveHandler = new FileServerDriveHandler(
+			this.config,
+			this.fileResolver,
+			assets,
+			this.videoProcessingService,
+		);
+		this.proxyHandler = new FileServerProxyHandler(
+			this.config,
+			this.fileResolver,
+			assets,
+			this.imageProcessingService,
+		);
 
 		//this.createServer = this.createServer.bind(this);
 	}
@@ -78,7 +94,7 @@ export class FileServerService {
 			});
 
 			fastify.get<{ Params: { key: string; } }>('/files/:key', async (request, reply) => {
-				return await this.sendDriveFile(request, reply)
+				return await this.driveHandler.handle(request, reply)
 					.catch(err => this.errorHandler(request, reply, err));
 			});
 			fastify.get<{ Params: { key: string; } }>('/files/:key/*', async (request, reply) => {
@@ -91,7 +107,7 @@ export class FileServerService {
 			Params: { url: string; };
 			Querystring: { url?: string; };
 		}>('/proxy/:url*', async (request, reply) => {
-			return await this.proxyHandler(request, reply)
+			return await this.proxyHandler.handle(request, reply)
 				.catch(err => this.errorHandler(request, reply, err));
 		});
 
@@ -284,194 +300,6 @@ export class FileServerService {
 
 				return fs.createReadStream(file.path);
 			}
-		} catch (e) {
-			if ('cleanup' in file) file.cleanup();
-			throw e;
-		}
-	}
-
-	@bindThis
-	private async proxyHandler(request: FastifyRequest<{ Params: { url: string; }; Querystring: { url?: string; }; }>, reply: FastifyReply) {
-		const url = 'url' in request.query ? request.query.url : 'https://' + request.params.url;
-
-		if (typeof url !== 'string') {
-			reply.code(400);
-			return;
-		}
-
-		// アバタークロップなど、どうしてもオリジンである必要がある場合
-		const mustOrigin = 'origin' in request.query;
-
-		if (this.config.externalMediaProxyEnabled && !mustOrigin) {
-			// 外部のメディアプロキシが有効なら、そちらにリダイレクト
-
-			reply.header('Cache-Control', 'public, max-age=259200'); // 3 days
-
-			const url = new URL(`${this.config.mediaProxy}/${request.params.url || ''}`);
-
-			for (const [key, value] of Object.entries(request.query)) {
-				url.searchParams.append(key, value);
-			}
-
-			return await reply.redirect(
-				url.toString(),
-				301,
-			);
-		}
-
-		if (!request.headers['user-agent']) {
-			throw new StatusError('User-Agent is required', 400, 'User-Agent is required');
-		} else if (request.headers['user-agent'].toLowerCase().indexOf('cherrypick/') !== -1) {
-			throw new StatusError('Refusing to proxy a request from another proxy', 403, 'Proxy is recursive');
-		}
-
-		// Create temp file
-		const file = await this.getStreamAndTypeFromUrl(url);
-		if (file === '404') {
-			reply.code(404);
-			reply.header('Cache-Control', 'max-age=86400');
-			return reply.sendFile('/dummy.png', assets);
-		}
-
-		if (file === '204') {
-			reply.code(204);
-			reply.header('Cache-Control', 'max-age=86400');
-			return;
-		}
-
-		try {
-			const isConvertibleImage = isMimeImage(file.mime, 'sharp-convertible-image-with-bmp');
-			const isAnimationConvertibleImage = isMimeImage(file.mime, 'sharp-animation-convertible-image-with-bmp');
-
-			if (
-				'emoji' in request.query ||
-				'avatar' in request.query ||
-				'static' in request.query ||
-				'preview' in request.query ||
-				'badge' in request.query
-			) {
-				if (!isConvertibleImage) {
-					// 画像でないなら404でお茶を濁す
-					throw new StatusError('Unexpected mime', 404);
-				}
-			}
-
-			let image: IImageStreamable | null = null;
-			if ('emoji' in request.query || 'avatar' in request.query) {
-				if (!isAnimationConvertibleImage && !('static' in request.query)) {
-					image = {
-						data: fs.createReadStream(file.path),
-						ext: file.ext,
-						type: file.mime,
-					};
-				} else {
-					const data = (await sharpBmp(file.path, file.mime, { animated: !('static' in request.query) }))
-						.resize({
-							height: 'emoji' in request.query ? 128 : 320,
-							withoutEnlargement: true,
-						})
-						.webp(webpDefault);
-
-					image = {
-						data,
-						ext: 'webp',
-						type: 'image/webp',
-					};
-				}
-			} else if ('static' in request.query) {
-				image = this.imageProcessingService.convertSharpToWebpStream(await sharpBmp(file.path, file.mime), 498, 422);
-			} else if ('preview' in request.query) {
-				image = this.imageProcessingService.convertSharpToWebpStream(await sharpBmp(file.path, file.mime), 200, 200);
-			} else if ('badge' in request.query) {
-				const mask = (await sharpBmp(file.path, file.mime))
-					.resize(96, 96, {
-						fit: 'contain',
-						position: 'centre',
-						withoutEnlargement: false,
-					})
-					.greyscale()
-					.normalise()
-					.linear(1.75, -(128 * 1.75) + 128) // 1.75x contrast
-					.flatten({ background: '#000' })
-					.toColorspace('b-w');
-
-				const stats = await mask.clone().stats();
-
-				if (stats.entropy < 0.1) {
-					// エントロピーがあまりない場合は404にする
-					throw new StatusError('Skip to provide badge', 404);
-				}
-
-				const data = sharp({
-					create: { width: 96, height: 96, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
-				})
-					.pipelineColorspace('b-w')
-					.boolean(await mask.png().toBuffer(), 'eor');
-
-				image = {
-					data: await data.png().toBuffer(),
-					ext: 'png',
-					type: 'image/png',
-				};
-			} else if (file.mime === 'image/svg+xml') {
-				image = this.imageProcessingService.convertToWebpStream(file.path, 2048, 2048);
-			} else if (!file.mime.startsWith('image/') || !FILE_TYPE_BROWSERSAFE.includes(file.mime)) {
-				throw new StatusError('Rejected type', 403, 'Rejected type');
-			}
-
-			if (!image) {
-				if (request.headers.range && file.file && file.file.size > 0) {
-					const range = request.headers.range as string;
-					const parts = range.replace(/bytes=/, '').split('-');
-					const start = parseInt(parts[0], 10);
-					let end = parts[1] ? parseInt(parts[1], 10) : file.file.size - 1;
-					if (end > file.file.size) {
-						end = file.file.size - 1;
-					}
-					const chunksize = end - start + 1;
-
-					image = {
-						data: fs.createReadStream(file.path, {
-							start,
-							end,
-						}),
-						ext: file.ext,
-						type: file.mime,
-					};
-
-					reply.header('Content-Range', `bytes ${start}-${end}/${file.file.size}`);
-					reply.header('Accept-Ranges', 'bytes');
-					reply.header('Content-Length', chunksize);
-					reply.code(206);
-				} else {
-					image = {
-						data: fs.createReadStream(file.path),
-						ext: file.ext,
-						type: file.mime,
-					};
-				}
-			}
-
-			if ('cleanup' in file) {
-				if ('pipe' in image.data && typeof image.data.pipe === 'function') {
-					// image.dataがstreamなら、stream終了後にcleanup
-					image.data.on('end', file.cleanup);
-					image.data.on('close', file.cleanup);
-				} else {
-					// image.dataがstreamでないなら直ちにcleanup
-					file.cleanup();
-				}
-			}
-
-			reply.header('Content-Type', image.type);
-			reply.header('Cache-Control', 'max-age=31536000, immutable');
-			reply.header('Content-Disposition',
-				contentDisposition(
-					'inline',
-					correctFilename(file.filename, image.ext),
-				),
-			);
-			return image.data;
 		} catch (e) {
 			if ('cleanup' in file) file.cleanup();
 			throw e;

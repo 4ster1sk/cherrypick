@@ -2,57 +2,58 @@
 SPDX-FileCopyrightText: syuilo and misskey-project
 SPDX-License-Identifier: AGPL-3.0-only
 -->
-
 <template>
 <MkStickyContainer>
-	<div class="_spacer" style="--MI_SPACER-w: 600px;">
-		<div style="text-align: center;"><b><MkUserName :user="game.user1"/></b> vs <b><MkUserName :user="game.user2"/></b></div>
+	<template #default>
+		<div class="_spacer" style="--MI_SPACER-w: 600px;">
+			<div style="text-align: center;"><b><MkUserName :user="game.user1"/></b> vs <b><MkUserName :user="game.user2"/></b></div>
 
-		<div :class="{ [$style.disallow]: isReady }">
-			<div class="_gaps" :class="{ [$style.disallowInner]: isReady }">
-				<div style="font-size: 1.5em; text-align: center;">{{ i18n.ts._reversi.gameSettings }}</div>
+			<div :class="{ [$style.disallow]: isReady }">
+				<div class="_gaps" :class="{ [$style.disallowInner]: isReady }">
+					<div style="font-size: 1.5em; text-align: center;">{{ i18n.ts._reversi.gameSettings }}</div>
 
-				<template v-if="game.noIrregularRules">
-					<div>{{ i18n.ts._reversi.disallowIrregularRules }}</div>
-				</template>
-				<template v-else>
-					<div class="_panel">
-						<div style="display: flex; align-items: center; padding: 16px; border-bottom: solid 1px var(--MI_THEME-divider);">
-							<div>{{ mapName }}</div>
-							<MkButton style="margin-left: auto;" @click="chooseMap">{{ i18n.ts._reversi.chooseBoard }}</MkButton>
-						</div>
+					<template v-if="game.noIrregularRules">
+						<div>{{ i18n.ts._reversi.disallowIrregularRules }}</div>
+					</template>
+					<template v-else>
+						<div class="_panel">
+							<div style="display: flex; align-items: center; padding: 16px; border-bottom: solid 1px var(--MI_THEME-divider);">
+								<div>{{ mapName }}</div>
+								<MkButton style="margin-left: auto;" @click="chooseMap">{{ i18n.ts._reversi.chooseBoard }}</MkButton>
+							</div>
 
-						<div style="padding: 16px;">
-							<div v-if="game.map == null"><i class="ti ti-dice"></i></div>
-							<div v-else :class="$style.board" :style="{ 'grid-template-rows': `repeat(${ game.map.length }, 1fr)`, 'grid-template-columns': `repeat(${ game.map[0].length }, 1fr)` }">
-								<div v-for="(x, i) in game.map.join('')" :class="[$style.boardCell, { [$style.boardCellNone]: x == ' ' }]" @click="onMapCellClick(i, x)">
-									<i v-if="x === 'b' || x === 'w'" style="pointer-events: none; user-select: none;" :class="x === 'b' ? 'ti ti-circle-filled' : 'ti ti-circle'"></i>
+							<div style="padding: 16px;">
+								<div v-if="game.map == null"><i class="ti ti-dice"></i></div>
+								<div v-else :class="$style.board" :style="{ 'grid-template-rows': `repeat(${ game.map.length }, 1fr)`, 'grid-template-columns': `repeat(${ game.map[0].length }, 1fr)` }">
+									<div v-for="(x, i) in game.map.join('')" :class="[$style.boardCell, { [$style.boardCellNone]: x == ' ' }]" @click="onMapCellClick(i, x)">
+										<i v-if="x === 'b' || x === 'w'" style="pointer-events: none; user-select: none;" :class="x === 'b' ? 'ti ti-circle-filled' : 'ti ti-circle'"></i>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
-					<MkFolder :defaultOpen="true">
-						<template #label>{{ i18n.ts._reversi.blackOrWhite }}</template>
+						<MkFolder :defaultOpen="true">
+							<template #label>{{ i18n.ts._reversi.blackOrWhite }}</template>
 
-						<MkRadios v-model="game.bw" @click="updateSettings('bw')">
-							<option value="random">{{ i18n.ts.random }}</option>
-							<option :value="'1'">
-								<I18n :src="i18n.ts._reversi.blackIs" tag="span">
-									<template #name>
-										<b><MkUserName :user="game.user1"/></b>
-									</template>
-								</I18n>
-							</option>
-							<option :value="'2'">
-								<I18n :src="i18n.ts._reversi.blackIs" tag="span">
-									<template #name>
-										<b><MkUserName :user="game.user2"/></b>
-									</template>
-								</I18n>
-							</option>
-						</MkRadios>
-					</MkFolder>
+							<MkRadios v-model="game.bw" @click="updateSettings('bw')">
+								<option value="random">{{ i18n.ts.random }}</option>
+								<option :value="'1'">
+									<I18n :src="i18n.ts._reversi.blackIs" tag="span">
+										<template #name>
+											<b><MkUserName :user="game.user1"/></b>
+										</template>
+									</I18n>
+								</option>
+								<option :value="'2'">
+									<I18n :src="i18n.ts._reversi.blackIs" tag="span">
+										<template #name>
+											<b><MkUserName :user="game.user2"/></b>
+										</template>
+									</I18n>
+								</option>
+							</MkRadios>
+						</MkFolder>
+					</template>
 
 					<MkFolder v-if="!isFederation" :defaultOpen="true">
 						<template #label>{{ i18n.ts._reversi.timeLimitForEachTurn }}</template>
@@ -79,10 +80,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkSwitch v-model="game.canPutEverywhere" @update:modelValue="updateSettings('canPutEverywhere')">{{ i18n.ts._reversi.canPutEverywhere }}</MkSwitch>
 						</div>
 					</MkFolder>
-				</template>
+				</div>
 			</div>
 		</div>
-	</div>
+	</template>
+
 	<template #footer>
 		<div :class="$style.footer">
 			<div class="_spacer" style="--MI_SPACER-w: 700px; --MI_SPACER-min: 16px; --MI_SPACER-max: 16px;">
@@ -110,10 +112,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, ref, onMounted, shallowRef, onUnmounted } from 'vue';
+import { computed, watch, ref, onUnmounted } from 'vue';
 import * as Misskey from 'misskey-js';
 import * as Reversi from 'misskey-reversi';
 import type { MenuItem } from '@/types/menu.js';
+import type { MkRadiosOption } from '@/components/MkRadios.vue';
 import { i18n } from '@/i18n.js';
 import { $i } from '@/i.js';
 import { deepClone } from '@/utility/clone.js';
@@ -136,6 +139,17 @@ const props = defineProps<{
 const shareWhenStart = defineModel<boolean>('shareWhenStart', { default: false });
 
 const game = ref<Misskey.entities.ReversiGameDetailed>(deepClone(props.game));
+
+const gameTurnOptionsDef = [
+	{ value: 5, label: '5' + i18n.ts._time.second },
+	{ value: 10, label: '10' + i18n.ts._time.second },
+	{ value: 30, label: '30' + i18n.ts._time.second },
+	{ value: 60, label: '60' + i18n.ts._time.second },
+	{ value: 90, label: '90' + i18n.ts._time.second },
+	{ value: 120, label: '120' + i18n.ts._time.second },
+	{ value: 180, label: '180' + i18n.ts._time.second },
+	{ value: 3600, label: '3600' + i18n.ts._time.second },
+] as MkRadiosOption<number>[];
 
 const mapName = computed(() => {
 	if (game.value.map == null) return 'Random';
@@ -207,7 +221,10 @@ function unready() {
 	props.connection.send('ready', false);
 }
 
-function onChangeReadyStates(states) {
+function onChangeReadyStates(states: {
+	user1: boolean;
+	user2: boolean;
+}) {
 	game.value.user1Ready = states.user1;
 	game.value.user2Ready = states.user2;
 }

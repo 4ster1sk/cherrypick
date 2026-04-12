@@ -4,14 +4,10 @@
  */
 
 import * as fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 import * as os from 'node:os';
 import cluster from 'node:cluster';
 import chalk from 'chalk';
 import chalkTemplate from 'chalk-template';
-import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import Logger from '@/logger.js';
 import { loadConfig } from '@/config.js';
 import type { Config } from '@/config.js';
@@ -19,20 +15,14 @@ import { showMachineInfo } from '@/misc/show-machine-info.js';
 import { envOption } from '@/env.js';
 import { jobQueue, server } from './common.js';
 
-const _filename = fileURLToPath(import.meta.url);
-const _dirname = dirname(_filename);
-
-const meta = JSON.parse(fs.readFileSync(`${_dirname}/../../../../built/meta.json`, 'utf-8'));
-
 const logger = new Logger('core', 'cyan');
 const bootLogger = logger.createSubLogger('boot', 'magenta');
 
 const themeColor = chalk.hex('#ffa9c3');
 
-function greet() {
+function greet(props: { version: string, basedCherrypickVersion: string, basedMisskeyVersion: string }) {
 	if (!envOption.quiet) {
 		//#region yojo-art logo
-		const v = `v${meta.version}`;
 		console.log(chalk.hex('#ffa9c3').bold('             _       ') + chalk.hex('#95e3e8').bold('                 _   '));
 		console.log(chalk.hex('#ffa9c3').bold(' _   _  ___ (_) ___  ') + chalk.hex('#95e3e8').bold('       __ _ _ __| |_ '));
 		console.log(chalk.hex('#ffa9c3').bold('| | | |/ _ \\| |/ _ \\ ') + chalk.hex('#95e3e8').bold('_____ / _` | \'__| __|'));
@@ -50,9 +40,9 @@ function greet() {
 	}
 
 	bootLogger.info('Welcome to yojo-art!');
-	bootLogger.info(`yojo-art v${meta.version}`, null, true);
-	bootLogger.info(`Based on Cherrypick v${meta.basedCherrypickVersion}`, null, true);
-	bootLogger.info(`Based on Misskey v${meta.basedMisskeyVersion}`, null, true);
+	bootLogger.info(`yojo-art v${props.version}`, null, true);
+	bootLogger.info(`Based on Cherrypick v${props.basedCherrypickVersion}`, null, true);
+	bootLogger.info(`Based on Misskey v${props.basedMisskeyVersion}`, null, true);
 }
 
 /**
@@ -63,21 +53,28 @@ export async function masterMain() {
 
 	// initialize app
 	try {
-		greet();
+		config = loadConfigBoot();
+		greet({
+			version: config.version,
+			basedCherrypickVersion: config.basedCherrypickVersion,
+			basedMisskeyVersion: config.basedMisskeyVersion,
+		});
 		showEnvironment();
 		await showMachineInfo(bootLogger);
 		showNodejsVersion();
-		config = loadConfigBoot();
 		//await connectDb();
 		if (config.pidFile) fs.writeFileSync(config.pidFile, process.pid.toString());
 	} catch (e) {
-		bootLogger.error('Fatal error occurred during initialization', null, true);
+		bootLogger.error('Fatal error occurred during initialization: ' + e, null, true);
 		process.exit(1);
 	}
 
 	bootLogger.succ('Misskey initialized');
 
 	if (config.sentryForBackend) {
+		const Sentry = await import('@sentry/node');
+		const { nodeProfilingIntegration } = await import('@sentry/profiling-node');
+
 		Sentry.init({
 			integrations: [
 				...(config.sentryForBackend.enableNodeProfiling ? [nodeProfilingIntegration()] : []),

@@ -4,16 +4,16 @@
  */
 
 import { Inject, Injectable, Scope } from '@nestjs/common';
+import { REQUEST } from '@nestjs/core';
 import type { MiUserListMembership, UserListMembershipsRepository, UserListsRepository } from '@/models/_.js';
 import type { Packed } from '@/misc/json-schema.js';
 import { NoteEntityService } from '@/core/entities/NoteEntityService.js';
-import { NoteStreamingHidingService } from '../NoteStreamingHidingService.js';
 import { DI } from '@/di-symbols.js';
 import { bindThis } from '@/decorators.js';
 import { isRenotePacked, isQuotePacked } from '@/misc/is-renote.js';
 import type { JsonObject } from '@/misc/json-value.js';
+import { NoteStreamingHidingService } from '../NoteStreamingHidingService.js';
 import Channel, { type ChannelRequest } from '../channel.js';
-import { REQUEST } from '@nestjs/core';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class UserListChannel extends Channel {
@@ -117,8 +117,10 @@ export class UserListChannel extends Channel {
 
 		if (this.isNoteMutedOrBlocked(note)) return;
 
-		const { shouldSkip } = await this.noteStreamingHidingService.processHiding(note, this.user?.id ?? null);
-		if (shouldSkip) return;
+		const filtered = await this.noteStreamingHidingService.filter(note, this.user?.id ?? null);
+		if (!filtered) return;
+		// eslint-disable-next-line no-param-reassign -- これ以降元の Note オブジェクトは見てはいけないので、いっそ再代入した方が安全
+		note = filtered;
 
 		if (this.user) {
 			if (isRenotePacked(note) && !isQuotePacked(note)) {

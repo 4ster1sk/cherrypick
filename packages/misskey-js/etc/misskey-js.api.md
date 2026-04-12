@@ -2152,6 +2152,8 @@ declare namespace entities {
         UsersFollowingResponse,
         UsersGalleryPostsRequest,
         UsersGalleryPostsResponse,
+        UsersGetFollowingUsersByBirthdayRequest,
+        UsersGetFollowingUsersByBirthdayResponse,
         UsersGetFrequentlyRepliedUsersRequest,
         UsersGetFrequentlyRepliedUsersResponse,
         UsersGroupsCreateRequest,
@@ -2273,6 +2275,7 @@ declare namespace entities {
         MetaLite,
         MetaDetailedOnly,
         MetaDetailed,
+        MetaClientOptions,
         UserWebhook,
         SystemWebhook,
         AbuseReportNotificationRecipient,
@@ -2890,6 +2893,9 @@ type MeDetailed = components['schemas']['MeDetailed'];
 
 // @public (undocumented)
 type MeDetailedOnly = components['schemas']['MeDetailedOnly'];
+
+// @public (undocumented)
+type MetaClientOptions = components['schemas']['MetaClientOptions'];
 
 // @public (undocumented)
 type MetaDetailed = components['schemas']['MetaDetailed'];
@@ -3646,6 +3652,7 @@ type SigninFlowRequest = {
     'g-recaptcha-response'?: string | null;
     'turnstile-response'?: string | null;
     'm-captcha-response'?: string | null;
+    'testcaptcha-response'?: string | null;
 };
 
 // @public (undocumented)
@@ -3862,6 +3869,12 @@ type UsersGalleryPostsRequest = operations['users___gallery___posts']['requestBo
 
 // @public (undocumented)
 type UsersGalleryPostsResponse = operations['users___gallery___posts']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type UsersGetFollowingUsersByBirthdayRequest = operations['users___get-following-users-by-birthday']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type UsersGetFollowingUsersByBirthdayResponse = operations['users___get-following-users-by-birthday']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
 type UsersGetFrequentlyRepliedUsersRequest = operations['users___get-frequently-replied-users']['requestBody']['content']['application/json'];
