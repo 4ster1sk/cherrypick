@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { defineAsyncComponent } from 'vue';
-import { permissions as MkPermissions } from 'misskey-js';
 import { errors, utils, values } from '@syuilo/aiscript';
 import * as Misskey from 'misskey-js';
 import { url, lang } from '@@/js/config.js';
@@ -35,10 +33,6 @@ export function aiScriptReadline(q: string): Promise<string> {
 }
 
 export function createAiScriptEnv(opts: { storageKey: string, token?: string }) {
-	const table = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-	const randomString = Array.from(crypto.getRandomValues(new Uint32Array(32)))
-		.map(v => table[v % table.length])
-		.join('');
 	return {
 		USER_ID: $i ? values.STR($i.id) : values.NULL,
 		USER_NAME: $i?.name ? values.STR($i.name) : values.NULL,
@@ -87,7 +81,7 @@ export function createAiScriptEnv(opts: { storageKey: string, token?: string }) 
 				// バグがあればundefinedもあり得るため念のため
 				if (typeof token.value !== 'string') throw new Error('invalid token');
 			}
-			const actualToken: string | null = token?.value ?? miLocalStorage.getItem(`aiscriptSecure:${opts.storageKey}:${randomString}:accessToken`) ?? opts.token ?? null;
+			const actualToken: string | null = token?.value ?? opts.token ?? null;
 			if (param == null) {
 				throw new errors.AiScriptRuntimeError('expected param');
 			}
@@ -127,34 +121,6 @@ export function createAiScriptEnv(opts: { storageKey: string, token?: string }) 
 		}),
 		'Mk:url': values.FN_NATIVE(() => {
 			return values.STR(window.location.href);
-		}),
-		'Mk:requestToken': values.FN_NATIVE(async ([value]) => {
-			utils.assertArray(value);
-			const permissions = (utils.valToJs(value) as unknown[]).map(val => {
-				if (typeof val !== 'string') {
-					throw new Error(`Invalid type. expected string but got ${typeof val}`);
-				}
-				return val;
-			}).filter(val => MkPermissions.includes(val as any));
-
-			return await new Promise<values.Value>(async (resolve: (v: values.Value) => void) => {
-				await os.popup(defineAsyncComponent(() => import('@/components/MkFlashRequestTokenDialog.vue')), {
-					permissions,
-				}, {
-					accept: () => {
-						misskeyApi('flash/gen-token', {
-							permissions,
-						}).then(res => {
-							miLocalStorage.setItem(`aiscriptSecure:${opts.storageKey}:${randomString}:accessToken`, res!.token);
-							resolve(values.TRUE);
-						});
-					},
-					cancel: () => resolve(values.FALSE),
-					closed: () => {
-						resolve(values.FALSE);
-					},
-				});
-			});
 		}),
 		'Mk:nyaize': values.FN_NATIVE(([text]) => {
 			utils.assertString(text);
