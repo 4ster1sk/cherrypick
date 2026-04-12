@@ -6,7 +6,7 @@ services:
   setup:
     extends:
       file: ./compose.tpl.yml
-      service: cherrypick
+      service: misskey
     command: >
       bash -c "
         npm install -g pnpm
@@ -20,11 +20,11 @@ services:
     depends_on:
       a.test:
         condition: service_healthy
-      cherrypick.a.test:
+      misskey.a.test:
         condition: service_healthy
       b.test:
         condition: service_healthy
-      cherrypick.b.test:
+      misskey.b.test:
         condition: service_healthy
     environment:
       - NODE_ENV=development
@@ -82,7 +82,7 @@ services:
         source: ./certificates/rootCA.crt
         target: /usr/local/share/ca-certificates/rootCA.crt
         read_only: true
-    working_dir: /cherrypick
+    working_dir: /misskey
     entrypoint: >
       bash -c '
         npm install -g pnpm
@@ -126,7 +126,7 @@ services:
         source: ../../../patches
         target: /misskey/patches
         read_only: true
-    working_dir: /cherrypick
+    working_dir: /misskey
     command: >
       bash -c "
         npm install -g pnpm

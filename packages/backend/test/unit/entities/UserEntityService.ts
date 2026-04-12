@@ -236,7 +236,7 @@ describe('UserEntityService', () => {
 		});
 
 		test('MeDetailed', async() => {
-			const achievements = [{ name: 'iLoveCherryPick' as const, unlockedAt: new Date().getTime() }];
+			const achievements = [{ name: 'iLoveMisskey' as const, unlockedAt: new Date().getTime() }];
 			const me = await createUser({}, {
 				birthday: '2000-01-01',
 				achievements: achievements,

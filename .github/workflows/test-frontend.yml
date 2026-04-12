@@ -12,7 +12,7 @@ on:
       # for e2e
       - packages/backend/**
       - .github/workflows/test-frontend.yml
-      - .github/cherrypick/test.yml
+      - .github/misskey/test.yml
   pull_request:
     paths:
       - packages/frontend/**
@@ -21,7 +21,7 @@ on:
       # for e2e
       - packages/backend/**
       - .github/workflows/test-frontend.yml
-      - .github/cherrypick/test.yml
+      - .github/misskey/test.yml
 jobs:
   vitest:
     name: Unit tests (frontend)

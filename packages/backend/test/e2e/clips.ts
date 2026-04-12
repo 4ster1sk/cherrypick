@@ -6,9 +6,9 @@
 process.env.NODE_ENV = 'test';
 
 import * as assert from 'assert';
+import { DEFAULT_POLICIES } from '@/core/RoleService.js';
 import { api, ApiRequest, failedApiCall, hiddenNote, post, signup, successfulApiCall } from '../utils.js';
 import type * as Misskey from 'misskey-js';
-import { DEFAULT_POLICIES } from '@/core/RoleService.js';
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
@@ -24,7 +24,7 @@ describe('クリップ', () => {
 	let bobFollowersNote: Misskey.entities.Note;
 	let bobSpecifiedNote: Misskey.entities.Note;
 
-	const compareBy = <T extends { id: string } >(selector: (s: T) => string = (s: T): string => s.id) => (a: T, b: T): number => {
+	const compareBy = <T extends { id: string }, >(selector: (s: T) => string = (s: T): string => s.id) => (a: T, b: T): number => {
 		return selector(a).localeCompare(selector(b));
 	};
 

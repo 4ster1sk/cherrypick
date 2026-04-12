@@ -82,7 +82,7 @@ services:
         source: ./certificates/rootCA.crt
         target: /usr/local/share/ca-certificates/rootCA.crt
         read_only: true
-    working_dir: /cherrypick
+    working_dir: /misskey
     command: >
       bash -c "
         npm install -g pnpm
@@ -90,7 +90,7 @@ services:
         pnpm -F backend start
       "
     healthcheck:
-      test: bash /cherrypick/healthcheck.sh
+      test: bash /misskey/healthcheck.sh
       interval: 5s
       retries: 20
 
