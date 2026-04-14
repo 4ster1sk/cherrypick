@@ -367,7 +367,7 @@ export const ACHIEVEMENT_TYPES = [
 	'followers1000',
 	'collectAchievements30',
 	'viewAchievements3min',
-	'iLoveMisskey',
+	'iLoveCherryPick',
 	'foundTreasure',
 	'client30min',
 	'client60min',
@@ -392,4 +392,8 @@ export const ACHIEVEMENT_TYPES = [
 	'tutorialCompleted',
 	'bubbleGameExplodingHead',
 	'bubbleGameDoubleExplodingHead',
+	'ohayoujo1',
+	'ohayoujo7',
+	'ohayoujo30',
+	'ohayoujo365',
 ] as const;
