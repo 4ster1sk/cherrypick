@@ -5,7 +5,6 @@
 
 import { Inject, Module, OnApplicationShutdown } from '@nestjs/common';
 import * as Bull from 'bullmq';
-import * as Redis from 'ioredis';
 import { DI } from '@/di-symbols.js';
 import type { Config } from '@/config.js';
 import { baseQueueOptions, QUEUE } from '@/queue/const.js';
@@ -36,68 +35,68 @@ export type ScheduledNoteDeleteQueue = Bull.Queue<ScheduledNoteDeleteJobData>;
 
 const $system: Provider = {
 	provide: 'queue:system',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.SYSTEM, baseQueueOptions(config, QUEUE.SYSTEM, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.SYSTEM, baseQueueOptions(config, QUEUE.SYSTEM)),
+	inject: [DI.config],
 };
 
 const $endedPollNotification: Provider = {
 	provide: 'queue:endedPollNotification',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.ENDED_POLL_NOTIFICATION, baseQueueOptions(config, QUEUE.ENDED_POLL_NOTIFICATION, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.ENDED_POLL_NOTIFICATION, baseQueueOptions(config, QUEUE.ENDED_POLL_NOTIFICATION)),
+	inject: [DI.config],
 };
 
 const $postScheduledNote: Provider = {
 	provide: 'queue:postScheduledNote',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.POST_SCHEDULED_NOTE, baseQueueOptions(config, QUEUE.POST_SCHEDULED_NOTE, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.POST_SCHEDULED_NOTE, baseQueueOptions(config, QUEUE.POST_SCHEDULED_NOTE)),
+	inject: [DI.config],
 };
 
 const $deliver: Provider = {
 	provide: 'queue:deliver',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.DELIVER, baseQueueOptions(config, QUEUE.DELIVER, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.DELIVER, baseQueueOptions(config, QUEUE.DELIVER)),
+	inject: [DI.config],
 };
 
 const $inbox: Provider = {
 	provide: 'queue:inbox',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.INBOX, baseQueueOptions(config, QUEUE.INBOX, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.INBOX, baseQueueOptions(config, QUEUE.INBOX)),
+	inject: [DI.config],
 };
 
 const $db: Provider = {
 	provide: 'queue:db',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.DB, baseQueueOptions(config, QUEUE.DB, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.DB, baseQueueOptions(config, QUEUE.DB)),
+	inject: [DI.config],
 };
 
 const $relationship: Provider = {
 	provide: 'queue:relationship',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.RELATIONSHIP, baseQueueOptions(config, QUEUE.RELATIONSHIP, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.RELATIONSHIP, baseQueueOptions(config, QUEUE.RELATIONSHIP)),
+	inject: [DI.config],
 };
 
 const $objectStorage: Provider = {
 	provide: 'queue:objectStorage',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.OBJECT_STORAGE, baseQueueOptions(config, QUEUE.OBJECT_STORAGE, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.OBJECT_STORAGE, baseQueueOptions(config, QUEUE.OBJECT_STORAGE)),
+	inject: [DI.config],
 };
 
 const $userWebhookDeliver: Provider = {
 	provide: 'queue:userWebhookDeliver',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.USER_WEBHOOK_DELIVER, baseQueueOptions(config, QUEUE.USER_WEBHOOK_DELIVER, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.USER_WEBHOOK_DELIVER, baseQueueOptions(config, QUEUE.USER_WEBHOOK_DELIVER)),
+	inject: [DI.config],
 };
 
 const $systemWebhookDeliver: Provider = {
 	provide: 'queue:systemWebhookDeliver',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.SYSTEM_WEBHOOK_DELIVER, baseQueueOptions(config, QUEUE.SYSTEM_WEBHOOK_DELIVER, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.SYSTEM_WEBHOOK_DELIVER, baseQueueOptions(config, QUEUE.SYSTEM_WEBHOOK_DELIVER)),
+	inject: [DI.config],
 };
 
 const $scheduledNoteDelete: Provider = {
 	provide: 'queue:scheduledNoteDelete',
-	useFactory: (config: Config, redisForJobQueue: Redis.Redis) => new Bull.Queue(QUEUE.SCHEDULED_NOTE_DELETE, baseQueueOptions(config, QUEUE.SCHEDULED_NOTE_DELETE, redisForJobQueue)),
-	inject: [DI.config, DI.redisForJobQueue],
+	useFactory: (config: Config) => new Bull.Queue(QUEUE.SCHEDULED_NOTE_DELETE, baseQueueOptions(config, QUEUE.SCHEDULED_NOTE_DELETE)),
+	inject: [DI.config],
 };
 
 @Module({
