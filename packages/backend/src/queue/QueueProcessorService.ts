@@ -5,8 +5,6 @@
 
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import * as Bull from 'bullmq';
-import * as Redis from 'ioredis';
-import * as Sentry from '@sentry/node';
 import type { Config } from '@/config.js';
 import { DI } from '@/di-symbols.js';
 import type Logger from '@/logger.js';
@@ -97,9 +95,6 @@ export class QueueProcessorService implements OnApplicationShutdown {
 	constructor(
 		@Inject(DI.config)
 		private config: Config,
-
-		@Inject(DI.redisForJobQueue)
-		private redisForJobQueue: Redis.Redis,
 
 		private queueLoggerService: QueueLoggerService,
 		private userWebhookDeliverProcessorService: UserWebhookDeliverProcessorService,
@@ -202,7 +197,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return processer(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.SYSTEM, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.SYSTEM),
 				autorun: false,
 			});
 
@@ -261,7 +256,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return processer(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.DB, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.DB),
 				autorun: false,
 			});
 
@@ -293,7 +288,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.deliverProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.DELIVER, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.DELIVER),
 				autorun: false,
 				concurrency: this.config.deliverJobConcurrency ?? 128,
 				limiter: {
@@ -333,7 +328,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.inboxProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.INBOX, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.INBOX),
 				autorun: false,
 				concurrency: this.config.inboxJobConcurrency ?? 16,
 				limiter: {
@@ -373,7 +368,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.userWebhookDeliverProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.USER_WEBHOOK_DELIVER, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.USER_WEBHOOK_DELIVER),
 				autorun: false,
 				concurrency: 64,
 				limiter: {
@@ -413,7 +408,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.systemWebhookDeliverProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.SYSTEM_WEBHOOK_DELIVER, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.SYSTEM_WEBHOOK_DELIVER),
 				autorun: false,
 				concurrency: 16,
 				limiter: {
@@ -463,7 +458,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return processer(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.RELATIONSHIP, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.RELATIONSHIP),
 				autorun: false,
 				concurrency: this.config.relationshipJobConcurrency ?? 16,
 				limiter: {
@@ -509,7 +504,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return processer(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.OBJECT_STORAGE, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.OBJECT_STORAGE),
 				autorun: false,
 				concurrency: 16,
 			});
@@ -542,7 +537,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.endedPollNotificationProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.ENDED_POLL_NOTIFICATION, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.ENDED_POLL_NOTIFICATION),
 				autorun: false,
 			});
 		}
@@ -557,7 +552,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					return this.postScheduledNoteProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.POST_SCHEDULED_NOTE, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.POST_SCHEDULED_NOTE),
 				autorun: false,
 			});
 		}
@@ -566,13 +561,13 @@ export class QueueProcessorService implements OnApplicationShutdown {
 		//#region scheduled note delete
 		{
 			this.scheduledNoteDeleteQueueWorker = new Bull.Worker(QUEUE.SCHEDULED_NOTE_DELETE, (job) => {
-				if (this.config.sentryForBackend) {
+				if (Sentry != null) {
 					return Sentry.startSpan({ name: 'Queue: ScheduledNoteDelete' }, () => this.scheduledNoteDeleteProcessorService.process(job));
 				} else {
 					return this.scheduledNoteDeleteProcessorService.process(job);
 				}
 			}, {
-				...baseWorkerOptions(this.config, QUEUE.SCHEDULED_NOTE_DELETE, this.redisForJobQueue),
+				...baseWorkerOptions(this.config, QUEUE.SCHEDULED_NOTE_DELETE),
 				autorun: false,
 			});
 		}
