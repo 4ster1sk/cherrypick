@@ -146,7 +146,7 @@ describe('FileServerService', () => {
 		db = await initTestDb(false);
 		driveFilesRepository = db.getRepository(MiDriveFile);
 
-		const loggerService = new LoggerService();
+		const loggerService = new LoggerService(config, null);
 		const aiService = {
 			detectSensitive: async () => null,
 		} as unknown as AiService;

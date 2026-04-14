@@ -48,8 +48,9 @@ const base: MiNote = {
 	updatedAtHistory: null,
 	hasEvent: false,
 	disableRightClick: false,
-	searchableBy: 'public',
 	deleteAt: null,
+	renoteChannelId: null,
+	searchableBy: 'public',
 };
 
 describe('misc:is-renote', () => {
