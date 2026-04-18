@@ -139,7 +139,7 @@ export function migrateOldSettings() {
 			prefer.commit('sound.on.noteEdited', store.s.sound_noteEdited as SoundStore);
 			prefer.commit('sound.on.notification', store.s.sound_notification as SoundStore);
 			prefer.commit('sound.on.reaction', store.s.sound_reaction as SoundStore);
-			prefer.commit('sound.on.chat', store.s.sound_chat as SoundStore);
+			prefer.commit('sound.on.chatMessage', store.s.sound_chatMessage as SoundStore);
 			//prefer.commit('sound.on.chaBg', store.s.sound_chatBg as SoundStore);
 			prefer.commit('defaultNoteVisibility', store.s.defaultNoteVisibility);
 			prefer.commit('defaultNoteLocalOnly', store.s.defaultNoteLocalOnly);

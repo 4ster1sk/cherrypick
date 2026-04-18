@@ -29,6 +29,9 @@ type Events = {
 	hasRequireRefresh: (value: boolean) => void;
 	reloadTimeline: () => void;
 	reloadNotification: () => void;
+
+	// yojo-art
+	requestClearPageCache: () => void;
 };
 
 export const globalEvents = new EventEmitter<Events>();

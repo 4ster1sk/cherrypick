@@ -472,6 +472,10 @@ export const store = markRaw(new Pizzax('base', {
 		where: 'device',
 		default: { type: 'syuilo/bubble2', volume: 1 },
 	},
+	sound_chatMessage: {
+		where: 'device',
+		default: { type: 'syuilo/waon', volume: 1 },
+	},
 	dropAndFusion: {
 		where: 'device',
 		default: {
