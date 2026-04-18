@@ -47,13 +47,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 							-->
 
 							<SearchMarker>
-								<MkRadios v-model="provider">
-									<template #label><SearchLabel>Translator type</SearchLabel></template>
-									<option :value="null">{{ i18n.ts.none }}</option>
-									<option value="deepl">DeepL</option>
-									<option value="google_no_api">Google Translate(without API)</option>
-									<option value="ctav3">Cloud Translation - Advanced(v3)</option>
-									<option value="libretranslate">LibreTranslate</option>
+								<MkRadios
+									v-model="provider" :options="[
+										{ value: null, label: i18n.ts.none },
+										{ value: 'deepl', label: 'DeepL' },
+										{ value: 'google_no_api', label: 'Google Translate(without API)' },
+										{ value: 'ctav3', label: 'Cloud Translation - Advanced(v3)' },
+										{ value: 'libretranslate', label: 'LibreTranslate' },
+									]"
+								>
+									<template #label>
+										<SearchLabel>Translator type</SearchLabel>
+									</template>
 								</MkRadios>
 							</SearchMarker>
 

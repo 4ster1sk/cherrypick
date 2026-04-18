@@ -110,7 +110,7 @@ const props = withDefaults(defineProps<PageHeaderProps>(), {
 });
 
 const emit = defineEmits<{
-	(ev: 'update:tab', key: string);
+	(ev: 'update:tab', key: string): void;
 }>();
 
 //const viewId = inject(DI.viewId);
@@ -139,7 +139,7 @@ const showTabsPopup = (ev: MouseEvent) => {
 		text: tab.title,
 		icon: tab.icon,
 		active: tab.key != null && tab.key === props.tab,
-		action: (ev) => {
+		action: (ev: PointerEvent) => {
 			onTabClick(tab, ev);
 		},
 	}));

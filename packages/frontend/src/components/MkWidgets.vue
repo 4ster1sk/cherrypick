@@ -25,13 +25,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<header class="handle">
 						<span :class="$style.widgetContainerHandle"><i class="ti ti-menu"></i></span>
 						<div style="position: absolute; top: 0; left: 35px; font-size: 12px; font-weight: bold; line-height: 33px;">
-							{{ i18n.ts._widgets[element.name] }}
+							{{ i18n.ts._widgets[item.name as typeof widgetDefs[number]] }}
 						</div>
-						<button :class="$style.widgetContainerConfig" class="_button" @click.prevent.stop="configWidget(element.id)"><i class="ti ti-settings"></i></button>
-						<button :class="$style.widgetContainerRemove" data-cy-customize-container-remove class="_button" @click.prevent.stop="removeWidget(element)"><i class="ti ti-x"></i></button>
+						<button :class="$style.widgetContainerConfig" class="_button" @click.prevent.stop="configWidget(item.id)"><i class="ti ti-settings"></i></button>
+						<button :class="$style.widgetContainerRemove" data-cy-customize-container-remove class="_button" @click.prevent.stop="removeWidget(item)"><i class="ti ti-x"></i></button>
 					</header>
 					<div>
-						<component :is="`widget-${element.name}`" :ref="el => widgetRefs[element.id] = el" class="widget" :class="$style.customizeContainerHandleWidget" :widget="element" @updateProps="updateWidget(element.id, $event)"/>
+						<component :is="`widget-${item.name}`" :ref="(el: Component | null) => widgetRefs[item.id] = el as Component & { configure: () => void }" class="widget" :class="$style.customizeContainerHandleWidget" :widget="item" @updateProps="updateWidget(item.id, $event)"/>
 					</div>
 				</div>
 			</template>

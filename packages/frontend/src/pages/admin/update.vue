@@ -79,20 +79,26 @@ import MkKeyValue from '@/components/MkKeyValue.vue';
 import MkButton from '@/components/MkButton.vue';
 import MkSwitch from '@/components/MkSwitch.vue';
 
+type GitHubRelease = {
+	prerelease: boolean;
+	tag_name: string;
+	published_at: string;
+};
+
 const meta = await misskeyApi('admin/meta');
 
 const enableReceivePrerelease = ref(meta.enableReceivePrerelease);
 const skipVersion = ref(meta.skipVersion);
 const skipYojoArtVersion = ref(meta.skipCherryPickVersion);
 const yojoArtResponse = await window.fetch('https://api.github.com/repos/yojo-art/cherrypick/releases');
-const yojoArtData = await yojoArtResponse.json();
+const yojoArtData: GitHubRelease[] = await yojoArtResponse.json();
 const releasesYojoArt = ref(meta.enableReceivePrerelease ? yojoArtData : yojoArtData.filter(x => !x.prerelease));
 const skipCherryPickVersion = ref(meta.skipCherryPickVersion);
 const cherryPickResponse = await window.fetch('https://api.github.com/repos/kokonect-link/cherrypick/releases');
-const cherryPickData = await cherryPickResponse.json();
+const cherryPickData: GitHubRelease[] = await cherryPickResponse.json();
 const releasesCherryPick = ref(meta.enableReceivePrerelease ? cherryPickData : cherryPickData.filter(x => !x.prerelease));
 const misskeyResponse = await window.fetch('https://api.github.com/repos/misskey-dev/misskey/releases');
-const misskeyData = await misskeyResponse.json();
+const misskeyData: GitHubRelease[] = await misskeyResponse.json();
 const releasesMisskey = ref(meta.enableReceivePrerelease ? misskeyData : misskeyData.filter(x => !x.prerelease));
 const yojoArtTagsMap = new Map<string, string>();
 const cherryPickTagsMap = new Map<string, string>();

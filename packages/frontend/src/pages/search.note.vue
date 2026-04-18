@@ -324,10 +324,9 @@ async function search() {
 				host: querys[2],
 			});
 			os.promiseDialog(promise, null, null, i18n.ts.fetchingAsApObject);
-			const res = await promise;
-			if (typeof res.error === 'undefined') {
-				router.push(`/@${res.username}@${res.host}`);
-			}
+			promise.then(res => {
+				router.pushByPath(`/@${res.username}@${res.host}`);
+			});
 		}
 	}
 	//#endregion

@@ -63,7 +63,7 @@ async function reIndex() {
 	});
 
 	if (!canceled) {
-		os.apiWithDialog('admin/recreate-index' );
+		os.apiWithDialog('admin/recreate-index', {} );
 	}
 }
 

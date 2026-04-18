@@ -170,6 +170,9 @@ export const PREF_DEF = definePreferences({
 	defaultNoteVisibility: {
 		default: 'public' as (typeof Misskey.noteVisibilities)[number],
 	},
+	searchbility: {
+		default: 'public' as (typeof Misskey.noteSearchbility)[number],
+	},
 	defaultNoteSearchbility: {
 		default: 'public' as (typeof Misskey.noteSearchbility)[number],
 	},

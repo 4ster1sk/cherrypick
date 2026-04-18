@@ -243,7 +243,7 @@ watch(showAddMfmFunction, () => prefer.commit('enableQuickAddMfmFunction', showA
 const cw = ref<string | null>(props.initialCw ?? null);
 const visibility = ref(props.initialVisibility ?? (prefer.s.rememberNoteVisibility ? store.s.visibility : prefer.s.defaultNoteVisibility));
 const searchableBy = ref<'public' | 'followersAndReacted' | 'reactedOnly' | 'private'>(
-	prefer.s.rememberNoteSearchbility ? (prefer.s.searchbility as 'public' | 'followersAndReacted' | 'reactedOnly' | 'private') : (prefer.s.defaultNoteSearchbility as 'public' | 'followersAndReacted' | 'reactedOnly' | 'private'),
+	prefer.s.rememberNoteSearchbility ? prefer.s.searchbility : prefer.s.defaultNoteSearchbility,
 );
 const visibleUsers = ref<Misskey.entities.UserDetailed[]>([]);
 if (props.initialVisibleUsers) {
