@@ -95,7 +95,7 @@ async function edit(avatarDecoration: Misskey.entities.AdminAvatarDecorationsLis
 	});
 }
 
-const remoteMenu = (remoteDecoration, ev: MouseEvent) => {
+const remoteMenu = (remoteDecoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number], ev: MouseEvent) => {
 	os.popupMenu([{
 		type: 'label',
 		text: remoteDecoration.name,
@@ -110,9 +110,12 @@ const remoteMenu = (remoteDecoration, ev: MouseEvent) => {
 	}], ev.currentTarget ?? ev.target);
 };
 
-const detailRemoteDecoration = (remoteDecoration) => {
+const detailRemoteDecoration = (remoteDecoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number]) => {
 	const { dispose } = os.popup(MkRemoteAvatarDecorationEditDialog, {
-		decoration: remoteDecoration,
+		// TODO: hostが含まれない
+		decoration: {
+			...remoteDecoration, host: '',
+		},
 	}, {
 		done: () => {
 			dispose();
@@ -123,7 +126,7 @@ const detailRemoteDecoration = (remoteDecoration) => {
 	});
 };
 
-const importDecoration = (decoration) => {
+const importDecoration = (decoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number]) => {
 	os.apiWithDialog('admin/avatar-decorations/copy', {
 		decorationId: decoration.id,
 	});
