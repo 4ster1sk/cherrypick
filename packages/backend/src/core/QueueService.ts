@@ -6,8 +6,7 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { MetricsTime, type JobType } from 'bullmq';
-import { parse as parseRedisInfo } from 'redis-info';
-import { isAnnounce, isBlock, isPost, isRead, isUndo, type IActivity } from '@/core/activitypub/type.js';
+import { isAnnounce, isBlock, isPost, isRead, isUndo } from '@/core/activitypub/type.js';
 import type { IActivity } from '@/core/activitypub/type.js';
 import type { MiDriveFile } from '@/models/DriveFile.js';
 import type { MiAbuseUserReport } from '@/models/AbuseUserReport.js';

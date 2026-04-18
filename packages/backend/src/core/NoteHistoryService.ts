@@ -4,6 +4,7 @@
  */
 
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
+import * as Redis from 'ioredis';
 import { LessThan, MoreThan } from 'typeorm';
 import { MiNote } from '@/models/Note.js';
 import Logger from '@/logger.js';
@@ -25,6 +26,9 @@ export class NoteHistorySerivce implements OnApplicationShutdown {
 	#shutdownController = new AbortController();
 	private logger: Logger;
 	constructor (
+		@Inject(DI.redis)
+		private redisClient: Redis.Redis,
+
 		@Inject(DI.noteHistoryRepository)
 		private noteHistoryRepository: NoteHistoryRepository,
 

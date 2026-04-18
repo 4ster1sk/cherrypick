@@ -24,7 +24,6 @@ import type Logger from '@/logger.js';
 import { SystemAccountService } from '@/core/SystemAccountService.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
 import { getApType, isCollectionOrOrderedCollection, isIOrderedCollectionPage, isOrderedCollection } from './type.js';
-import type { ICollection, IObject, IOrderedCollection } from './type.js';
 import { ApDbResolverService } from './ApDbResolverService.js';
 import { ApRendererService } from './ApRendererService.js';
 import { ApRequestService } from './ApRequestService.js';
