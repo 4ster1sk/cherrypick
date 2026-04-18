@@ -386,6 +386,7 @@ const connections = {
 	userList: null as Misskey.IChannelConnection<Misskey.Channels['userList']> | null,
 	channel: null as Misskey.IChannelConnection<Misskey.Channels['channel']> | null,
 	roleTimeline: null as Misskey.IChannelConnection<Misskey.Channels['roleTimeline']> | null,
+	hashtag: null as Misskey.IChannelConnection<Misskey.Channels['hashtag']> | null,
 };
 
 function connectChannel() {

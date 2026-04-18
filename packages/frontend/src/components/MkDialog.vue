@@ -50,7 +50,8 @@ export type MkDialogReturnType<T = Result> = { canceled: true, result: undefined
 
 <script lang="ts" setup>
 import { ref, useTemplateRef, computed } from 'vue';
-import type { MkSelectItem, OptionValue } from '@/components/MkSelect.vue';
+import type { OptionValue } from '@/types/option-value.js';
+import type { MkSelectItem } from '@/components/MkSelect.vue';
 import MkModal from '@/components/MkModal.vue';
 import MkButton from '@/components/MkButton.vue';
 import MkInput from '@/components/MkInput.vue';

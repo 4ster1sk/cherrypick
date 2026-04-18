@@ -319,7 +319,7 @@ async function chooseHashTag(ev: MouseEvent): Promise<void> {
 			scope: ['client', 'base'],
 			key: 'hashTag',
 		});
-	} catch (err) {
+	} catch (err: any) {
 		if (err.code === 'NO_SUCH_KEY') {
 			tags = [];
 			await misskeyApi('i/registry/set', {

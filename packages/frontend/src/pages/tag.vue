@@ -22,6 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { computed, markRaw, onUnmounted, ref } from 'vue';
 import * as Misskey from 'misskey-js';
 import type { PageHeaderItem } from '@/types/page-header.js';
+import type { MenuItem } from '@/types/menu';
 import MkNotesTimeline from '@/components/MkNotesTimeline.vue';
 import MkButton from '@/components/MkButton.vue';
 import { definePage } from '@/page.js';
@@ -33,7 +34,6 @@ import * as os from '@/os.js';
 import { genEmbedCode } from '@/utility/get-embed-code.js';
 import { Paginator } from '@/utility/paginator.js';
 import { misskeyApi } from '@/utility/misskey-api';
-import { MenuItem } from '@/types/menu';
 
 const props = defineProps<{
 	tag: string;
@@ -114,7 +114,7 @@ const headerActions = computed(() => [{
 }]);
 
 const headerTabs = computed(() => []);
-let connection: Misskey.ChannelConnection | null = null;
+let connection: Misskey.IChannelConnection<Misskey.Channels['hashtag']> | null;
 
 definePage(() => ({
 	title: props.tag,
