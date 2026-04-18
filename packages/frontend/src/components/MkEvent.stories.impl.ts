@@ -44,6 +44,7 @@ export const Default = {
 			reactionAcceptance: null,
 			reactionEmojis: {},
 			reactions: {},
+			searchableBy: 'public',
 			event: {
 				title: 'Come on a Tea Party!',
 				start: new Date('2017-10-25T15:00:00+0900').toISOString(),

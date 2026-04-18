@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
 import { PrismEditor } from 'vue-prism-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
+import { highlight, languages } from 'prismjs';
 import type { MkSelectItem } from '@/components/MkSelect.vue';
 import MkInput from '@/components/MkInput.vue';
 import MkSelect from '@/components/MkSelect.vue';
@@ -85,7 +85,7 @@ const emit = defineEmits(['update:modelValue']);
 
 const value = computed({
 	get() {
-		const data = props.data ?? props.modelValue ?? {
+		const data = { ...(props.data ?? props.modelValue ?? {
 			name: '',
 			targetUserPattern: '',
 			reporterPattern: '',
@@ -94,12 +94,13 @@ const value = computed({
 			expiresAt: 'indefinitely',
 			forward: false,
 			previousExpiresAt: undefined,
-		};
-		for (const [key, _value] of Object.entries(data)) {
-			if (_value === null) {
-				data[key] = '';
-			}
-		}
+		}) };
+
+		data.targetUserPattern ??= '';
+		data.reporterPattern ??= '';
+		data.reportContentPattern ??= '';
+		data.expirationDate ??= '';
+
 		if (props.modelValue && props.editable) {
 			emit('update:modelValue', data);
 		}
@@ -127,8 +128,9 @@ const expiresAtDef = computed(() => {
 	return items;
 });
 
-function highlighter(code) {
-	return highlight(code, languages.regex);
+// TODO: prismjsやめる
+function highlighter(code: string) {
+	return highlight(code, languages.regex, 'regex');
 }
 
 function renderExpirationDate(empty = false) {
