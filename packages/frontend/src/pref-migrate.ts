@@ -116,7 +116,7 @@ export function migrateOldSettings() {
 				...prefer.s.dataSaver,
 				media: store.s.dataSaver.media,
 				avatar: store.s.dataSaver.avatar,
-				urlPreviewThumbnail: store.s.dataSaver.urlPreview,
+				disableUrlPreview: !store.s.dataSaver.urlPreview,
 				code: store.s.dataSaver.code,
 			});
 			prefer.commit('enableSeasonalScreenEffect', store.s.enableSeasonalScreenEffect);

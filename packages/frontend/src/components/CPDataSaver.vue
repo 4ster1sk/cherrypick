@@ -53,15 +53,15 @@ const props = withDefaults(defineProps<{
 const dataSaver = ref(prefer.s.dataSaver);
 
 function enableAllDataSaver() {
-	const g = { ...prefer.s.dataSaver };
-	Object.keys(g).forEach((key) => { g[key] = true; });
-	dataSaver.value = g;
+	dataSaver.value = Object.fromEntries(
+		Object.keys(prefer.s.dataSaver).map((key) => [key, true]),
+	) as typeof prefer.s.dataSaver;
 }
 
 function disableAllDataSaver() {
-	const g = { ...prefer.s.dataSaver };
-	Object.keys(g).forEach((key) => { g[key] = false; });
-	dataSaver.value = g;
+	dataSaver.value = Object.fromEntries(
+		Object.keys(prefer.s.dataSaver).map((key) => [key, false]),
+	) as typeof prefer.s.dataSaver;
 }
 
 watch(dataSaver, (to) => {
