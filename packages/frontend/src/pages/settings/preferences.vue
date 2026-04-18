@@ -838,11 +838,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 									<div class="_gaps_s">
 										<MkPreferenceContainer k="defaultNoteSearchbility">
-											<MkSelect v-model="defaultNoteSearchbility">
-												<option value="public">{{ i18n.ts._searchbility.public }}</option>
-												<option value="followersAndReacted">{{ i18n.ts._searchbility.followersAndReacted }}</option>
-												<option value="reactedOnly">{{ i18n.ts._searchbility.reactedOnly }}</option>
-												<option value="private">{{ i18n.ts._searchbility.private }}</option>
+											<MkSelect
+												v-model="defaultNoteSearchbility" :items="[
+													{ value: 'public', label: i18n.ts._searchbility.public },
+													{ value: 'followersAndReacted', label: i18n.ts._searchbility.followersAndReacted },
+													{ value: 'reactedOnly', label: i18n.ts._searchbility.reactedOnly },
+													{ value: 'private', label: i18n.ts._searchbility.private },
+												]"
+											>
 											</MkSelect>
 										</MkPreferenceContainer>
 									</div>
@@ -1602,9 +1605,9 @@ const disableNyaize = prefer.model('disableNyaize');
 const requireRefreshBehavior = prefer.model('requireRefreshBehavior');
 const newNoteReceivedNotificationBehavior = prefer.model('newNoteReceivedNotificationBehavior');
 const externalNavigationWarning = prefer.model('externalNavigationWarning');
-const searchEngine = computed(store.makeGetterSetter('searchEngine'));
-const searchEngineUrl = computed(store.makeGetterSetter('searchEngineUrl'));
-const searchEngineUrlQuery = computed(store.makeGetterSetter('searchEngineUrlQuery'));
+const searchEngine = prefer.model('searchEngine');
+const searchEngineUrl = prefer.model('searchEngineUrl');
+const searchEngineUrlQuery = prefer.model('searchEngineUrlQuery');
 const removeModalBgColorForBlur = prefer.model('removeModalBgColorForBlur');
 const setFederationAvatarShape = prefer.model('setFederationAvatarShape');
 const showUnreadNotificationsCount = prefer.model('showUnreadNotificationsCount');

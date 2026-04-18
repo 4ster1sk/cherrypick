@@ -189,6 +189,11 @@ export function migrateOldSettings() {
 			prefer.commit('externalNavigationWarning', store.s.externalNavigationWarning);
 			prefer.commit('trustedDomains', store.s.trustedDomains);
 
+			// - Settings/Search
+			prefer.commit('searchEngine', store.s.searchEngine);
+			prefer.commit('searchEngineUrl', store.s.searchEngineUrl);
+			prefer.commit('searchEngineUrlQuery', store.s.searchEngineUrlQuery);
+
 			// - Settings/Accessibility
 			prefer.commit('showingAnimatedImages', store.s.showingAnimatedImages);
 

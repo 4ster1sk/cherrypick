@@ -711,6 +711,15 @@ export const PREF_DEF = definePreferences({
 	newNoteReceivedNotificationBehavior: {
 		default: 'count' as 'default' | 'count' | 'none',
 	},
+	searchEngine: {
+		default: 'google' as 'google' | 'bing' | 'yahoo' | 'baidu' | 'naver' | 'daum' | 'duckduckgo' | 'other',
+	},
+	searchEngineUrl: {
+		default: 'https://www.ecosia.org/search?',
+	},
+	searchEngineUrlQuery: {
+		default: 'q',
+	},
 
 	// - Settings/Navigation bar
 	bannerDisplay: {
