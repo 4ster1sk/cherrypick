@@ -209,7 +209,7 @@ const onContextmenu = (ev: PointerEvent) => {
 	}], ev);
 };
 
-function createChat(ev: MouseEvent) {
+function createChat(ev: PointerEvent) {
 	haptic();
 
 	if (mainRouter.currentRoute.value.name === 'chat' && !(['chat-room'].includes(<string>mainRouter.currentRoute.value.name))) globalEvents.emit('createChat', ev);

@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<Transition :name="prefer.s.animation ? 'fade' : ''" mode="out-in">
 			<div v-if="note">
 				<div v-if="showNext" class="_margin">
-					<MkNotesTimeline direction="up" :withControl="false" :pullToRefresh="false" class="" :paginator="showNext === 'channel' ? nextChannelPaginator : showNext === 'user'? nextUserPaginator : showNext === 'home' ? nextHomePaginator : nextLocalPaginator" :noGap="!prefer.s.showGapBetweenNotesInTimeline" :forceDisableInfiniteScroll="true"/>
+					<MkNotesTimeline direction="up" :withControl="false" :pullToRefresh="false" class="" :paginator="showNext === 'user'? nextUserPaginator : showNext === 'home' ? nextHomePaginator : nextLocalPaginator" :noGap="!prefer.s.showGapBetweenNotesInTimeline" :forceDisableInfiniteScroll="true"/>
 				</div>
 
 				<div class="_margin">
@@ -38,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</div>
 
 				<div v-if="showPrev" class="_margin">
-					<MkNotesTimeline :withControl="false" :pullToRefresh="false" class="" :paginator="showPrev === 'channel' ? prevChannelPaginator : showPrev === 'user'? prevUserPaginator : showPrev === 'home' ? prevHomePaginator : prevLocalPaginator" :noGap="!prefer.s.showGapBetweenNotesInTimeline"/>
+					<MkNotesTimeline :withControl="false" :pullToRefresh="false" class="" :paginator="showPrev === 'user'? prevUserPaginator : showPrev === 'home' ? prevHomePaginator : prevLocalPaginator" :noGap="!prefer.s.showGapBetweenNotesInTimeline"/>
 				</div>
 			</div>
 			<MkError v-else-if="error" @retry="fetchNote()"/>
@@ -97,23 +97,6 @@ const nextUserPaginator = markRaw(new Paginator('users/notes', {
 	initialDirection: 'newer',
 	computedParams: computed(() => note.value ? ({
 		userId: note.value.userId,
-	}) : undefined),
-}));
-
-const prevChannelPaginator = markRaw(new Paginator('channels/timeline', {
-	limit: 10,
-	initialId: props.noteId,
-	computedParams: computed(() => note.value && note.value.channelId != null ? ({
-		channelId: note.value.channelId,
-	}) : undefined),
-}));
-
-const nextChannelPaginator = markRaw(new Paginator('channels/timeline', {
-	limit: 10,
-	initialId: props.noteId,
-	initialDirection: 'newer',
-	computedParams: computed(() => note.value && note.value.channelId != null ? ({
-		channelId: note.value.channelId,
 	}) : undefined),
 }));
 

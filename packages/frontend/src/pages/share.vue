@@ -201,7 +201,7 @@ function goToMisskey(): void {
 
 function onPosted(): void {
 	state.value = 'posted';
-	postMessageToParentWindow('cherrypick:shareForm:shareCompleted');
+	postMessageToParentWindow('misskey:shareForm:shareCompleted');
 }
 
 const headerActions = computed(() => []);

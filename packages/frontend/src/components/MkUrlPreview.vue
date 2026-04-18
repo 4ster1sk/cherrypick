@@ -228,6 +228,7 @@ window.fetch(`${instance.urlPreviewEndpoint}?url=${encodeURIComponent(requestUrl
 
 		title.value = info.title;
 		description.value = info.description;
+		// TODO: 引数のtrue is 何
 		thumbnail.value = getProxiedImageUrlNullable(info.thumbnail, 'avatar', true);
 		icon.value = getProxiedImageUrlNullable(info.icon, 'emoji', true);
 		sitename.value = info.sitename;

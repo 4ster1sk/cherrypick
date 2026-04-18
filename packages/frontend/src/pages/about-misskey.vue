@@ -283,9 +283,14 @@ import { prefer } from '@/preferences.js';
 import { donateCherryPick } from '@/utility/donate-cherrypick.js';
 import { openCommitPage } from '@/utility/fetch-releases.js';
 
-const patronsWithIconWithYojoArt = [];
+interface Patron {
+	name: string;
+	icon: string;
+}
 
-const patronsWithIconWithCherryPick = [{
+const patronsWithIconWithYojoArt: Patron[] = [];
+
+const patronsWithIconWithCherryPick: Patron[] = [{
 	name: 'Etone Sabasappugawa',
 	icon: 'https://s3.kokonect.link/cherrypick/patreons/b3bd97949b664c81857cc7286552c65e.png',
 }, {
@@ -296,7 +301,7 @@ const patronsWithIconWithCherryPick = [{
 	icon: 'https://s3.kokonect.link/cherrypick/patreons/cropped_%E7%84%A1%E9%A1%8C3_20250119014817.png-web.webp%20(1).png',
 }];
 
-const patronsWithIconWithMisskey = [{
+const patronsWithIconWithMisskey: Patron[] = [{
 	name: 'カイヤン',
 	icon: 'https://assets.misskey-hub.net/patrons/a2820716883e408cb87773e377ce7c8d.jpg',
 }, {

@@ -9,12 +9,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 	v-ripple="canToggle"
 	class="_button"
 	:class="[$style.root, { [$style.reacted]: myReaction == reaction, [$style.canToggle]: (canToggle || alternative), [$style.small]: prefer.s.reactionsDisplaySize === 'small', [$style.large]: prefer.s.reactionsDisplaySize === 'large' }]"
-	@click.stop="(ev) => { canToggle || alternative ? toggleReaction(ev) : stealReaction(ev) }"
+	@click.stop="(ev) => { canToggle || alternative ? toggleReaction(ev) : stealReaction() }"
 	@touchstart.stop="(ev) => openEmojiMenu(ev)"
 	@touchend.stop="closeEmojiMenu"
 	@contextmenu.prevent.stop="menu"
 >
-	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[reaction.substring(1, reaction.length - 1)]" @click.stop="(ev) => { canToggle || alternative ? toggleReaction(ev) : stealReaction(ev) }"/>
+	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[reaction.substring(1, reaction.length - 1)]" @click.stop="(ev: PointerEvent) => { canToggle || alternative ? toggleReaction(ev) : stealReaction() }"/>
 	<span :class="$style.count">{{ count }}</span>
 </button>
 </template>
@@ -100,7 +100,7 @@ async function toggleReaction(ev: MouseEvent) {
 	haptic();
 
 	if (!canToggle.value) {
-		await chooseAlternative(ev);
+		await chooseAlternative();
 		return;
 	}
 	if ($i == null) return;
@@ -188,7 +188,7 @@ async function toggleReaction(ev: MouseEvent) {
 	}
 }
 
-function stealReaction(ev: MouseEvent) {
+function stealReaction() {
 	haptic();
 }
 
@@ -412,7 +412,7 @@ function anime() {
 	});
 }
 
-async function chooseAlternative(ev) {
+async function chooseAlternative() {
 	// メニュー表示にして、モデレーター以上の場合は登録もできるように
 	if (!alternative.value) return;
 
@@ -461,10 +461,10 @@ async function chooseAlternative(ev) {
 	}
 }
 
-async function openEmojiMenu(ev) {
+async function openEmojiMenu(ev: TouchEvent) {
 	longTouchEmoji.value = true;
 	window.setTimeout(async () => {
-		if (longTouchEmoji.value === true) stealReaction(ev);
+		if (longTouchEmoji.value === true) stealReaction();
 	}, 500);
 }
 

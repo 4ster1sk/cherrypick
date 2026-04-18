@@ -204,7 +204,7 @@ import * as Misskey from 'misskey-js';
 import tinycolor from 'tinycolor2';
 import XWatermarkItem from './drive.WatermarkItem.vue';
 import XImageFrameItem from './drive.ImageFrameItem.vue';
-import type { WatermarkPreset } from '@/utility/watermark.js';
+import type { WatermarkPreset } from '@/utility/watermark/WatermarkRenderer.js';
 import type { MkSelectItem } from '@/components/MkSelect.vue';
 import type { ImageFramePreset } from '@/utility/image-frame-renderer/ImageFrameRenderer.js';
 import FormLink from '@/components/form/link.vue';

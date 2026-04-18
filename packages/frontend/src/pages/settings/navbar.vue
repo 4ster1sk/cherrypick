@@ -33,10 +33,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 
 		<SearchMarker :keywords="['menu', 'display']">
-			<MkRadios v-model="menuDisplay">
-				<template #label><SearchLabel>{{ i18n.ts.display }}</SearchLabel></template>
-				<option value="sideFull">{{ i18n.ts._menuDisplay.sideFull }}</option>
-				<option value="sideIcon">{{ i18n.ts._menuDisplay.sideIcon }}</option>
+			<MkRadios
+				v-model="menuDisplay" :options="[
+					{ value: 'sideFull', label: i18n.ts._menuDisplay.sideFull },
+					{ value: 'sideIcon', label: i18n.ts._menuDisplay.sideIcon },
+				]"
+			>
+				<template #label>
+					<SearchLabel>{{ i18n.ts.display }}</SearchLabel>
+				</template>
 			</MkRadios>
 		</SearchMarker>
 
@@ -50,14 +55,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<SearchMarker :keywords="['banner', 'display']">
 			<MkPreferenceContainer k="bannerDisplay">
-				<MkRadios v-model="bannerDisplay">
+				<MkRadios
+					v-model="bannerDisplay" :options="[
+						{ value: 'all', label: i18n.ts._bannerDisplay.all },
+						{ value: 'topBottom', label: i18n.ts._bannerDisplay.topBottom },
+						{ value: 'top', label: i18n.ts._bannerDisplay.top },
+						{ value: 'bottom', label: i18n.ts._bannerDisplay.bottom },
+						{ value: 'bg', label: i18n.ts._bannerDisplay.bg },
+						{ value: 'hide', label: i18n.ts._bannerDisplay.hide },
+					]"
+				>
 					<template #label><SearchLabel>{{ i18n.ts.displayBanner }}</SearchLabel> <span class="_beta" style="vertical-align: middle;">CherryPick</span></template>
-					<option value="all">{{ i18n.ts._bannerDisplay.all }}</option>
-					<option value="topBottom">{{ i18n.ts._bannerDisplay.topBottom }}</option>
-					<option value="top">{{ i18n.ts._bannerDisplay.top }}</option>
-					<option value="bottom">{{ i18n.ts._bannerDisplay.bottom }}</option>
-					<option value="bg">{{ i18n.ts._bannerDisplay.bg }}</option>
-					<option value="hide">{{ i18n.ts._bannerDisplay.hide }}</option>
 				</MkRadios>
 			</MkPreferenceContainer>
 		</SearchMarker>

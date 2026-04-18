@@ -77,14 +77,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<SearchMarker :keywords="['display', 'header', 'navbar', 'scroll']">
 					<div>
 						<MkPreferenceContainer k="displayHeaderNavBarWhenScroll">
-							<MkRadios v-model="displayHeaderNavBarWhenScroll">
-								<template #label><SearchLabel>{{ i18n.ts._cherrypick.displayHeaderNavBarWhenScroll }}</SearchLabel></template>
-								<option value="all">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.all }}</option>
-								<option value="hideHeaderOnly">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideHeaderOnly }}</option>
-								<option value="hideHeaderFloatBtn">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideHeaderFloatBtn }}</option>
-								<option value="hideFloatBtnOnly">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideFloatBtnOnly }}</option>
-								<option value="hideFloatBtnNavBar">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideFloatBtnNavBar }}</option>
-								<option value="hide">{{ i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hide }}</option>
+							<MkRadios
+								v-model="displayHeaderNavBarWhenScroll" :options="[
+									{ value: 'all', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.all },
+									{ value: 'hideHeaderOnly', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideHeaderOnly },
+									{ value: 'hideHeaderFloatBtn', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideHeaderFloatBtn },
+									{ value: 'hideFloatBtnOnly', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideFloatBtnOnly },
+									{ value: 'hideFloatBtnNavBar', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hideFloatBtnNavBar },
+									{ value: 'hide', label: i18n.ts._cherrypick._displayHeaderNavBarWhenScroll.hide },
+								]"
+							>
+								<template #label>
+									<SearchLabel>{{ i18n.ts._cherrypick.displayHeaderNavBarWhenScroll }}</SearchLabel>
+								</template>
 							</MkRadios>
 						</MkPreferenceContainer>
 					</div>

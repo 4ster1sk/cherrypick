@@ -29,11 +29,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #label>{{ i18n.ts.makeSearchableBy }}</template>
 		<template #icon><i class="ti ti-search"></i></template>
 		<div class="_gaps_m">
-			<MkSelect v-model="searchableBy">
-				<option value="public">{{ i18n.ts._searchbility.public }}</option>
-				<option value="followersAndReacted">{{ i18n.ts._searchbility.followersAndReacted }}</option>
-				<option value="reactedOnly">{{ i18n.ts._searchbility.reactedOnly }}</option>
-				<option value="private">{{ i18n.ts._searchbility.private }}</option>
+			<MkSelect
+				v-model="searchableBy" :items="[
+					{ value: 'public', label: i18n.ts._searchbility.public },
+					{ value: 'followersAndReacted', label: i18n.ts._searchbility.followersAndReacted },
+					{ value: 'reactedOnly', label: i18n.ts._searchbility.reactedOnly },
+					{ value: 'private', label: i18n.ts._searchbility.private },
+				]"
+			>
 			</MkSelect>
 			<MkInfo>{{ i18n.ts.makeSearchableByDescription }}</MkInfo>
 		</div>
@@ -81,13 +84,13 @@ const isIndexable = ref(true);
 const hideOnlineStatus = ref(false);
 const noCrawle = ref(false);
 const preventAiLearning = ref(true);
-const searchableBy = ref('public');
+const searchableBy = ref<'public' | 'followersAndReacted' | 'reactedOnly' | 'private'>('public');
 
 watch([isLocked, hideOnlineStatus, noCrawle, preventAiLearning], () => {
 	misskeyApi('i/update', {
 		isLocked: !!isLocked.value,
 		isIndexable: !!isIndexable.value,
-		searchableBy: !!searchableBy.value,
+		searchableBy: searchableBy.value,
 		hideOnlineStatus: !!hideOnlineStatus.value,
 		noCrawle: !!noCrawle.value,
 		preventAiLearning: !!preventAiLearning.value,

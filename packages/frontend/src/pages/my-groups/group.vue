@@ -36,6 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { computed, ref, useTemplateRef, watch } from 'vue';
+import * as Misskey from 'misskey-js';
 import * as os from '@/os.js';
 import { $i } from '@/i.js';
 import { mainRouter } from '@/router.js';
@@ -50,7 +51,7 @@ const props = defineProps<{
 }>();
 
 const group = ref();
-const users = ref();
+const users = ref<Misskey.entities.UserDetailed[]>([]);
 
 function fetchGroup() {
 	misskeyApi('users/groups/show', {
@@ -74,7 +75,7 @@ function invite() {
 	});
 }
 
-async function removeUser(user) {
+async function removeUser(user: Misskey.entities.UserDetailed) {
 	const { canceled } = await os.confirm({
 		type: 'warning',
 		text: i18n.tsx._group.banishConfirm({ name: user.name || user.username, group: group.value.name }),

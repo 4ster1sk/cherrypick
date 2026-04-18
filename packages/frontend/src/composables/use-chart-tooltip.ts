@@ -53,8 +53,8 @@ export function useChartTooltip(opts: { position: 'top' | 'middle', total?: numb
 				ratio = '(' + String(Math.round(Number(b.lines[0].replaceAll(/[^0-9]/gi, '')) / opts.total * 1000) / 10) + '%)';
 			}
 			return ({
-				backgroundColor: context.tooltip.labelColors[i].backgroundColor,
-				borderColor: context.tooltip.labelColors[i].borderColor,
+				backgroundColor: String(context.tooltip.labelColors[i].backgroundColor),
+				borderColor: String(context.tooltip.labelColors[i].borderColor),
 				text: b.lines[0] + ratio,
 			});
 		});

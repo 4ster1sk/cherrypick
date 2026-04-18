@@ -238,13 +238,6 @@ if (props.src === 'antenna') {
 		})),
 		useShallowRef: true,
 	}));
-} else if (props.src === 'channel') {
-	paginator = markRaw(new Paginator('channels/timeline', {
-		computedParams: computed(() => ({
-			channelId: props.channel!,
-		})),
-		useShallowRef: true,
-	}));
 } else if (props.src === 'role') {
 	paginator = markRaw(new Paginator('roles/notes', {
 		computedParams: computed(() => ({

@@ -241,6 +241,10 @@ function getMenu() {
 	return menuItems;
 }
 
+function showMenu(ev: PointerEvent) {
+	os.popupMenu(getMenu(), (ev.currentTarget ?? ev.target ?? undefined) as HTMLElement | undefined);
+}
+
 onMounted(() => {
 	if (prefer.s.showingAnimatedImages === 'inactive') {
 		window.addEventListener('mousemove', resetTimer);

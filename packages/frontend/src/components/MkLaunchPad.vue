@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<span v-if="item.indicate && item.indicateValue" class="_indicateCounter indicatorWithValue">{{ item.indicateValue }}</span>
 					<span v-else-if="item.indicate" class="indicator _blink"><i class="_indicatorCircle"></i></span>
 				</button>
-				<MkA v-else :key="item.text" v-click-anime :to="item.to" class="item" @click.passive="close()">
+				<MkA v-else-if="item.to" :key="item.text" v-click-anime :to="item.to" class="item" @click.passive="close()">
 					<i class="icon" :class="item.icon"></i>
 					<div class="text">{{ item.text }}</div>
 					<span v-if="item.indicate && item.indicateValue" class="_indicateCounter indicatorWithValue">{{ item.indicateValue }}</span>
