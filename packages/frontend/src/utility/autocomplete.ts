@@ -376,12 +376,14 @@ export class Autocomplete {
 				const pos = trimmedBefore.length + (props.value.length + 1);
 				this.textarea.setSelectionRange(pos, pos);
 			});
-		} else if (type === 'htmlTag') {
+		} else if (isCompleteType('htmlTag', props)) {
 			const source = this.text;
 
 			const before = source.substring(0, caret);
 			const trimmedBefore = before.substring(0, before.lastIndexOf('<'));
 			const after = source.substring(caret);
+
+			const value = props.value;
 
 			// 挿入
 			if (value === 'bold') this.text = `${trimmedBefore}<b>${after}</b>`;
