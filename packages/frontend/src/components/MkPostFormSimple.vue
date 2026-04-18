@@ -41,7 +41,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</button>
 					<button v-else class="_button" :class="[$style.headerRightItem, $style.visibility]" disabled>
 						<span><i class="ti ti-device-tv"></i></span>
-						<span :class="$style.headerRightButtonText">{{ targetChannel.name }}</span>
+						<span :class="$style.headerRightButtonText">{{ targetChannel?.name }}</span>
 					</button>
 				</template>
 				<button ref="otherSettingsButton" v-tooltip="i18n.ts.other" class="_button" :class="$style.headerRightItem" @click="showOtherSettings"><i class="ti ti-dots"></i></button>
@@ -242,7 +242,9 @@ const showAddMfmFunction = ref(prefer.s.enableQuickAddMfmFunction);
 watch(showAddMfmFunction, () => prefer.commit('enableQuickAddMfmFunction', showAddMfmFunction.value));
 const cw = ref<string | null>(props.initialCw ?? null);
 const visibility = ref(props.initialVisibility ?? (prefer.s.rememberNoteVisibility ? store.s.visibility : prefer.s.defaultNoteVisibility));
-const searchableBy = ref(prefer.s.rememberNoteSearchbility ? prefer.s.searchbility : prefer.s.defaultNoteSearchbility);
+const searchableBy = ref<'public' | 'followersAndReacted' | 'reactedOnly' | 'private'>(
+	prefer.s.rememberNoteSearchbility ? (prefer.s.searchbility as 'public' | 'followersAndReacted' | 'reactedOnly' | 'private') : (prefer.s.defaultNoteSearchbility as 'public' | 'followersAndReacted' | 'reactedOnly' | 'private'),
+);
 const visibleUsers = ref<Misskey.entities.UserDetailed[]>([]);
 if (props.initialVisibleUsers) {
 	props.initialVisibleUsers.forEach(u => pushVisibleUser(u));
@@ -391,8 +393,15 @@ const canSaveAsServerDraft = computed((): boolean => {
 	return canPost.value && (textLength.value > 0 || files.value.length > 0 || poll.value != null || event.value != null);
 });
 
-const withHashtags = computed(store.makeGetterSetter('postFormWithHashtags'));
-const hashtags = computed(store.makeGetterSetter('postFormHashtags'));
+// withHashtags / hashtags: prefer経由のgetterSetter
+const withHashtags = computed({
+	get: () => prefer.s.postFormWithHashtags as boolean,
+	set: (v: boolean) => prefer.commit('postFormWithHashtags', v),
+});
+const hashtags = computed({
+	get: () => (prefer.s.postFormHashtags ?? '') as string,
+	set: (v: string) => prefer.commit('postFormHashtags', v),
+});
 
 watch(text, () => {
 	checkMissingMention();
@@ -529,7 +538,7 @@ function toggleEvent() {
 }
 
 function addTag(tag: string) {
-	insertTextAtCursor(textareaEl.value, ` #${tag} `);
+	if (textareaEl.value) insertTextAtCursor(textareaEl.value, ` #${tag} `);
 }
 
 function focus() {
@@ -539,7 +548,7 @@ function focus() {
 	}
 }
 
-function chooseFileFromPc(ev: MouseEvent) {
+function chooseFileFromPc(ev: PointerEvent) {
 	if (props.mock) return;
 
 	os.chooseFileFromPc({ multiple: true }).then(files => {
@@ -548,7 +557,7 @@ function chooseFileFromPc(ev: MouseEvent) {
 	});
 }
 
-function chooseFileFromDrive(ev: MouseEvent) {
+function chooseFileFromDrive(ev: PointerEvent) {
 	if (props.mock) return;
 
 	chooseDriveFile({ multiple: true }).then(driveFiles => {
@@ -556,18 +565,18 @@ function chooseFileFromDrive(ev: MouseEvent) {
 	});
 }
 
-function detachFile(id) {
+function detachFile(id: string) {
 	files.value = files.value.filter(x => x.id !== id);
 }
 
-function updateFileSensitive(file, sensitive) {
+function updateFileSensitive(file: Misskey.entities.DriveFile, sensitive: boolean) {
 	if (props.mock) {
 		emit('fileChangeSensitive', file.id, sensitive);
 	}
 	files.value[files.value.findIndex(x => x.id === file.id)].isSensitive = sensitive;
 }
 
-function updateFileName(file, name) {
+function updateFileName(file: Misskey.entities.DriveFile, name: string) {
 	files.value[files.value.findIndex(x => x.id === file.id)].name = name;
 }
 
@@ -575,7 +584,7 @@ function setVisibility() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkVisibilityPicker.vue')), {
 		currentVisibility: visibility.value,
 		isSilenced: $i.isSilenced,
-		anchorElement: visibilityButton.value,
+		anchorElement: visibilityButton.value ?? undefined,
 		...(replyTargetNote.value ? { isReplyVisibilitySpecified: replyTargetNote.value.visibility === 'specified' } : {}),
 	}, {
 		changeVisibility: v => {
@@ -596,7 +605,7 @@ function setSearchbility() {
 		changeSearchbility: v => {
 			searchableBy.value = v;
 			if (prefer.s.rememberNoteSearchbility) {
-				store.set('searchbility', searchableBy .value);
+				store.set('searchbility', searchableBy.value);
 			}
 		},
 		closed: () => dispose(),
@@ -722,7 +731,7 @@ function addVisibleUser() {
 	});
 }
 
-function removeVisibleUser(user) {
+function removeVisibleUser(user: Misskey.entities.UserDetailed) {
 	visibleUsers.value = erase(user, visibleUsers.value);
 }
 
@@ -804,7 +813,7 @@ async function onPaste(ev: ClipboardEvent) {
 			text: i18n.ts.quoteQuestion,
 		}).then(({ canceled }) => {
 			if (canceled) {
-				insertTextAtCursor(textareaEl.value, paste);
+				if (textareaEl.value) insertTextAtCursor(textareaEl.value, paste);
 				return;
 			}
 
@@ -819,7 +828,7 @@ async function onPaste(ev: ClipboardEvent) {
 			text: i18n.ts.attachAsFileQuestion,
 		}).then(({ canceled }) => {
 			if (canceled) {
-				insertTextAtCursor(textareaEl.value, paste);
+				if (textareaEl.value) insertTextAtCursor(textareaEl.value, paste);
 				return;
 			}
 
@@ -830,8 +839,8 @@ async function onPaste(ev: ClipboardEvent) {
 	}
 }
 
-function onDragover(ev) {
-	if (!ev.dataTransfer.items[0]) return;
+function onDragover(ev: DragEvent) {
+	if (!ev.dataTransfer || !ev.dataTransfer.items[0]) return;
 	const isFile = ev.dataTransfer.items[0].kind === 'file';
 	if (isFile || checkDragDataType(ev, ['driveFiles'])) {
 		ev.preventDefault();
@@ -1096,7 +1105,7 @@ async function post(ev?: MouseEvent) {
 	};
 
 	if (withHashtags.value && hashtags.value && hashtags.value.trim() !== '') {
-		const hashtags_ = hashtags.value.trim().split(' ').map(x => x.startsWith('#') ? x : '#' + x).join(' ');
+		const hashtags_ = hashtags.value.trim().split(' ').map((x: string) => x.startsWith('#') ? x : '#' + x).join(' ');
 		if (!postData.text) {
 			if (hideTag.value) postData.tagText = hashtags_;
 			else postData.text = hashtags_;
@@ -1149,6 +1158,7 @@ async function post(ev?: MouseEvent) {
 	}, token) : misskeyApi('notes/create', postData, token);
 
 	p().then((res) => {
+		if (!res) return;
 		if (props.freezeAfterPosted) {
 			posted.value = true;
 		} else {
@@ -1251,7 +1261,7 @@ function cancel() {
 
 function insertMention() {
 	os.selectUser({ localOnly: false, includeSelf: true }).then(user => {
-		insertTextAtCursor(textareaEl.value, '@' + Misskey.acct.toString(user) + ' ');
+		if (textareaEl.value) insertTextAtCursor(textareaEl.value, '@' + Misskey.acct.toString(user) + ' ');
 	});
 }
 
@@ -1259,12 +1269,6 @@ async function insertEmoji(ev: MouseEvent) {
 	textAreaReadOnly.value = true;
 	const target = ev.currentTarget ?? ev.target;
 	if (target == null) return;
-
-	// emojiPickerはダイアログが閉じずにtextareaとやりとりするので、
-	// focustrapをかけているとinsertTextAtCursorが効かない
-	// そのため、投稿フォームのテキストに直接注入する
-	// See: https://github.com/misskey-dev/misskey/pull/14282
-	//      https://github.com/misskey-dev/misskey/issues/14274
 
 	let pos = textareaEl.value?.selectionStart ?? 0;
 	let posEnd = textareaEl.value?.selectionEnd ?? text.value.length;
@@ -1311,9 +1315,6 @@ function showActions(ev: MouseEvent) {
 
 async function openMfmCheatSheet() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkMfmCheatSheetDialog.vue')), {}, {
-		cancel: () => {
-
-		},
 		closed: () => {
 			dispose();
 		},
@@ -1399,9 +1400,6 @@ async function openAccountMenu(ev: MouseEvent) {
 				});
 
 				serverDraftId.value = draft.id;
-			},
-			cancel: () => {
-
 			},
 			closed: () => {
 				dispose();
@@ -1566,7 +1564,7 @@ onMounted(() => {
 				saveToDraft.value = draft.data.saveToDraft;
 				visibility.value = draft.data.visibility;
 				searchableBy.value = draft.data.searchableBy;
-				files.value = (draft.data.files || []).filter(draftFile => draftFile);
+				files.value = (draft.data.files || []).filter((draftFile: any) => draftFile);
 				if (draft.data.poll) {
 					poll.value = draft.data.poll;
 				}
@@ -1592,7 +1590,7 @@ onMounted(() => {
 			useCw.value = init.cw != null;
 			cw.value = init.cw ?? null;
 			visibility.value = init.visibility;
-			searchableBy.value = init.searchableBy;
+			searchableBy.value = init.searchableBy as 'public' | 'followersAndReacted' | 'reactedOnly' | 'private';
 			files.value = init.files ?? [];
 			if (init.poll) {
 				poll.value = {
@@ -1764,14 +1762,12 @@ defineExpose({
 
 	&:not(:disabled):hover {
 		> .submitInner, .submitInnerMenu {
-			// background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
 			background: light-dark(var(--MI_THEME-buttonGradateB), var(--MI_THEME-buttonGradateA))
 		}
 	}
 
 	&:not(:disabled):active {
 		> .submitInner, .submitInnerMenu {
-			// background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
 			background: light-dark(var(--MI_THEME-buttonGradateB), var(--MI_THEME-buttonGradateA))
 		}
 	}
@@ -1795,7 +1791,6 @@ defineExpose({
 	min-width: 90px;
 	box-sizing: border-box;
 	color: var(--MI_THEME-fgOnAccent);
-	// background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 	background: var(--MI_THEME-accent);
 }
 
@@ -1852,7 +1847,6 @@ defineExpose({
 
 .preview {
 	padding: 16px 20px;
-	// min-height: 75px;
 	max-height: 150px;
 	overflow: auto;
 	background-size: auto auto;
@@ -2108,12 +2102,6 @@ input.hashtags {
 	.withQuote {
 		margin-inline: 22px;
 	}
-
-	// .cw,
-	// .hashtags,
-	// .text {
-	// padding: 0 16px;
-	// }
 
 	.cw {
 		padding: 0 22px 8px;

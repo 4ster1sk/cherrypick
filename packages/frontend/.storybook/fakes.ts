@@ -91,6 +91,7 @@ export function clip(id = 'someclipid', name = 'Some Clip'): entities.Clip {
 		description: 'Some clip description',
 		isPublic: false,
 		favoritedCount: 0,
+		uri: null,
 	};
 }
 
@@ -106,6 +107,12 @@ export function emojiDetailed(id = 'someemojiid', name = 'some_emoji'): entities
 		isSensitive: false,
 		localOnly: false,
 		roleIdsThatCanBeUsedThisEmojiAsReaction: ['roleId1', 'roleId2'],
+		copyPermission: 'allow',
+		usageInfo: null,
+		author: null,
+		description: null,
+		importFrom: null,
+		isBasedOn: null,
 	};
 }
 
@@ -222,7 +229,7 @@ export function federationInstance(): entities.FederationInstance {
 		themeColor: '',
 		infoUpdatedAt: '',
 		latestRequestReceivedAt: '',
-		isMediaSilenced: false,
+		isQuarantineLimited: false,
 	};
 }
 
@@ -243,6 +250,7 @@ export function note(id = 'somenoteid'): entities.Note {
 		reactionCount: 0,
 		renoteCount: 0,
 		repliesCount: 0,
+		searchableBy: 'public',
 	};
 }
 
@@ -321,6 +329,8 @@ export function userDetailed(id = 'someuserid', username = 'cherrypikist', host:
 		canChat: true,
 		chatScope: 'everyone',
 		mutualLinkSections: [],
+		isIndexable: true,
+		searchableBy: 'public',
 	};
 }
 

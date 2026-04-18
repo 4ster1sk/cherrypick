@@ -158,14 +158,14 @@ const menuDisplay = store.model('menuDisplay');
 const showNavbarSubButtons = prefer.model('showNavbarSubButtons');
 const bannerDisplay = prefer.model('bannerDisplay');
 
-const showMenuButtonInNavbar = computed(store.makeGetterSetter('showMenuButtonInNavbar'));
-const showHomeButtonInNavbar = computed(store.makeGetterSetter('showHomeButtonInNavbar'));
-const showExploreButtonInNavbar = computed(store.makeGetterSetter('showExploreButtonInNavbar'));
-const showSearchButtonInNavbar = computed(store.makeGetterSetter('showSearchButtonInNavbar'));
-const showNotificationButtonInNavbar = computed(store.makeGetterSetter('showNotificationButtonInNavbar'));
-const showChatButtonInNavbar = computed(store.makeGetterSetter('showChatButtonInNavbar'));
-const showWidgetButtonInNavbar = computed(store.makeGetterSetter('showWidgetButtonInNavbar'));
-const showPostButtonInNavbar = computed(store.makeGetterSetter('showPostButtonInNavbar'));
+const showMenuButtonInNavbar = prefer.s.showMenuButtonInNavbar;
+const showHomeButtonInNavbar = prefer.s.showHomeButtonInNavbar;
+const showExploreButtonInNavbar = prefer.s.showExploreButtonInNavbar;
+const showSearchButtonInNavbar = prefer.s.showSearchButtonInNavbar;
+const showNotificationButtonInNavbar = prefer.s.showNotificationButtonInNavbar;
+const showChatButtonInNavbar = prefer.s.showChatButtonInNavbar;
+const showWidgetButtonInNavbar = prefer.s.showWidgetButtonInNavbar;
+const showPostButtonInNavbar = prefer.s.showPostButtonInNavbar;
 
 async function addItem(ev: MouseEvent) {
 	const menu = Object.keys(navbarItemDef).filter(k => !itemTypeValues.value.includes(k));

@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<MkModal v-if="!showChangelog" ref="modal" preferType="dialog" :zPriority="'middle'" @click="modal?.close()" @closed="$emit('closed')">
+<MkModal v-if="!showChangelog" ref="modal" preferType="dialog" :zPriority="'middle'" @click="modal?.close()" @closed="emit('closed')">
 	<div :class="$style.root">
 		<div style="display: grid;">
 			<Mfm text="$[tada 🎉]"/>
@@ -47,6 +47,10 @@ import * as os from '@/os.js';
 import { clearCache } from '@/utility/clear-cache.js';
 import { miLocalStorage } from '@/local-storage.js';
 
+const emit = defineEmits<{
+	(ev: 'closed'): void;
+}>();
+
 const showChangelog = ref(false);
 
 const modal = useTemplateRef('modal');
@@ -69,22 +73,15 @@ function whatIsNewCherryPick() {
 	window.open(`https://github.com/kokonect-link/cherrypick/blob/develop/CHANGELOG_CHERRYPICK.md#${version.replace(/\./g, '')}`, '_blank');
 }
 
-const close = async () => {
-	modal.value?.close();
-	await os.alert({
-		type: 'warning',
-		title: i18n.ts.cherrypickMigratedCacheClearTitle,
-		text: i18n.ts.cherrypickMigratedCacheClear,
-	});
-	miLocalStorage.setItem('lastVersion', version);
-	await clearCache();
-};
-
 onMounted(() => {
 	confetti({
 		duration: 1000 * 3,
 	});
 });
+
+function close() {
+	modal.value?.close();
+}
 </script>
 
 <style lang="scss" module>

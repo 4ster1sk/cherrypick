@@ -191,9 +191,10 @@ onUnmounted(() => {
 	window.removeEventListener('resize', handleResize);
 });
 
-const onContextmenu = (ev) => {
-	if (isLink(ev.target)) return;
-	if (['INPUT', 'TEXTAREA', 'IMG', 'VIDEO', 'CANVAS'].includes(ev.target.tagName) || ev.target.attributes['contenteditable']) return;
+const onContextmenu = (ev: PointerEvent) => {
+	const elm = ev.target as HTMLElement;
+	if (isLink(elm)) return;
+	if (['INPUT', 'TEXTAREA', 'IMG', 'VIDEO', 'CANVAS'].includes(elm.tagName) || elm.getAttribute('contenteditable') !== null) return;
 	if (window.getSelection()?.toString() !== '') return;
 	const path = mainRouter.getCurrentFullPath();
 	os.contextMenu([{

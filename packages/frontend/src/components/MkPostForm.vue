@@ -14,7 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<header :class="$style.header">
 		<div :class="$style.headerLeft">
 			<button v-if="!fixed" :class="$style.cancel" class="_button" @click="cancel"><i class="ti ti-x"></i></button>
-			<button v-click-anime v-tooltip="i18n.ts.account" :class="[$style.account, { [$style.fixed]: fixed }]" class="_button" @click="openAccountMenu">
+			<button ref="accountMenuEl" v-click-anime v-tooltip="i18n.ts.account" :class="[$style.account, { [$style.fixed]: fixed }]" class="_button" @click="openAccountMenu">
 				<img :class="[$style.avatar, { [$style.square]: prefer.s.squareAvatars }]" :src="(postAccount ?? $i).avatarUrl"/>
 			</button>
 		</div>
@@ -36,12 +36,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</button>
 				<button v-else class="_button" :class="[$style.headerRightItem, $style.visibility]" disabled>
 					<span><i class="ti ti-device-tv"></i></span>
-					<span :class="$style.headerRightButtonText">{{ targetChannel.name }}</span>
+					<span :class="$style.headerRightButtonText">{{ targetChannel?.name }}</span>
 				</button>
 			</template>
 			<button ref="otherSettingsButton" v-tooltip="i18n.ts.other" class="_button" :class="$style.headerRightItem" @click="showOtherSettings"><i class="ti ti-dots"></i></button>
 			<div :class="$style.submit">
-				<button v-click-anime class="_button" :class="$style.submitButton" :disabled="!canPost" data-cy-open-post-form-submit @click="post">
+				<button ref="submitButtonEl" v-click-anime class="_button" :class="$style.submitButton" :disabled="!canPost" data-cy-open-post-form-submit @click="post">
 					<div :class="$style.submitInner">
 						<template v-if="posted"></template>
 						<template v-else-if="posting"><MkEllipsis/></template>
@@ -201,6 +201,8 @@ const props = withDefaults(defineProps<PostFormProps & {
 });
 
 provide(DI.mock, props.mock);
+
+const modal = inject(DI.inModal, false);
 
 const emit = defineEmits<{
 	(ev: 'posted'): void;
@@ -599,7 +601,7 @@ function setVisibility() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkVisibilityPicker.vue')), {
 		currentVisibility: visibility.value,
 		isSilenced: $i.isSilenced,
-		anchorElement: visibilityButton.value,
+		anchorElement: visibilityButton.value ?? undefined,
 		...(replyTargetNote.value ? { isReplyVisibilitySpecified: replyTargetNote.value.visibility === 'specified' } : {}),
 	}, {
 		changeVisibility: v => {
@@ -772,7 +774,6 @@ function removeVisibleUser(id: string) {
 
 function clear() {
 	text.value = '';
-	schedule.value = null;
 	cw.value = null;
 	files.value = [];
 	poll.value = null;
@@ -949,6 +950,11 @@ type StoredDrafts = {
 			quoteId: string | null;
 			reactionAcceptance: 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null;
 			scheduledAt: number | null;
+			scheduledNoteDelete?: { deleteAt: number | null; deleteAfter: number | null; } | null;
+			disableRightClick?: boolean;
+			saveToDraft?: boolean;
+			searchableBy?: string;
+			event?: event;
 		};
 	};
 };
@@ -1218,13 +1224,14 @@ async function post(ev?: PointerEvent) {
 	}, token) : misskeyApi('notes/create', postData, token);
 
 	p().then((res) => {
+		if (!res) return;
 		if (props.freezeAfterPosted) {
 			posted.value = true;
 		} else {
 			clear();
 		}
 
-		globalEvents.emit('notePosted', res.createdNote);
+		globalEvents.emit('notePosted', res.createdNote as Misskey.entities.Note);
 
 		nextTick(() => {
 			deleteDraft();
@@ -1405,9 +1412,6 @@ function showActions(ev: PointerEvent) {
 
 async function openMfmCheatSheet() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/MkMfmCheatSheetDialog.vue')), {}, {
-		cancel: () => {
-
-		},
 		closed: () => {
 			dispose();
 		},
@@ -1493,9 +1497,6 @@ async function openAccountMenu(ev: PointerEvent) {
 				});
 
 				serverDraftId.value = draft.id;
-			},
-			cancel: () => {
-
 			},
 			closed: () => {
 				dispose();
@@ -1688,12 +1689,8 @@ onMounted(() => {
 			cw.value = init.cw ?? null;
 			visibility.value = init.visibility;
 			searchableBy.value = init.searchableBy;
-			files.value = init.files ?? [];
-			if (init.isSchedule) {
-				schedule.value = {
-					expiresAt: new Date(init.createdAt).getTime(),
-				};
-			}
+			files.value = init.files ?? []; ;
+
 			if (init.poll) {
 				poll.value = {
 					choices: init.poll.choices.map(x => x.text),

@@ -807,6 +807,30 @@ export const PREF_DEF = definePreferences({
 	checkMultipleRenote: {
 		default: false,
 	},
+	showMenuButtonInNavbar: {
+		default: false,
+	},
+	showHomeButtonInNavbar: {
+		default: false,
+	},
+	showExploreButtonInNavbar: {
+		default: false,
+	},
+	showSearchButtonInNavbar: {
+		default: false,
+	},
+	showNotificationButtonInNavbar: {
+		default: false,
+	},
+	showChatButtonInNavbar: {
+		default: false,
+	},
+	showWidgetButtonInNavbar: {
+		default: false,
+	},
+	showPostButtonInNavbar: {
+		default: false,
+	},
 	//#endregion
 
 	'experimental.stackingRouterView': {

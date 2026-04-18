@@ -20,7 +20,7 @@ import { copyToClipboard } from '@/utility/copy-to-clipboard.js';
 import { store } from '@/store.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { getUserMenu } from '@/utility/get-user-menu.js';
-import { clipsCache, favoritedChannelsCache } from '@/cache.js';
+import { clipsCache } from '@/cache.js';
 import MkRippleEffect from '@/components/MkRippleEffect.vue';
 import { isSupportShare } from '@/utility/navigator.js';
 import { getAppearNote } from '@/utility/get-appear-note.js';
@@ -660,6 +660,7 @@ export function getNoteMenu(props: {
 			if (props.note.userId !== $i.id) menuItems.push(getAbuseNoteMenu(props.note, i18n.ts.reportAbuseRenote));
 		}
 
+		/*
 		if (appearNote.channel && (appearNote.channel.userId === $i.id || $i.isModerator || $i.isAdmin)) {
 			menuItems.push({ type: 'divider' });
 			menuItems.push({
@@ -693,7 +694,7 @@ export function getNoteMenu(props: {
 					return channelChildMenu;
 				},
 			});
-		}
+		}*/
 
 		if (appearNote.userId === $i.id || $i.isModerator || $i.isAdmin) {
 			menuItems.push({ type: 'divider' });
@@ -902,6 +903,7 @@ export async function getRenoteMenu(props: {
 	const normalRenoteItems: MenuItem[] = [];
 	const visibilityRenoteItems: MenuItem[] = [];
 
+	/*
 	// Add channel renote/quote buttons
 	if (appearNote.channel) {
 		const channelRenoteButton = {
@@ -956,7 +958,7 @@ export async function getRenoteMenu(props: {
 				},
 			});
 		}
-	}
+	}*/
 
 	if (!appearNote.channel || appearNote.channel.allowRenoteToExternal) {
 		normalRenoteItems.push({

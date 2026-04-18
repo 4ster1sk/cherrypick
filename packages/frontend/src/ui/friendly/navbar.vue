@@ -25,10 +25,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div v-if="item === '-'" :class="$style.divider"></div>
 				<component
 					:is="navbarItemDef[item].to ? 'MkA' : 'button'"
-					v-else-if="navbarItemDef[item] && (navbarItemDef[item].show !== false)"
+					v-else-if="navbarItemDef[item] && (navbarItemDef[item].show?.value ?? true)"
 					v-tooltip.noDelay.right="navbarItemDef[item].title"
 					class="_button"
-					:class="[$style.item, { [$style.active]: navbarItemDef[item].active }]"
+					:class="[$style.item, { [$style.active]: navbarItemDef[item].active?.value }]"
 					:activeClass="$style.active"
 					:to="navbarItemDef[item].to"
 					v-on="navbarItemDef[item].action ? { click: navbarItemDef[item].action } : {}"

@@ -91,7 +91,7 @@ function toggle(o: MkRadiosOption): void {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .label {
 	font-size: 0.85em;
 	padding: 0 0 8px 0;

@@ -121,8 +121,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 							itemKey="id"
 							:animation="150"
 							:handle="'.' + $style.dragItemHandle"
-							@start="e => e.item.classList.add('active')"
-							@end="e => e.item.classList.remove('active')"
+							@start="(e: { item: HTMLElement }) => e.item.classList.add('active')"
+							@end="(e: { item: HTMLElement }) => e.item.classList.remove('active')"
 						>
 							<template #item="{element: sectionElement,index: sectionIndex}">
 								<div :class="$style.mutualLinkSectionRoot">
