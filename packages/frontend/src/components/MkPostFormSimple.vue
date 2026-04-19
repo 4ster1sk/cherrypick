@@ -393,15 +393,8 @@ const canSaveAsServerDraft = computed((): boolean => {
 	return canPost.value && (textLength.value > 0 || files.value.length > 0 || poll.value != null || event.value != null);
 });
 
-// withHashtags / hashtags: prefer経由のgetterSetter
-const withHashtags = computed({
-	get: () => prefer.s.postFormWithHashtags as boolean,
-	set: (v: boolean) => prefer.commit('postFormWithHashtags', v),
-});
-const hashtags = computed({
-	get: () => (prefer.s.postFormHashtags ?? '') as string,
-	set: (v: string) => prefer.commit('postFormHashtags', v),
-});
+const withHashtags = store.model('postFormWithHashtags');
+const hashtags = store.model('postFormHashtags');
 
 watch(text, () => {
 	checkMissingMention();
@@ -600,7 +593,8 @@ function setVisibility() {
 function setSearchbility() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/CPSearchbilityPicker.vue')), {
 		currentSearchbility: searchableBy.value,
-		src: searchbilityButton.value,
+		anchorElement: searchbilityButton.value ?? undefined,
+		src: searchbilityButton.value ?? undefined,
 	}, {
 		changeSearchbility: v => {
 			searchableBy.value = v;
@@ -1165,7 +1159,7 @@ async function post(ev?: MouseEvent) {
 			clear();
 		}
 
-		globalEvents.emit('notePosted', res.createdNote);
+		globalEvents.emit('notePosted', res.createdNote as Misskey.entities.Note);
 
 		nextTick(() => {
 			deleteDraft();
@@ -1288,12 +1282,18 @@ async function insertEmoji(ev: MouseEvent) {
 	);
 }
 
-async function insertMfmFunction(ev: MouseEvent) {
+async function insertMfmFunction(ev: PointerEvent) {
 	if (textareaEl.value == null) return;
+
 	mfmFunctionPicker(
 		ev.currentTarget ?? ev.target,
 		textareaEl.value,
 		text,
+		() => {
+			nextTick(() => {
+				textareaEl.value?.focus();
+			});
+		},
 	);
 }
 
@@ -1442,7 +1442,7 @@ function showPerUploadItemMenu(item: UploaderItem, ev: MouseEvent) {
 	os.popupMenu(menu, ev.currentTarget ?? ev.target);
 }
 
-function showPerUploadItemMenuViaContextmenu(item: UploaderItem, ev: MouseEvent) {
+function showPerUploadItemMenuViaContextmenu(item: UploaderItem, ev: PointerEvent) {
 	const menu = uploader.getMenu(item);
 	os.contextMenu(menu, ev);
 }

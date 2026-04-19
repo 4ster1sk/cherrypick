@@ -1369,27 +1369,14 @@ async function insertEmoji(ev: PointerEvent) {
 
 async function insertMfmFunction(ev: PointerEvent) {
 	if (textareaEl.value == null) return;
-	let pos = textareaEl.value.selectionStart ?? 0;
-	let posEnd = textareaEl.value.selectionEnd ?? text.value.length;
+
 	mfmFunctionPicker(
 		ev.currentTarget ?? ev.target,
-		(tag) => {
-			if (pos === posEnd) {
-				text.value = `${text.value.substring(0, pos)}$[${tag} ]${text.value.substring(pos)}`;
-				pos += tag.length + 3;
-				posEnd = pos;
-			} else {
-				text.value = `${text.value.substring(0, pos)}$[${tag} ${text.value.substring(pos, posEnd)}]${text.value.substring(posEnd)}`;
-				pos += tag.length + 3;
-				posEnd = pos;
-			}
-		},
+		textareaEl.value,
+		text,
 		() => {
 			nextTick(() => {
-				if (textareaEl.value) {
-					textareaEl.value.focus();
-					textareaEl.value.setSelectionRange(pos, posEnd);
-				}
+				textareaEl.value?.focus();
 			});
 		},
 	);
@@ -1659,10 +1646,11 @@ onMounted(() => {
 				text.value = draft.data.text;
 				useCw.value = draft.data.useCw;
 				cw.value = draft.data.cw;
-				disableRightClick.value = draft.data.disableRightClick;
-				saveToDraft.value = draft.data.saveToDraft;
-				visibility.value = draft.data.visibility;
-				searchableBy.value = draft.data.searchableBy;
+				disableRightClick.value = draft.data.disableRightClick ?? false;
+				saveToDraft.value = draft.data.saveToDraft ?? true;
+				// FIXME
+				visibility.value = (draft.data.visibility ?? 'public') as typeof visibility.value;
+				searchableBy.value = (draft.data.searchableBy ?? 'public') as typeof searchableBy.value;
 				files.value = (draft.data.files || []).filter(draftFile => draftFile);
 				if (draft.data.poll) {
 					poll.value = draft.data.poll;
@@ -1689,7 +1677,7 @@ onMounted(() => {
 			useCw.value = init.cw != null;
 			cw.value = init.cw ?? null;
 			visibility.value = init.visibility;
-			searchableBy.value = init.searchableBy;
+			searchableBy.value = init.searchableBy ?? 'public';
 			files.value = init.files ?? []; ;
 
 			if (init.poll) {
