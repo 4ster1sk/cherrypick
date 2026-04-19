@@ -30,6 +30,7 @@ import { FileServerService } from './FileServerService.js';
 import { HealthServerService } from './HealthServerService.js';
 import { ClientServerService } from './web/ClientServerService.js';
 import { OpenApiServerService } from './api/openapi/OpenApiServerService.js';
+import fastifyHttpProxy from "@fastify/http-proxy";
 import { OAuth2ProviderService } from './oauth/OAuth2ProviderService.js';
 
 const _dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -140,7 +141,11 @@ export class ServerService implements OnApplicationShutdown {
 			});
 		}
 
-		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
+		if (this.config.devServerUrl) {
+			fastify.register(fastifyHttpProxy, { upstream: this.config.devServerUrl, prefix: "/api", rewritePrefix: "/api" });
+		} else {
+			fastify.register(this.apiServerService.createServer, { prefix: "/api" });
+		}
 		fastify.register(this.openApiServerService.createServer);
 		fastify.register(this.fileServerService.createServer);
 		fastify.register(this.activityPubServerService.createServer);

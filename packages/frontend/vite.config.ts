@@ -18,8 +18,13 @@ import pluginCreateSearchIndex from './lib/vite-plugin-create-search-index.js';
 import pluginWatchLocales from './lib/vite-plugin-watch-locales.js';
 import { pluginRemoveUnrefI18n } from '../frontend-builder/rollup-plugin-remove-unref-i18n.js';
 
-const url = process.env.NODE_ENV === 'development' ? yaml.load(await fsp.readFile('../../.config/default.yml', 'utf-8')).url : null;
-const host = url ? (new URL(url)).hostname : undefined;
+const defaultConfig = process.env.NODE_ENV === 'development'
+    ? yaml.load(await fsp.readFile('../../.config/default.yml', 'utf-8')) as { url?: string; dev_server_url?: string }
+    : {} as { url?: string; dev_server_url?: string };
+const url = process.env.NODE_ENV === 'development'
+    ? (defaultConfig.dev_server_url ?? defaultConfig.url)
+    : null;
+const host = url ? (new URL(defaultConfig.url!)).hostname : undefined;
 
 // Get local git commit hash
 function getGitHash(): string {
@@ -132,6 +137,17 @@ export function getConfig(): UserConfig {
 			headers: { // なんか効かない
 				'X-Frame-Options': 'DENY',
 			},
+    // ここを追加
+    proxy: defaultConfig.dev_server_url ? {
+        '/api': {
+            target: defaultConfig.dev_server_url,
+            changeOrigin: true,
+        },
+        '/files': {
+            target: defaultConfig.dev_server_url,
+            changeOrigin: true,
+        },
+    } : undefined,
 		},
 
 		plugins: [

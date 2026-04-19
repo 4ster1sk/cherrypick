@@ -25,6 +25,7 @@ type RedisOptionsSource = Partial<RedisOptions> & {
  */
 type Source = {
 	url?: string;
+	dev_server_url?: string;
 	port?: number;
 	socket?: string;
 	trustProxy?: FastifyServerOptions['trustProxy'];
@@ -139,6 +140,7 @@ type Source = {
 };
 
 export type Config = {
+	devServerUrl: string | undefined;
 	url: string;
 	port: number;
 	socket: string | undefined;
@@ -328,6 +330,7 @@ export function loadConfig(): Config {
 		publishTarballInsteadOfProvideRepositoryUrl: !!config.publishTarballInsteadOfProvideRepositoryUrl,
 		setupPassword: config.setupPassword,
 		url: url.origin,
+		devServerUrl: config.dev_server_url,
 		port: config.port ?? parseInt(process.env.PORT ?? '', 10),
 		socket: config.socket,
 		trustProxy: config.trustProxy ?? [
