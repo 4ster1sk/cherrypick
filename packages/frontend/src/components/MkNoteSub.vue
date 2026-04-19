@@ -101,13 +101,15 @@ if (props.detail && props.note) {
 if (prefer.s.alwaysShowCw) showContent.value = true;
 
 function noteClick(ev: MouseEvent) {
+	if (props.note == null) return;
 	if (!expandOnNoteClick || window.getSelection()?.toString() !== '' || prefer.s.expandOnNoteClickBehavior === 'doubleClick') ev.stopPropagation();
-	else router.pushByPath(notePage(props.note));
+	else router.pushByPath(notePage({ id: props.note.id }));
 }
 
 function noteDblClick(ev: MouseEvent) {
+	if (props.note == null) return;
 	if (!expandOnNoteClick || window.getSelection()?.toString() !== '' || prefer.s.expandOnNoteClickBehavior === 'click') ev.stopPropagation();
-	else router.pushByPath(notePage(props.note));
+	else router.pushByPath(notePage({ id: props.note.id }));
 }
 </script>
 

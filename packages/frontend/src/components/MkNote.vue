@@ -510,7 +510,7 @@ const { $note: $appearNote, subscribe: subscribeManuallyToNoteCapture } = useNot
 	mock: props.mock,
 });
 
-const enableAnimatedMfm = $i ? true : computed(store.makeGetterSetter('animatedMfm'));
+const enableAnimatedMfm = $i ? true : prefer.model('animatedMfm');
 
 const rootEl = useTemplateRef('rootEl');
 const menuButton = useTemplateRef('menuButton');
@@ -864,7 +864,7 @@ async function react() {
 	}
 }
 
-async function toggleReaction(reaction) {
+async function toggleReaction(reaction: string) {
 	const oldReaction = $appearNote.myReaction;
 	if (oldReaction) {
 		const confirm = await os.confirm({

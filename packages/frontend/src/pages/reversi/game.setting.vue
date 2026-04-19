@@ -35,51 +35,52 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<MkFolder :defaultOpen="true">
 							<template #label>{{ i18n.ts._reversi.blackOrWhite }}</template>
 
-							<MkRadios v-model="game.bw" @click="updateSettings('bw')">
-								<option value="random">{{ i18n.ts.random }}</option>
-								<option :value="'1'">
+							<MkRadios
+								v-model="game.bw"
+								:options="[
+									{ value: 'random', label: i18n.ts.random },
+									{ value: '1', slotId: 'user1' },
+									{ value: '2', slotId: 'user2' },
+								]"
+							>
+								<template #option-user1>
 									<I18n :src="i18n.ts._reversi.blackIs" tag="span">
 										<template #name>
 											<b><MkUserName :user="game.user1"/></b>
 										</template>
 									</I18n>
-								</option>
-								<option :value="'2'">
+								</template>
+								<template #option-user2>
 									<I18n :src="i18n.ts._reversi.blackIs" tag="span">
 										<template #name>
 											<b><MkUserName :user="game.user2"/></b>
 										</template>
 									</I18n>
-								</option>
+								</template>
 							</MkRadios>
 						</MkFolder>
+
+						<MkFolder :defaultOpen="true">
+							<template #label>{{ i18n.ts._reversi.timeLimitForEachTurn }}</template>
+							<template #suffix>{{ game.timeLimitForEachTurn }}{{ i18n.ts._time.second }}</template>
+
+							<MkRadios
+								v-model="game.timeLimitForEachTurn"
+								:options="gameTurnOptionsDef"
+							>
+							</MkRadios>
+						</MkFolder>
+
+						<MkFolder :defaultOpen="true">
+							<template #label>{{ i18n.ts._reversi.rules }}</template>
+
+							<div class="_gaps_s">
+								<MkSwitch v-model="game.isLlotheo" @update:modelValue="updateSettings('isLlotheo')">{{ i18n.ts._reversi.isLlotheo }}</MkSwitch>
+								<MkSwitch v-model="game.loopedBoard" @update:modelValue="updateSettings('loopedBoard')">{{ i18n.ts._reversi.loopedMap }}</MkSwitch>
+								<MkSwitch v-model="game.canPutEverywhere" @update:modelValue="updateSettings('canPutEverywhere')">{{ i18n.ts._reversi.canPutEverywhere }}</MkSwitch>
+							</div>
+						</MkFolder>
 					</template>
-
-					<MkFolder v-if="!isFederation" :defaultOpen="true">
-						<template #label>{{ i18n.ts._reversi.timeLimitForEachTurn }}</template>
-						<template #suffix>{{ game.timeLimitForEachTurn }}{{ i18n.ts._time.second }}</template>
-
-						<MkRadios v-model="game.timeLimitForEachTurn" @click="updateSettings('timeLimitForEachTurn')">
-							<option :value="5">5{{ i18n.ts._time.second }}</option>
-							<option :value="10">10{{ i18n.ts._time.second }}</option>
-							<option :value="30">30{{ i18n.ts._time.second }}</option>
-							<option :value="60">60{{ i18n.ts._time.second }}</option>
-							<option :value="90">90{{ i18n.ts._time.second }}</option>
-							<option :value="120">120{{ i18n.ts._time.second }}</option>
-							<option :value="180">180{{ i18n.ts._time.second }}</option>
-							<option :value="3600">3600{{ i18n.ts._time.second }}</option>
-						</MkRadios>
-					</MkFolder>
-
-					<MkFolder :defaultOpen="true">
-						<template #label>{{ i18n.ts._reversi.rules }}</template>
-
-						<div class="_gaps_s">
-							<MkSwitch v-model="game.isLlotheo" @update:modelValue="updateSettings('isLlotheo')">{{ i18n.ts._reversi.isLlotheo }}</MkSwitch>
-							<MkSwitch v-model="game.loopedBoard" @update:modelValue="updateSettings('loopedBoard')">{{ i18n.ts._reversi.loopedMap }}</MkSwitch>
-							<MkSwitch v-model="game.canPutEverywhere" @update:modelValue="updateSettings('canPutEverywhere')">{{ i18n.ts._reversi.canPutEverywhere }}</MkSwitch>
-						</div>
-					</MkFolder>
 				</div>
 			</div>
 		</div>

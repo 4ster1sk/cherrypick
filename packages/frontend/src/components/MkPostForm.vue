@@ -617,7 +617,8 @@ function setVisibility() {
 function setSearchbility() {
 	const { dispose } = os.popup(defineAsyncComponent(() => import('@/components/CPSearchbilityPicker.vue')), {
 		currentSearchbility: searchableBy.value,
-		src: searchbilityButton.value,
+		anchorElement: searchbilityButton.value ?? undefined,
+		src: searchbilityButton.value ?? undefined,
 	}, {
 		changeSearchbility: v => {
 			searchableBy.value = v;
@@ -943,7 +944,7 @@ type StoredDrafts = {
 			useCw: boolean;
 			cw: string | null;
 			visibility: 'public' | 'home' | 'followers' | 'specified';
-			localOnly: boolean;
+			//localOnly: boolean;
 			files: Misskey.entities.DriveFile[];
 			poll: PollEditorModelValue | null;
 			visibleUserIds?: string[];
@@ -954,7 +955,7 @@ type StoredDrafts = {
 			disableRightClick?: boolean;
 			saveToDraft?: boolean;
 			searchableBy?: string;
-			event?: event;
+			event?: any;	// TODO: FIX
 		};
 	};
 };

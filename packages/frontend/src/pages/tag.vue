@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader :key="headerActions" :actions="headerActions" :tabs="headerTabs">
+<PageWithHeader :actions="headerActions" :tabs="headerTabs">
 	<div class="_spacer" style="--MI_SPACER-w: 800px;">
 		<MkNotesTimeline :paginator="paginator"/>
 	</div>

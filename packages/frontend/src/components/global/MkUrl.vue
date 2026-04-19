@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<{
 	rel?: string;
 	showUrlPreview?: boolean;
 	navigationBehavior?: MkABehavior;
-	host: string | null | undefined;
+	host?: string | null | undefined;
 }>(), {
 	showUrlPreview: true,
 });
@@ -86,9 +86,8 @@ const port = url.port;
 const pathname = safeURIDecode(url.pathname);
 const query = safeURIDecode(url.search);
 const hash = safeURIDecode(url.hash);
-
 const attr = self ? 'to' : 'href';
-const target = self ? undefined : '_blank';
+const target = self ? null : '_blank';
 </script>
 
 <style lang="scss" module>

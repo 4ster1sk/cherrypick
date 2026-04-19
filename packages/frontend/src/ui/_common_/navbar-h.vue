@@ -65,6 +65,10 @@ import { haptic } from '@/utility/haptic.js';
 
 const WINDOW_THRESHOLD = 1400;
 
+const props = defineProps<{
+	acrylic?: boolean;
+}>();
+
 const handleResize = () => {
 	settingsWindowed.value = (window.innerWidth >= WINDOW_THRESHOLD);
 };

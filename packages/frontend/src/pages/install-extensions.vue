@@ -20,7 +20,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<template #value>
 								<!-- この画面が出ている時点でハッシュの検証には成功している -->
 								<i class="ti ti-check" style="color: var(--MI_THEME-accent)"></i>
-								{{ i18n.ts._externalResourceInstaller._vendorInfo.hashVerified }}
 							</template>
 						</MkKeyValue>
 					</div>
@@ -168,13 +167,6 @@ async function _fetch_() {
 				}
 
 				switch (err.message.toLowerCase()) {
-					case 'builtin theme':
-						errorKV.value = {
-							title: i18n.ts._externalResourceInstaller._errors._themeParseFailed.title,
-							description: i18n.ts._theme.alreadyInstalled,
-						};
-						break;
-
 					case 'this theme is already installed':
 						errorKV.value = {
 							title: i18n.ts._externalResourceInstaller._errors._themeParseFailed.title,

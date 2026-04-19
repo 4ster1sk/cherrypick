@@ -6,7 +6,7 @@
 import { h } from 'vue';
 import * as mfm from 'mfc-js';
 import * as Misskey from 'misskey-js';
-import temml from 'temml/dist/temml.mjs';
+import * as temml from 'temml';
 import { host } from '@@/js/config.js';
 import type { VNode, SetupContext } from 'vue';
 import type { MkABehavior } from '@/components/global/MkA.vue';

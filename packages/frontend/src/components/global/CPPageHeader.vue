@@ -71,7 +71,7 @@ type Tab = {
 	title: string;
 	icon?: string;
 	iconOnly?: boolean;
-	onClick?: (ev: MouseEvent) => void;
+	onClick?: (ev: PointerEvent) => void;
 };
 
 export type PageHeaderProps = {
@@ -182,7 +182,7 @@ function onTabMousedown(tab: Tab, ev: MouseEvent): void {
 	}
 }
 
-function onTabClick(tab: Tab, ev: MouseEvent): void {
+function onTabClick(tab: Tab, ev: PointerEvent): void {
 	if (tab.onClick) {
 		ev.preventDefault();
 		ev.stopPropagation();

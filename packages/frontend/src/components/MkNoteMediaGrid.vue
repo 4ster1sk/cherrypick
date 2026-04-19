@@ -114,6 +114,16 @@ watch(() => props.note.files, () => {
 	immediate: true,
 });
 
+function isHiding(file: Misskey.entities.DriveFile) {
+	if (shouldHideFileByDefault(file) && !showingFiles.value.has(file.id)) {
+		if (!file.isSensitive && !file.type.startsWith('image/')) {
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
 async function onClick(ev: MouseEvent, image: Misskey.entities.DriveFile) {
 	if (!showingFiles.value.has(image.id)) {
 		ev.stopPropagation();

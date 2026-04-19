@@ -147,7 +147,7 @@ async function fetchWeather() {
 }
 
 function getWeatherIcon(code: number): string {
-	const icons = {
+	const icons: Record<number, string> = {
 		0: 'ti ti-sun-high',
 		1: 'ti ti-sun',
 		2: 'ti ti-sun-low',
