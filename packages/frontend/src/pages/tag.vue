@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, markRaw, onUnmounted, ref } from 'vue';
+import { computed, markRaw, onUnmounted, ref, useTemplateRef } from 'vue';
 import * as Misskey from 'misskey-js';
 import type { PageHeaderItem } from '@/types/page-header.js';
 import type { MenuItem } from '@/types/menu';
@@ -38,6 +38,8 @@ import { misskeyApi } from '@/utility/misskey-api';
 const props = defineProps<{
 	tag: string;
 }>();
+
+const tlComponent = useTemplateRef('tlComponent');
 
 const paginator = markRaw(new Paginator('notes/search-by-tag', {
 	limit: 10,
@@ -129,7 +131,7 @@ function openStream() {
 		q: [[props.tag]],
 	});
 	connection.on('note', note => {
-		note.value?.pagingComponent?.prepend(note);
+		tlComponent.value?.prepend(note);
 	});
 }
 

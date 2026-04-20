@@ -7,15 +7,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 <MkPagination :paginator="props.paginator" withControl>
 	<template #empty><MkResult type="empty" :text="i18n.ts.noNotes"/></template>
 
-	<template #default="{ items: user }">
+	<template #default="{ items: notes }">
 		<div :class="$style.stream">
-			<XFiles v-for="item in user" :key="item.user.id" :note="item"/>
+			<XFiles
+				v-for="item in notes.filter(hasFiles)"
+				:key="item.user.id"
+				:note="item"
+			/>
 		</div>
 	</template>
 </MkPagination>
 </template>
 
 <script lang="ts" setup>
+import * as Misskey from 'misskey-js';
 import { Paginator } from '@/utility/paginator.js';
 import MkPagination from '@/components/MkPagination.vue';
 import XFiles from '@/components/CPTimelineFile.vue';
@@ -24,6 +29,13 @@ import { i18n } from '@/i18n.js';
 const props = defineProps<{
 	paginator: Paginator<'users/notes'>;
 }>();
+
+// CPTimelineFile が期待する型（files が NonNullable）
+type NoteWithFiles = Misskey.entities.Note & { files: NonNullable<Misskey.entities.Note['files']> };
+
+function hasFiles(note: Misskey.entities.Note): note is NoteWithFiles {
+	return note.files != null;
+}
 </script>
 
 <style lang="scss" module>

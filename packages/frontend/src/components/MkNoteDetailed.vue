@@ -181,6 +181,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkPoll
 					v-if="appearNote.poll"
 					:noteId="appearNote.id"
+					:multiple="appearNote.poll.multiple"
+					:expiresAt="appearNote.poll.expiresAt"
+					:choices="$appearNote.pollChoices"
+					:author="appearNote.user"
+					:emojiUrls="appearNote.emojis"
+					:class="$style.poll"
 				/>
 				<div v-if="isEnabledUrlPreview">
 					<MkUrlPreview v-for="url in urls" :key="url" :url="url" :compact="true" :detail="true" :host="appearNote.user.host" style="margin-top: 6px;"/>
@@ -493,7 +499,7 @@ const { $note: $appearNote, subscribe: subscribeManuallyToNoteCapture } = useNot
 	parentNote: note,
 });
 
-const enableAnimatedMfm = $i ? undefined : prefer.model('animatedMfm');
+const enableAnimatedMfm = $i ? false : prefer.model('animatedMfm');
 
 const rootEl = useTemplateRef('rootEl');
 const menuButton = useTemplateRef('menuButton');
@@ -744,7 +750,7 @@ async function react() {
 	}
 }
 
-async function toggleReaction(reaction) {
+async function toggleReaction(reaction: string) {
 	const oldReaction = $appearNote.myReaction;
 	if (oldReaction) {
 		const confirm = await os.confirm({
@@ -911,7 +917,9 @@ async function translate(): Promise<void> {
 			});
 	});
 	translating.value = false;
-	translation.value = res;
+	if (res != null) {
+		translation.value = res;
+	}
 
 	hapticConfirm();
 }

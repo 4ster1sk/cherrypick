@@ -81,7 +81,7 @@ async function create() {
 	});
 }
 
-async function acceptInvite(invitation) {
+async function acceptInvite(invitation: any) {
 	os.apiWithDialog('users/groups/invitations/accept', {
 		invitationId: invitation.id,
 	}).then(() => {
@@ -91,7 +91,7 @@ async function acceptInvite(invitation) {
 	});
 }
 
-function rejectInvite(invitation) {
+function rejectInvite(invitation: any) {
 	os.apiWithDialog('users/groups/invitations/reject', {
 		invitationId: invitation.id,
 	}).then(() => {
@@ -101,7 +101,7 @@ function rejectInvite(invitation) {
 	});
 }
 
-async function leave(group) {
+async function leave(group: any) {
 	const { canceled } = await os.confirm({
 		type: 'warning',
 		text: i18n.tsx.leaveGroupConfirm({ name: group.name }),
