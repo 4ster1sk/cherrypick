@@ -192,13 +192,7 @@ const importEmoji = (emojiId: string) => {
 	});
 };
 
-const remoteMenu = (emoji: {
-	id: string,
-	name: string,
-	host: string,
-	license: string | null,
-	url: string
-}, ev: PointerEvent) => {
+const remoteMenu = (emoji: RemoteEmoji, ev: PointerEvent) => {
 	os.popupMenu([{
 		type: 'label',
 		text: ':' + emoji.name + ':',

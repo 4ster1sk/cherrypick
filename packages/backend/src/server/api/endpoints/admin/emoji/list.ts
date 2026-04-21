@@ -57,12 +57,57 @@ export const meta = {
 					type: 'string',
 					optional: false, nullable: false,
 				},
-
-				copyPermission: { type: 'string', enum: emojiCopyPermissions, nullable: true, description: 'この絵文字を外部サーバーへコピーすることの許可' },
-				usageInfo: { type: 'string', nullable: true, description: '使用する際の説明' },
-				author: { type: 'string', nullable: true, description: '作者情報' },
-				description: { type: 'string', nullable: true, description: '絵文字の説明' },
-				isBasedOn: { type: 'string', nullable: true, description: 'もとになったもののURLなど' },
+				license: {
+					type: 'string',
+					optional: false, nullable: true,
+				},
+				isSensitive: {
+					type: 'boolean',
+					optional: false, nullable: false,
+				},
+				localOnly: {
+					type: 'boolean',
+					optional: false, nullable: false,
+				},
+				roleIdsThatCanBeUsedThisEmojiAsReaction: {
+					type: 'array',
+					optional: false, nullable: false,
+					items: {
+						type: 'string',
+						optional: false, nullable: false,
+						format: 'id',
+					},
+				},
+				copyPermission: {
+					type: 'string',
+					enum: emojiCopyPermissions,
+					nullable: true,
+					description: 'この絵文字を外部サーバーへコピーすることの許可',
+				},
+				usageInfo: {
+					type: 'string',
+					nullable: true,
+					description: '使用する際の説明',
+				},
+				author: {
+					type: 'string',
+					nullable: true,
+					description: '作者情報',
+				},
+				description: {
+					type: 'string',
+					nullable: true,
+					description: '絵文字の説明',
+				},
+				isBasedOn: {
+					type: 'string',
+					nullable: true,
+					description: 'もとになったもののURLなど',
+				},
+				importFrom: {
+					type: 'string',
+					optional: true, nullable: true,
+				},
 			},
 		},
 	},

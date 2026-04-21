@@ -5544,7 +5544,7 @@ export type components = {
             author: string | null;
             description: string | null;
             isBasedOn: string | null;
-            importFrom: string | null;
+            importFrom?: string | null;
         };
         EmojiDetailedAdmin: {
             /** Format: id */
@@ -9185,6 +9185,10 @@ export interface operations {
                         /** @description The local host is represented with `null`. The field exists for compatibility with other API endpoints that return files. */
                         host: string | null;
                         url: string;
+                        license: string | null;
+                        isSensitive: boolean;
+                        localOnly: boolean;
+                        roleIdsThatCanBeUsedThisEmojiAsReaction: string[];
                         /**
                          * @description この絵文字を外部サーバーへコピーすることの許可
                          * @enum {string|null}
@@ -9198,6 +9202,7 @@ export interface operations {
                         description: string | null;
                         /** @description もとになったもののURLなど */
                         isBasedOn: string | null;
+                        importFrom?: string | null;
                     }[];
                 };
             };
@@ -9286,6 +9291,10 @@ export interface operations {
                         /** @description The local host is represented with `null`. */
                         host: string | null;
                         url: string;
+                        license: string | null;
+                        isSensitive: boolean;
+                        localOnly: boolean;
+                        roleIdsThatCanBeUsedThisEmojiAsReaction: string[];
                         /**
                          * @description この絵文字を外部サーバーへコピーすることの許可
                          * @enum {string|null}
