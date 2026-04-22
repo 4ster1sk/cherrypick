@@ -471,6 +471,9 @@ type AdminUnsetUserAvatarRequest = operations['admin___unset-user-avatar']['requ
 type AdminUnsetUserBannerRequest = operations['admin___unset-user-banner']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
+type AdminUnsetUserMutualBannerRequest = operations['admin___unset-user-mutual-banner']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
 type AdminUnsetUserMutualLinkRequest = operations['admin___unset-user-mutual-link']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
@@ -1662,6 +1665,7 @@ declare namespace entities {
         AdminSystemWebhookUpdateResponse,
         AdminUnsetUserAvatarRequest,
         AdminUnsetUserBannerRequest,
+        AdminUnsetUserMutualBannerRequest,
         AdminUnsetUserMutualLinkRequest,
         AdminUnsuspendUserRequest,
         AdminUpdateAbuseUserReportRequest,

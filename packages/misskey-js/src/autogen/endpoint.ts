@@ -144,6 +144,7 @@ import type {
 	AdminSystemWebhookUpdateResponse,
 	AdminUnsetUserAvatarRequest,
 	AdminUnsetUserBannerRequest,
+	AdminUnsetUserMutualBannerRequest,
 	AdminUnsetUserMutualLinkRequest,
 	AdminUnsuspendUserRequest,
 	AdminUpdateAbuseUserReportRequest,
@@ -804,6 +805,7 @@ export type Endpoints = {
 	'admin/system-webhook/update': { req: AdminSystemWebhookUpdateRequest; res: AdminSystemWebhookUpdateResponse };
 	'admin/unset-user-avatar': { req: AdminUnsetUserAvatarRequest; res: EmptyResponse };
 	'admin/unset-user-banner': { req: AdminUnsetUserBannerRequest; res: EmptyResponse };
+	'admin/unset-user-mutual-banner': { req: AdminUnsetUserMutualBannerRequest; res: EmptyResponse };
 	'admin/unset-user-mutual-link': { req: AdminUnsetUserMutualLinkRequest; res: EmptyResponse };
 	'admin/unsuspend-user': { req: AdminUnsuspendUserRequest; res: EmptyResponse };
 	'admin/update-abuse-user-report': { req: AdminUpdateAbuseUserReportRequest; res: EmptyResponse };

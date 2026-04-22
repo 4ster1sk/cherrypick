@@ -114,6 +114,7 @@ export * as 'admin/system-webhook/test' from './endpoints/admin/system-webhook/t
 export * as 'admin/system-webhook/update' from './endpoints/admin/system-webhook/update.js';
 export * as 'admin/unset-user-avatar' from './endpoints/admin/unset-user-avatar.js';
 export * as 'admin/unset-user-banner' from './endpoints/admin/unset-user-banner.js';
+export * as 'admin/unset-user-mutual-banner' from './endpoints/admin/unset-user-mutual-link.js';
 export * as 'admin/unsuspend-user' from './endpoints/admin/unsuspend-user.js';
 export * as 'admin/update-abuse-user-report' from './endpoints/admin/update-abuse-user-report.js';
 export * as 'admin/update-meta' from './endpoints/admin/update-meta.js';
