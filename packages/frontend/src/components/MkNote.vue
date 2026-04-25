@@ -128,10 +128,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 										isTranslation
 										@click.stop
 									/>
-									<div v-if="'translator' in translation && translation.translator === 'ctav3'" style="margin-top: 10px; padding: 0 0 15px;">
-										<img v-if="!store.s.darkMode" src="/client-assets/color-short.svg" alt="" style="float: right;">
-										<img v-else src="/client-assets/white-short.svg" alt="" style="float: right;"/>
-									</div>
 								</div>
 							</div>
 							<div v-if="viewTextSource">
@@ -242,10 +238,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 								isTranslation
 								@click.stop
 							/>
-							<div v-if="'translator' in translation && translation.translator === 'ctav3'" style="margin-top: 10px; padding: 0 0 15px;">
-								<img v-if="!store.s.darkMode" src="/client-assets/color-short.svg" alt="" style="float: right;">
-								<img v-else src="/client-assets/white-short.svg" alt="" style="float: right;"/>
-							</div>
 						</div>
 					</div>
 					<div v-if="viewTextSource">
