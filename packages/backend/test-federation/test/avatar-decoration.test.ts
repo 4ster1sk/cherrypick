@@ -144,7 +144,7 @@ describe('Avatar-Decorations', () => {
 			// ちょっと待つ
 			await sleep(1 * 1000);
 
-			// resolveRemoteUserしてもデコレーションが来ないことがある（？？？
+			// resolveRemoteUserしてもデコレーションが来ない（？？？
 			// なので、ApPersonServiceのupdatePersonを叩く
 			await alice.client.request('federation/update-remote-user', { userId: bobInAlice.id });
 			await alice.client.request('federation/update-remote-user', { userId: carolInAlice.id });
