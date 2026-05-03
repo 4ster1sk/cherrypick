@@ -25,7 +25,8 @@ describe('Avatar-Decorations', () => {
 	let bob: LoginUser;
 	let carol: LoginUser;
 
-	let aDeco: Misskey.entities.AdminAvatarDecorationsCreateResponse;
+	let aDeco1: Misskey.entities.AdminAvatarDecorationsCreateResponse;
+	let aDeco2: Misskey.entities.AdminAvatarDecorationsCreateResponse;
 	let bDeco: Misskey.entities.AdminAvatarDecorationsCreateResponse;
 	let cDeco1: Misskey.entities.AdminAvatarDecorationsCreateResponse;
 	let cDeco2: Misskey.entities.AdminAvatarDecorationsCreateResponse;
@@ -46,13 +47,22 @@ describe('Avatar-Decorations', () => {
 		});
 		await sleep();
 
-		// a.test にデコレーション1件
-		aDeco = await aAdmin.client.request('admin/avatar-decorations/create', {
+		// a.test にデコレーション2件
+		aDeco1 = await aAdmin.client.request('admin/avatar-decorations/create', {
 			name: `fed-test-deco-a-${Date.now()}`,
 			description: '',
-			url: 'https://a.test/files/dummy-decoration.png',
+			url: 'https://a.test/files/dummy-decoration-a1.png',
 			roleIdsThatCanBeUsedThisDecoration: [],
 		});
+		await sleep();
+		// a.test にデコレーション2件
+		aDeco2 = await aAdmin.client.request('admin/avatar-decorations/create', {
+			name: `fed-test-deco-a-${Date.now()}`,
+			description: '',
+			url: 'https://a.test/files/dummy-decoration-a2.png',
+			roleIdsThatCanBeUsedThisDecoration: [],
+		});
+		await sleep();
 
 		// b.test にデコレーション1件
 		bDeco = await bAdmin.client.request('admin/avatar-decorations/create', {
@@ -120,7 +130,7 @@ describe('Avatar-Decorations', () => {
 	describe('admin/avatar-decorations/list-remote (federation)', () => {
 		test('各サーバーのローカルでアバターデコレーションが確認できること', async () => {
 			const aList = await alice.client.request('get-avatar-decorations', {});
-			strictEqual(aList.length, 1, JSON.stringify(aList));
+			strictEqual(aList.length, 2, JSON.stringify(aList));
 
 			const bList = await bob.client.request('get-avatar-decorations', {});
 			const bFound = bList.find(d => d.name === bDeco.name);
@@ -220,9 +230,12 @@ describe('Avatar-Decorations', () => {
 			strictEqual(list.length, 0);
 		});
 
-		test('limit=1 を指定すると 1 件しか返らない', async () => {
-			const list = await aAdmin.client.request('admin/avatar-decorations/list-remote', { host: 'c.test', limit: 1 });
-			strictEqual(list.length, 1, JSON.stringify(list));
+		test('limit=1が正しく動作すること', async () => {
+			const list = await aAdmin.client.request('admin/avatar-decorations/list-remote', { host: 'c.test' });
+			strictEqual(list.length, 2, JSON.stringify(list));
+
+			const limitList = await aAdmin.client.request('admin/avatar-decorations/list-remote', { host: 'c.test', limit: 1 });
+			strictEqual(limitList.length, 1, JSON.stringify(limitList));
 		});
 
 		test('untilId に新しい方の ID を指定すると、それより古いもののみ返る', async () => {
@@ -266,21 +279,85 @@ describe('Avatar-Decorations', () => {
 			// 新しい方は残っている
 			strictEqual(list.find(d => d.id === newOnA.id) !== undefined, true, JSON.stringify(list));
 		});
+
+		test('一般ユーザーはアクセスできないこと', async () => {
+			let errored = false;
+			try {
+				await alice.client.request('admin/avatar-decorations/list-remote', {});
+			} catch (err) {
+				errored = true;
+				const e = err as { code?: string; status?: number };
+				strictEqual(
+					e.status === 403 || e.code === 'ROLE_PERMISSION_DENIED' || e.code === 'ACCESS_DENIED',
+					true,
+					`unexpected error: ${JSON.stringify(err)}`,
+				);
+			}
+			strictEqual(errored, true, 'request should have been rejected');
+		});
 	});
 
-	test('一般ユーザーはアクセスできない', async () => {
-		let errored = false;
-		try {
-			await alice.client.request('admin/avatar-decorations/list-remote', {});
-		} catch (err) {
-			errored = true;
-			const e = err as { code?: string; status?: number };
-			strictEqual(
-				e.status === 403 || e.code === 'ROLE_PERMISSION_DENIED' || e.code === 'ACCESS_DENIED',
-				true,
-				`unexpected error: ${JSON.stringify(err)}`,
-			);
-		}
-		strictEqual(errored, true, 'request should have been rejected');
+	describe('admin/avatar-decorations/list (federation)', () => {
+		test('limit=1が正しく動くこと', async () => {
+			const list = await aAdmin.client.request('admin/avatar-decorations/list', { });
+			strictEqual(list.length, 2, JSON.stringify(list));
+
+			const limitList = await aAdmin.client.request('admin/avatar-decorations/list', { limit: 1 });
+			strictEqual(limitList.length, 1, JSON.stringify(limitList));
+		});
+
+		test('untilId に新しい方の ID を指定すると、それより古いもののみ返る', async () => {
+			const all = await aAdmin.client.request('admin/avatar-decorations/list', { limit: 100 });
+			const newDeco = all.find(d => d.name === aDeco2.name);
+			const oldDeco = all.find(d => d.name === aDeco1.name);
+			strictEqual(newDeco !== undefined, true, 'precondition: new decoration must be present');
+			strictEqual(oldDeco !== undefined, true, 'precondition: old decoration must be present');
+			if (!newDeco || !oldDeco) return;
+
+			const list = await aAdmin.client.request('admin/avatar-decorations/list', {
+				untilId: newDeco.id,
+				limit: 100,
+			});
+
+			// 新しい方は除外されている
+			strictEqual(list.find(d => d.id === newDeco.id), undefined, 'new decoration must be excluded by untilId');
+			// 古い方は残っている
+			strictEqual(list.find(d => d.id === oldDeco.id) !== undefined, true, JSON.stringify(list));
+		});
+
+		test('sinceId に古い方の ID を指定すると、それより新しいもののみ返る', async () => {
+			const all = await aAdmin.client.request('admin/avatar-decorations/list', { limit: 100 });
+			const newDeco = all.find(d => d.name === aDeco2.name);
+			const oldDeco = all.find(d => d.name === aDeco1.name);
+			strictEqual(newDeco !== undefined, true);
+			strictEqual(oldDeco !== undefined, true);
+			if (!newDeco || !oldDeco) return;
+
+			const list = await aAdmin.client.request('admin/avatar-decorations/list', {
+				sinceId: oldDeco.id,
+				limit: 100,
+			});
+
+			// 古い方は除外されている
+			strictEqual(list.find(d => d.id === oldDeco.id), undefined, 'old decoration must be excluded by sinceId');
+			// 新しい方は残っている
+			strictEqual(list.find(d => d.id === newDeco.id) !== undefined, true, JSON.stringify(list));
+		});
+
+		test('一般ユーザーはアクセスできないこと', async () => {
+			let errored = false;
+			try {
+				await alice.client.request('admin/avatar-decorations/list', {});
+			} catch (err) {
+				errored = true;
+				const e = err as { code?: string; status?: number };
+				strictEqual(
+					e.status === 403 || e.code === 'ROLE_PERMISSION_DENIED' || e.code === 'ACCESS_DENIED',
+					true,
+					`unexpected error: ${JSON.stringify(err)}`,
+				);
+			}
+			strictEqual(errored, true, 'request should have been rejected');
+		});
 	});
 });
