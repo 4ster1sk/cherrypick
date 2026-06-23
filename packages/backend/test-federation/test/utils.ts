@@ -157,6 +157,23 @@ export async function waitForSettled<T>(
 	}
 }
 
+/**
+ * Waits until `host` is known in the viewer's instance database
+ * (`federation/show-instance` returns non-null).
+ * Use after `resolveRemoteUser` when the test needs the remote
+ * instance row to exist (e.g. avatar-decoration federation).
+ */
+export async function waitForInstanceReady(
+	viewer: LoginUser,
+	host: string,
+	options?: { timeout?: number },
+): Promise<void> {
+	await waitFor(async () => {
+		const instance = await viewer.client.request('federation/show-instance', { host });
+		return instance != null;
+	}, { timeout: options?.timeout ?? 15_000, interval: 500 });
+}
+
 async function signin(
 	host: Host,
 	params: Misskey.entities.SigninFlowRequest,
