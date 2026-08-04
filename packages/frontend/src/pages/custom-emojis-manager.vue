@@ -186,7 +186,7 @@ const detailRemoteEmoji = (emoji: {
 	});
 };
 
-const importEmoji = (emoji: {
+const importEmoji = async (emoji: {
 	id: string,
 	name: string,
 	host: string,
