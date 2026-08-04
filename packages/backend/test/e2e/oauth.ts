@@ -1050,7 +1050,7 @@ describe('OAuth', () => {
 					reply.send(`
 						<!DOCTYPE html>
 						<div class="h-app">
-							<a href="/" class="u-url p-name">CherryPicklient</a>
+							<a href="/" class="u-url p-name">Misklient</a>
 							<img src="/logo.png" class="u-logo" />
 						</div>
 					`);
@@ -1068,7 +1068,7 @@ describe('OAuth', () => {
 				} as AuthorizationParamsExtended));
 				assert.strictEqual(response.status, 200);
 				const meta = getMeta(await response.text());
-				assert.strictEqual(meta.clientName, 'CherryPicklient');
+				assert.strictEqual(meta.clientName, 'Misklient');
 				assert.strictEqual(meta.clientLogo, `http://127.0.0.1:${clientPort}/logo.png`);
 			});
 
@@ -1077,7 +1077,7 @@ describe('OAuth', () => {
 					reply.header('Link', '</redirect>; rel="redirect_uri"');
 					reply.send(`
 						<!DOCTYPE html>
-						<div class="h-app"><a href="/" class="u-url p-name">CherryPicklient
+						<div class="h-app"><a href="/" class="u-url p-name">Misklient
 					`);
 					reply.send();
 				};
