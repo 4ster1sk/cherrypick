@@ -183,7 +183,7 @@ async function toggleReaction(ev: MouseEvent) {
 	}
 }
 
-function stealReaction(ev: MouseEvent) {
+function stealReaction(ev: PointerEvent: MouseEvent) {
 	haptic();
 
 	let menuItems: MenuItem[] = [];

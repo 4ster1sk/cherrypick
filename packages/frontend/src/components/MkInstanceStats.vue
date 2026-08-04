@@ -170,17 +170,14 @@ const subDoughnutEl = useTemplateRef('subDoughnutEl');
 const pubDoughnutEl = useTemplateRef('pubDoughnutEl');
 const softwareDoughnutEl = useTemplateRef('softwareDoughnutEl');
 
-const { handler: externalTooltipHandler1 } = useChartTooltip({
-	position: 'middle',
-});
-const { handler: externalTooltipHandler2 } = useChartTooltip({
-	position: 'middle',
-});
-const { handler: externalTooltipHandler3 } = useChartTooltip({
-	position: 'middle',
-});
+type ChartData = {
+	name: string,
+	color: string,
+	value: number,
+	onClick?: () => void,
+}[];
 
-function createDoughnut(chartEl, tooltip, data) {
+function createDoughnut(chartEl: HTMLCanvasElement, tooltip: ReturnType<typeof useChartTooltip>['handler'], data: ChartData) {
 	const chartInstance = new Chart(chartEl, {
 		type: 'doughnut',
 		data: {
@@ -206,8 +203,8 @@ function createDoughnut(chartEl, tooltip, data) {
 			onClick: (ev) => {
 				if (ev.native == null) return;
 				const hit = chartInstance.getElementsAtEventForMode(ev.native, 'nearest', { intersect: true }, false)[0];
-				if (hit && data[hit.index].onClick) {
-					data[hit.index].onClick();
+				if (hit != null) {
+					data[hit.index].onClick?.();
 				}
 			},
 			plugins: {
@@ -255,12 +252,6 @@ onMounted(() => {
 	});
 
 	misskeyApiGet('federation/stats', { limit: 30 }).then(fedStats => {
-		type ChartData = {
-			name: string,
-			color: string | null,
-			value: number,
-			onClick?: () => void,
-		}[];
 		let totalFollowersCount = fedStats.topSubInstances.reduce((partialSum, a) => partialSum + a.followersCount, 0) + fedStats.otherFollowersCount;
 		let totalFollowingCount = fedStats.topPubInstances.reduce((partialSum, a) => partialSum + a.followingCount, 0) + fedStats.otherFollowingCount;
 
@@ -274,7 +265,7 @@ onMounted(() => {
 		});
 		const subs: ChartData = fedStats.topSubInstances.map(x => ({
 			name: x.host,
-			color: x.themeColor,
+			color: x.themeColor ?? '#888888',
 			value: x.followersCount,
 			onClick: () => {
 				os.pageWindow(`/instance-info/${x.host}`);
@@ -287,11 +278,11 @@ onMounted(() => {
 			value: fedStats.otherFollowersCount,
 		});
 
-		createDoughnut(subDoughnutEl.value, externalTooltipHandler1, subs);
+		if (subDoughnutEl.value != null) createDoughnut(subDoughnutEl.value, externalTooltipHandler1, subs);
 
 		const pubs: ChartData = fedStats.topPubInstances.map(x => ({
 			name: x.host,
-			color: x.themeColor,
+			color: x.themeColor ?? '#888888',
 			value: x.followingCount,
 			onClick: () => {
 				os.pageWindow(`/instance-info/${x.host}`);
@@ -304,7 +295,7 @@ onMounted(() => {
 			value: fedStats.otherFollowingCount,
 		});
 
-		createDoughnut(pubDoughnutEl.value, externalTooltipHandler2, pubs);
+		if (pubDoughnutEl.value != null) createDoughnut(pubDoughnutEl.value, externalTooltipHandler2, pubs);
 	});
 });
 </script>

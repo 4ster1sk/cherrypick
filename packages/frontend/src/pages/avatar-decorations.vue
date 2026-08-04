@@ -85,7 +85,7 @@ const paginator = shallowRef(createPaginator(tab.value));
 const queryHost = ref<string | null>(null);
 const queryHostEl = useTemplateRef('queryHostEl');
 
-async function add(ev: MouseEvent) {
+async function add(ev: PointerEvent) {
 	const { dispose } = await os.popupAsyncWithDialog(import('./avatar-decoration-edit-dialog.vue').then(x => x.default), {
 	}, {
 		done: result => {
@@ -97,7 +97,7 @@ async function add(ev: MouseEvent) {
 	});
 }
 
-async function edit(avatarDecoration) {
+async function edit(avatarDecoration: Misskey.entities.AdminAvatarDecorationsListResponse[number]) {
 	const { dispose } = await os.popupAsyncWithDialog(import('./avatar-decoration-edit-dialog.vue').then(x => x.default), {
 		avatarDecoration: avatarDecoration,
 	}, {

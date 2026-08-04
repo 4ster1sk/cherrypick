@@ -7,8 +7,24 @@ import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 
-export async function copyEmoji(emoji: any, showDialog = true): Promise<any | null> {
-	let readText = '';
+type EmojiData = {
+	id: string,
+	name: string,
+	host: string,
+	license: string | null,
+	url: string,
+	isSensitive: boolean,
+	copyPermission: 'allow' | 'deny' | 'conditional' | null,
+	category: string | null,
+	aliases: string[],
+	usageInfo: string | null,
+	author: string | null,
+	description: string | null,
+	isBasedOn: string | null,
+};
+
+export async function copyEmoji(emoji: EmojiData, showDialog = true): Promise<EmojiData | null> {
+	let readText = '' as string | null;
 
 	//条件付きか、ライセンス情報などがある場合その情報を表示する
 	if (emoji.copyPermission === 'conditional' || emoji.license || emoji.usageInfo) {
@@ -39,14 +55,14 @@ export async function copyEmoji(emoji: any, showDialog = true): Promise<any | nu
 		await os.alert({ type: 'error', title: err.message, text: err.id });
 	});
 
-	if (!emojiInfo.id) return null;
+	if (!emojiInfo?.id) return null;
 	return showDialog ? importEmojiMeta(emojiInfo, emoji.host) : emojiInfo;
 }
 
 export async function stealEmoji(emojiName: string, host: string): Promise<any | null> {
-	let emoji:any | null = null;
-	const promise = misskeyApi('admin/emoji/steal', { name: emojiName, host: host }, undefined);
-	await os.promiseDialog(promise, (res) => {
+	let emoji: any | null = null;
+	const steal = misskeyApi('admin/emoji/steal', { name: emojiName, host: host }, undefined);
+	await os.promiseDialog(steal, (res) => {
 		emoji = res;
 		os.toast(i18n.ts._emoji.imported);
 	}, async (err) => {
@@ -70,7 +86,7 @@ export async function stealEmoji(emojiName: string, host: string): Promise<any |
 	return emoji === null ? null : await importEmojiMeta(emoji, host);
 }
 
-export async function importEmojiMeta(emoji: any, host:string) {
+export async function importEmojiMeta(emoji: EmojiData, host:string) {
 	//カテゴリ・ライセンス・エイリアスのいずれかがある場合、連合で取得しているのでリモートAPIで確認しない
 	if (emoji.category !== null ||
 		emoji.license !== null ||
@@ -79,19 +95,11 @@ export async function importEmojiMeta(emoji: any, host:string) {
 
 	try {
 		const json = await(await window.fetch('https://' + host + '/api/emoji?name=' + emoji.name)).json();
-		const from_json = (key: string) => {
-			try {
-				if (json[key]) {
-					emoji[key] = json[key];
-				}
-			} catch {
-				//一部失敗したら転送せず空欄のままにしておく
-			}
-		};
-		from_json('license');
-		from_json('aliases');
-		from_json('category');
-		from_json('isSensitive');
+		// 一部取得失敗は握りつぶす
+		try {emoji.license = json['license'] ?? emoji.license;} catch { /**/ }
+		try {emoji.aliases = json['aliases'] ?? emoji.aliases;} catch { /**/ }
+		try {emoji.category = json['category'] ?? emoji.category;} catch { /**/ }
+		try {emoji.isSensitive = json['isSensitive'] ?? emoji.isSensitive;} catch { /**/ }
 	} catch (err) {
 		console.log(err);
 		//リモートから取得に失敗

@@ -6,16 +6,22 @@
 import * as WebSocket from 'ws';
 import { ContextIdFactory, ModuleRef, REQUEST } from '@nestjs/core';
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import type { MiUser } from '@/models/User.js';
-import type { MiAccessToken } from '@/models/AccessToken.js';
 import { isJsonObject } from '@/misc/json-value.js';
 import type { JsonObject, JsonValue } from '@/misc/json-value.js';
+import { ChannelMutingService } from '@/core/ChannelMutingService.js';
+import { ChannelFollowingService } from '@/core/ChannelFollowingService.js';
+import type { GlobalEvents, StreamEventEmitter } from '@/core/GlobalEventService.js';
+import { MiFollowing, MiUserProfile } from '@/models/_.js';
+import { CacheService } from '@/core/CacheService.js';
+import { bindThis } from '@/decorators.js';
+import { NotificationService } from '@/core/NotificationService.js';
+import type { MiAccessToken } from '@/models/AccessToken.js';
+import type { MiUser } from '@/models/User.js';
 import { MainChannel } from '@/server/api/stream/channels/main.js';
 import { HomeTimelineChannel } from '@/server/api/stream/channels/home-timeline.js';
 import { LocalTimelineChannel } from '@/server/api/stream/channels/local-timeline.js';
 import { HybridTimelineChannel } from '@/server/api/stream/channels/hybrid-timeline.js';
 import { GlobalTimelineChannel } from '@/server/api/stream/channels/global-timeline.js';
-import { BubbleTimelineChannel } from '@/server/api/stream/channels/bubble-timeline.js';
 import { UserListChannel } from '@/server/api/stream/channels/user-list.js';
 import { HashtagChannel } from '@/server/api/stream/channels/hashtag.js';
 import { RoleTimelineChannel } from '@/server/api/stream/channels/role-timeline.js';
@@ -29,17 +35,10 @@ import { ChatUserChannel } from '@/server/api/stream/channels/chat-user.js';
 import { ChatRoomChannel } from '@/server/api/stream/channels/chat-room.js';
 import { ReversiChannel } from '@/server/api/stream/channels/reversi.js';
 import { ReversiGameChannel } from '@/server/api/stream/channels/reversi-game.js';
-import { NotificationService } from '@/core/NotificationService.js';
-import { bindThis } from '@/decorators.js';
-import { CacheService } from '@/core/CacheService.js';
-import { MiFollowing, MiUserProfile } from '@/models/_.js';
-import type { GlobalEvents, StreamEventEmitter } from '@/core/GlobalEventService.js';
-import { ChannelFollowingService } from '@/core/ChannelFollowingService.js';
-import { ChannelMutingService } from '@/core/ChannelMutingService.js';
-import type { EventEmitter } from 'events';
-import type Channel from './channel.js';
-import type { ChannelConstructor } from './channel.js';
 import type { ChannelRequest } from './channel.js';
+import type { ChannelConstructor } from './channel.js';
+import type Channel from './channel.js';
+import type { EventEmitter } from 'events';
 
 const MAX_CHANNELS_PER_CONNECTION = 32;
 
@@ -140,7 +139,7 @@ export default class Connection {
 
 		try {
 			obj = JSON.parse(data.toString());
-		} catch (e) {
+		} catch (_) {
 			return;
 		}
 
@@ -326,7 +325,6 @@ export default class Connection {
 			case 'localTimeline': return LocalTimelineChannel;
 			case 'hybridTimeline': return HybridTimelineChannel;
 			case 'globalTimeline': return GlobalTimelineChannel;
-			case 'bubbleTimeline': return BubbleTimelineChannel;
 			case 'userList': return UserListChannel;
 			case 'hashtag': return HashtagChannel;
 			case 'roleTimeline': return RoleTimelineChannel;
