@@ -233,7 +233,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:noteId="appearNote.id"
 					:note="appearNote"
 					:maxNumber="16"
-					@mockUpdateMyReaction="emitUpdReaction"
 				/>
 				<template v-if="prefer.s.showReplyButtonInNoteFooter">
 					<button v-if="!note.isHidden" v-tooltip="i18n.ts.reply" class="_button" :class="$style.noteFooterButton" @click="reply()">
@@ -453,19 +452,6 @@ const props = withDefaults(defineProps<{
 }>(), {
 	initialTab: 'replies',
 });
-
-const emit = defineEmits<{
-	(ev: 'reaction', emoji: string): void;
-	(ev: 'removeReaction', emoji: string): void;
-}>();
-
-function emitUpdReaction(emoji: string, delta: number) {
-	if (delta < 0) {
-		emit('removeReaction', emoji);
-	} else if (delta > 0) {
-		emit('reaction', emoji);
-	}
-}
 
 const inChannel = inject('inChannel', null);
 
