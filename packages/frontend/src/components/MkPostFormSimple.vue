@@ -1162,7 +1162,7 @@ async function post(ev?: MouseEvent) {
 	}
 
 	posting.value = true;
-	const p = (): Promise<Misskey.entities.NotesCreateResponse | undefined> => props.updateMode ? misskeyApi('notes/update', {
+	const p = () => props.updateMode ? misskeyApi('notes/update', {
 		...postData,
 		noteId: postData.noteId!,
 	}, token) : misskeyApi('notes/create', postData, token);
@@ -1174,7 +1174,7 @@ async function post(ev?: MouseEvent) {
 			clear();
 		}
 
-		if (res) globalEvents.emit('notePosted', res.createdNote);
+		if (res && 'createdNote' in res) globalEvents.emit('notePosted', res.createdNote as Misskey.entities.Note);
 
 		nextTick(() => {
 			deleteDraft();
