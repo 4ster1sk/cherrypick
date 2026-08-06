@@ -1305,29 +1305,10 @@ async function insertEmoji(ev: MouseEvent) {
 
 async function insertMfmFunction(ev: MouseEvent) {
 	if (textareaEl.value == null) return;
-	let pos = textareaEl.value.selectionStart ?? 0;
-	let posEnd = textareaEl.value.selectionEnd ?? text.value.length;
 	mfmFunctionPicker(
 		ev.currentTarget ?? ev.target,
-		(tag) => {
-			if (pos === posEnd) {
-				text.value = `${text.value.substring(0, pos)}$[${tag} ]${text.value.substring(pos)}`;
-				pos += tag.length + 3;
-				posEnd = pos;
-			} else {
-				const value = text.value.substring(0, pos)
-					+ `$[${tag} `
-					+ text.value.substring(pos, posEnd)
-					+ ` ]`
-					+ text.value.substring(posEnd);
-				text.value = value;
-				posEnd += tag.length + 4;
-				pos = posEnd;
-			}
-		},
-		() => {
-			textareaEl.value?.focus();
-		},
+		textareaEl.value,
+		text,
 	);
 }
 
