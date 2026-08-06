@@ -16673,7 +16673,7 @@ snapshots:
   bullmq@5.71.0:
     dependencies:
       cron-parser: 4.9.0
-      ioredis: 5.9.3
+      ioredis: 5.10.0
       msgpackr: 1.11.5
       node-abort-controller: 3.1.1
       semver: 7.7.4
