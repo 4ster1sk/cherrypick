@@ -54,14 +54,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<SearchMarker :keywords="['banner', 'display']">
 			<MkPreferenceContainer k="bannerDisplay">
-				<MkRadios v-model="bannerDisplay">
+				<MkRadios
+					v-model="bannerDisplay"
+					:options="[
+						{ value: 'all', label: i18n.ts._bannerDisplay.all },
+						{ value: 'topBottom', label: i18n.ts._bannerDisplay.topBottom },
+						{ value: 'top', label: i18n.ts._bannerDisplay.top },
+						{ value: 'bottom', label: i18n.ts._bannerDisplay.bottom },
+						{ value: 'bg', label: i18n.ts._bannerDisplay.bg },
+						{ value: 'hide', label: i18n.ts._bannerDisplay.hide },
+					]"
+				>
 					<template #label><SearchLabel>{{ i18n.ts.displayBanner }}</SearchLabel> <span class="_beta" style="vertical-align: middle;">CherryPick</span></template>
-					<option value="all">{{ i18n.ts._bannerDisplay.all }}</option>
-					<option value="topBottom">{{ i18n.ts._bannerDisplay.topBottom }}</option>
-					<option value="top">{{ i18n.ts._bannerDisplay.top }}</option>
-					<option value="bottom">{{ i18n.ts._bannerDisplay.bottom }}</option>
-					<option value="bg">{{ i18n.ts._bannerDisplay.bg }}</option>
-					<option value="hide">{{ i18n.ts._bannerDisplay.hide }}</option>
 				</MkRadios>
 			</MkPreferenceContainer>
 		</SearchMarker>

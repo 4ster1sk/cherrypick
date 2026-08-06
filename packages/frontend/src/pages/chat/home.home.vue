@@ -134,7 +134,7 @@ async function search() {
 
 onMounted(() => {
 	updateCurrentAccountPartial({ hasUnreadChatMessages: false });
-	globalEvents.on('createChat', (ev) => start(ev));
+	globalEvents.on('createChat', (ev) => start(ev as PointerEvent));
 });
 
 onUnmounted(() => {

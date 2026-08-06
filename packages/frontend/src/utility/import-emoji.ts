@@ -3,25 +3,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { defineAsyncComponent } from 'vue';
+import * as Misskey from 'misskey-js';
 import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 
-type EmojiData = {
-	id: string,
-	name: string,
-	host: string,
-	license: string | null,
-	url: string,
-	isSensitive: boolean,
-	copyPermission: 'allow' | 'deny' | 'conditional' | null,
-	category: string | null,
-	aliases: string[],
-	usageInfo: string | null,
-	author: string | null,
-	description: string | null,
-	isBasedOn: string | null,
-};
+type EmojiData = Misskey.entities.EmojiDetailed;
 
 export async function copyEmoji(emoji: EmojiData, showDialog = true): Promise<EmojiData | null> {
 	let readText = '' as string | null;
@@ -56,7 +43,7 @@ export async function copyEmoji(emoji: EmojiData, showDialog = true): Promise<Em
 	});
 
 	if (!emojiInfo?.id) return null;
-	return showDialog ? importEmojiMeta(emojiInfo, emoji.host) : emojiInfo;
+	return showDialog ? importEmojiMeta(emojiInfo, emoji.host ?? '') : emojiInfo;
 }
 
 export async function stealEmoji(emojiName: string, host: string): Promise<any | null> {

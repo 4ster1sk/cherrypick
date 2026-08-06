@@ -176,7 +176,7 @@ async function del() {
 	});
 }
 
-async function changeImage(ev) {
+async function changeImage(ev: MouseEvent) {
 	const file = await selectFile({
 		anchorElement: ev.currentTarget ?? ev.target,
 		multiple: false,

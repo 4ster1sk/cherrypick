@@ -108,6 +108,14 @@ const url = computed(() => (props.raw || prefer.s.loadRawImages)
 		: props.image.thumbnailUrl!,
 );
 
+const clickToShowMessage = computed(() => prefer.s.nsfwOpenBehavior === 'click'
+	? i18n.ts.clickToShow
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	: prefer.s.nsfwOpenBehavior === 'doubleClick'
+		? i18n.ts.doubleClickToShow
+		: '',
+);
+
 async function reveal(ev: PointerEvent) {
 	if (!props.controls) {
 		return;

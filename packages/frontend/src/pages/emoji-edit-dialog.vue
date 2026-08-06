@@ -224,6 +224,12 @@ async function done() {
 			isSensitive: params.isSensitive,
 			localOnly: params.localOnly,
 			roleIdsThatCanBeUsedThisEmojiAsReaction: params.roleIdsThatCanBeUsedThisEmojiAsReaction,
+			copyPermission: props.emoji.copyPermission,
+			usageInfo: props.emoji.usageInfo,
+			author: props.emoji.author,
+			description: props.emoji.description,
+			isBasedOn: props.emoji.isBasedOn,
+			importFrom: props.emoji.importFrom,
 		} satisfies Misskey.entities.EmojiDetailed;
 
 		await os.apiWithDialog('admin/emoji/update', {

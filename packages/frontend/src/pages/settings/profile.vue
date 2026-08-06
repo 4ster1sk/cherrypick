@@ -115,18 +115,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkButton inline primary @click="saveMutualLinks"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
 						</div>
 
-						<Sortable
+						<MkDraggable
 							v-model="mutualLinkSections"
-							class="_gaps_s"
-							itemKey="id"
-							:animation="150"
-							:handle="'.' + $style.dragItemHandle"
-							@start="e => e.item.classList.add('active')"
-							@end="e => e.item.classList.remove('active')"
+							direction="vertical"
+							withGaps
+							manualDragStart
 						>
-							<template #item="{element: sectionElement,index: sectionIndex}">
+							<template #default="{ item: sectionElement, index: sectionIndex, dragStart }">
 								<div :class="$style.mutualLinkSectionRoot">
-									<button v-if="!mutualLinkSectionEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1"><i class="ti ti-menu"></i></button>
+									<button v-if="!mutualLinkSectionEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1" :draggable="true" @dragstart.stop="dragStart"><i class="ti ti-menu"></i></button>
 									<button v-if="mutualLinkSectionEditMode" :disabled="fields.length <= 1" class="_button" :class="$style.dragItemRemove" @click="deleteMutualLinkSection(sectionIndex)"><i class="ti ti-x"></i></button>
 									<FormSlot :style="{flexGrow: 1}">
 										<MkFolder>
@@ -138,18 +135,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 												<MkButton inline style="margin-right: 8px;" :disabled="sectionElement.mutualLinks.length >= $i.policies.mutualLinkLimit" @click="addMutualLinks(sectionIndex)"><i class="ti ti-plus"></i> {{ i18n.ts._profile.addMutualLink }}</MkButton>
 											</div>
 
-											<Sortable
+											<MkDraggable
 												v-model="sectionElement.mutualLinks"
-												class="_gaps_s"
-												itemKey="id"
-												:animation="150"
-												:handle="'.' + $style.dragItemHandle"
-												@start="e => e.item.classList.add('active')"
-												@end="e => e.item.classList.remove('active')"
+												direction="vertical"
+												withGaps
+												manualDragStart
 											>
-												<template #item="{element: linkElement,index: linkIndex}">
+												<template #default="{ item: linkElement, index: linkIndex, dragStart }">
 													<div :class="$style.mutualLinkRoot">
-														<button v-if="!mutualLinkSectionEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1"><i class="ti ti-menu"></i></button>
+														<button v-if="!mutualLinkSectionEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1" :draggable="true" @dragstart.stop="dragStart"><i class="ti ti-menu"></i></button>
 														<button v-if="mutualLinkSectionEditMode" :disabled="fields.length <= 1" class="_button" :class="$style.dragItemRemove" @click="deleteMutualLink(sectionIndex,linkIndex)"><i class="ti ti-x"></i></button>
 
 														<div class="_gaps_s" :style="{flex: 1}">
@@ -165,12 +159,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 														</div>
 													</div>
 												</template>
-											</Sortable>
+											</MkDraggable>
 										</MkFolder>
 									</FormSlot>
 								</div>
 							</template>
-						</Sortable>
+						</MkDraggable>
 					</div>
 				</MkFolder>
 

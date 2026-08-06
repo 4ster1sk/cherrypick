@@ -124,7 +124,6 @@ import { computed, markRaw, ref, shallowRef, toRef, useTemplateRef } from 'vue';
 import { host as localHost } from '@@/js/config.js';
 import type * as Misskey from 'misskey-js';
 import type { MkSelectItem } from '@/components/MkSelect.vue';
-import type { MkRadiosOption } from '@/components/MkRadios.vue';
 import { $i } from '@/i.js';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';
@@ -198,8 +197,8 @@ const searchScope = ref<'all' | 'local' | 'server' | 'user'>((() => {
 	return 'all';
 })());
 
-const searchScopeDef = computed<MkRadiosOption[]>(() => {
-	const options: MkRadiosOption[] = [];
+const searchScopeDef = computed<MkSelectItem[]>(() => {
+	const options: MkSelectItem[] = [];
 
 	if (instance.federation !== 'none' && noteSearchableScope === 'global') {
 		options.push({ value: 'all', label: i18n.ts._search.searchScopeAll });

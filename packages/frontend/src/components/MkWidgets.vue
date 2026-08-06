@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<header class="handle">
 						<span :class="$style.widgetContainerHandle"><i class="ti ti-menu"></i></span>
 						<div style="position: absolute; top: 0; left: 35px; font-size: 12px; font-weight: bold; line-height: 33px;">
-							{{ i18n.ts._widgets[element.name] }}
+							{{ i18n.ts._widgets[item.name as keyof typeof i18n.ts._widgets] }}
 						</div>
 						<button :class="$style.widgetContainerConfig" class="_button" @click.prevent.stop="configWidget(item.id)"><i class="ti ti-settings"></i></button>
 						<button :class="$style.widgetContainerRemove" data-cy-customize-container-remove class="_button" @click.prevent.stop="removeWidget(item)"><i class="ti ti-x"></i></button>

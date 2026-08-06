@@ -34,7 +34,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:key="avatarDecoration.id"
 					v-panel
 					:class="$style.decoration"
-					@click="tab == 'local' ? edit(avatarDecoration) : remoteMenu(avatarDecoration, $event)"
+					@click="onDecorationClick(avatarDecoration, $event)"
 				>
 					<div :class="$style.decorationName">
 						<MkCondensedLine :minScale="0.5">{{ avatarDecoration.name }}</MkCondensedLine>
@@ -116,7 +116,7 @@ async function edit(avatarDecoration: Misskey.entities.AdminAvatarDecorationsLis
 	});
 }
 
-const remoteMenu = (remoteDecoration, ev: MouseEvent) => {
+const remoteMenu = (remoteDecoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number], ev: MouseEvent) => {
 	os.popupMenu([{
 		type: 'label',
 		text: remoteDecoration.name,
@@ -131,7 +131,15 @@ const remoteMenu = (remoteDecoration, ev: MouseEvent) => {
 	}], ev.currentTarget ?? ev.target);
 };
 
-const detailRemoteDecoration = (remoteDecoration) => {
+function onDecorationClick(avatarDecoration: Misskey.entities.AdminAvatarDecorationsListResponse[number] | Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number], ev: MouseEvent) {
+	if (tab.value === 'local') {
+		edit(avatarDecoration);
+	} else {
+		remoteMenu(avatarDecoration as Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number], ev);
+	}
+}
+
+const detailRemoteDecoration = (remoteDecoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number]) => {
 	const { dispose } = os.popup(MkRemoteAvatarDecorationEditDialog, {
 		decoration: remoteDecoration,
 	}, {
@@ -144,7 +152,7 @@ const detailRemoteDecoration = (remoteDecoration) => {
 	});
 };
 
-const importDecoration = (decoration) => {
+const importDecoration = (decoration: Misskey.entities.AdminAvatarDecorationsListRemoteResponse[number]) => {
 	os.apiWithDialog('admin/avatar-decorations/copy', {
 		decorationId: decoration.id,
 	});

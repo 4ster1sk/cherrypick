@@ -292,7 +292,7 @@ function removeBannerImage() {
 	bannerId.value = null;
 }
 
-function setIconImage(ev) {
+function setIconImage(ev: MouseEvent) {
 	async function done(driveFile: Misskey.entities.DriveFile) {
 		iconId.value = driveFile.id;
 		iconUrl.value = driveFile.url;

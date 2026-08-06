@@ -201,7 +201,7 @@ const importEmoji = async (emoji: {
 	description: string | null,
 	isBasedOn: string | null,
 }) => {
-	await copyEmoji(emoji);
+	await copyEmoji(emoji as Misskey.entities.EmojiDetailed);
 };
 
 const remoteMenu = (emoji: RemoteEmoji, ev: PointerEvent) => {

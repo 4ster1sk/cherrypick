@@ -230,14 +230,14 @@ onMounted(() => {
 	misskeyApiGet('federation/remote-software', { }).then(response => {
 		type ChartData = {
 			name: string,
-			color: string | null,
+			color: string,
 			value: number,
 			onClick?: () => void,
 		}[];
 
 		const data: ChartData = response.map(x => ({
 			name: x.softwareName,
-			color: x.color,
+			color: x.color ?? '#888888',
 			value: x.count,
 			onClick: () => {},
 		}));
@@ -248,7 +248,9 @@ onMounted(() => {
 			position: 'middle',
 			total: totalServerCount,
 		});
-		createDoughnut(softwareDoughnutEl.value, externalTooltipHandler, sortedData);
+		if (softwareDoughnutEl.value != null) {
+			createDoughnut(softwareDoughnutEl.value, externalTooltipHandler, sortedData);
+		}
 	});
 
 	misskeyApiGet('federation/stats', { limit: 30 }).then(fedStats => {

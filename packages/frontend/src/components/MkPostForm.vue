@@ -944,9 +944,12 @@ type StoredDrafts = {
 			useCw: boolean;
 			cw: string | null;
 			visibility: 'public' | 'home' | 'followers' | 'specified';
-			localOnly: boolean;
 			files: Misskey.entities.DriveFile[];
 			poll: PollEditorModelValue | null;
+			saveToDraft: boolean;
+			searchableBy: 'public' | 'followersAndReacted' | 'reactedOnly' | 'private' | null;
+			event: Misskey.entities.Note['event'] | null;
+			scheduledNoteDelete: DeleteScheduleEditorModelValue | null;
 			visibleUserIds?: string[];
 			quoteId: string | null;
 			reactionAcceptance: 'likeOnly' | 'likeOnlyForRemote' | 'nonSensitiveOnly' | 'nonSensitiveOnlyForLocalLikeOnlyForRemote' | null;
@@ -1211,7 +1214,7 @@ async function post(ev?: PointerEvent) {
 	}
 
 	posting.value = true;
-	const p = () => props.updateMode ? misskeyApi('notes/update', {
+	const p = (): Promise<Misskey.entities.NotesCreateResponse | undefined> => props.updateMode ? misskeyApi('notes/update', {
 		...postData,
 		noteId: postData.noteId!,
 	}, token) : misskeyApi('notes/create', postData, token);
@@ -1223,7 +1226,7 @@ async function post(ev?: PointerEvent) {
 			clear();
 		}
 
-		globalEvents.emit('notePosted', res.createdNote);
+		if (res) globalEvents.emit('notePosted', res.createdNote);
 
 		nextTick(() => {
 			deleteDraft();
@@ -1636,7 +1639,7 @@ onMounted(() => {
 				cw.value = draft.data.cw;
 				saveToDraft.value = draft.data.saveToDraft;
 				visibility.value = draft.data.visibility;
-				searchableBy.value = draft.data.searchableBy;
+				if (draft.data.searchableBy != null) searchableBy.value = draft.data.searchableBy;
 				files.value = (draft.data.files || []).filter(draftFile => draftFile);
 				if (draft.data.poll) {
 					poll.value = draft.data.poll;

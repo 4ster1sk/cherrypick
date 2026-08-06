@@ -128,8 +128,8 @@ function openStream() {
 	connection = stream.useChannel('hashtag', {
 		q: [[props.tag]],
 	}) as Misskey.ChannelConnection;
-	connection!.on('note', note => {
-		note.value?.pagingComponent?.prepend(note);
+	connection!.on('note', (note: Misskey.entities.Note) => {
+		paginator.prepend(note);
 	});
 }
 

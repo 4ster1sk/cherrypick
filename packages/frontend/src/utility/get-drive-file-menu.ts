@@ -125,7 +125,7 @@ export function getDriveFileMenu(file: Misskey.entities.DriveFile, folder?: Miss
 		action: () => describe(file),
 	});
 
-	if (isImage) {
+	if (_isImage) {
 		menuItems.push({
 			text: i18n.ts.preview,
 			icon: 'ti ti-photo-search',

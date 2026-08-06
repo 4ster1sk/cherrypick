@@ -268,6 +268,42 @@ export class Pizzax<T extends StateDef> {
 		});
 	}
 
+	/**
+	 * 特定のキーの、簡易的なgetter/setterを作ります
+	 * 主にvue上で設定コントロールのmodelとして使う用
+	 */
+	public makeGetterSetter<K extends keyof T, R = T[K]['default']>(
+		key: K,
+		getter?: (v: T[K]['default']) => R,
+		setter?: (v: R) => T[K]['default'],
+	): {
+			get: () => R;
+			set: (value: R) => void;
+		} {
+		const valueRef = ref(this.s[key]);
+
+		const stop = watch(this.r[key], val => {
+			valueRef.value = val;
+		});
+
+		onScopeDispose(() => {
+			stop();
+		}, true);
+
+		return {
+			get: () => {
+				if (getter) {
+					return getter(valueRef.value);
+				}
+				return valueRef.value;
+			},
+			set: (value) => {
+				const val = setter ? setter(value) : value;
+				this.set(key, val as T[K]['default']);
+			},
+		};
+	}
+
 	// localStorage => indexedDBのマイグレーション
 	private async migrate() {
 		const deviceState = localStorage.getItem(this.deviceStateKeyName);

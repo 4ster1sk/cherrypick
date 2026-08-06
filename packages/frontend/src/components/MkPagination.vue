@@ -88,6 +88,10 @@ const shouldEnableInfiniteScroll = computed(() => {
 	return prefer.r.enableInfiniteScroll.value && !props.forceDisableInfiniteScroll;
 });
 
+function reload() {
+	props.paginator.reload();
+}
+
 function onContextmenu(ev: PointerEvent) {
 	if (ev.target && isLink(ev.target as HTMLElement)) return;
 	if (window.getSelection()?.toString() !== '') return;

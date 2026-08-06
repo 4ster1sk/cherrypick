@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</div>
 	<template v-else>
 		<template v-if="appearNote.reply && appearNote.reply.replyId"><MkNoteSub v-for="note in conversation" :key="note.id" :class="[$style.replyToMore, { [$style.showReplyTargetNoteInSemiTransparent]: prefer.s.showReplyTargetNoteInSemiTransparent }]" :note="note"/></template>
-		<MkNoteSub v-if="appearNote.replyId" :note="appearNote.reply" :class="[$style.replyTo, { [$style.showReplyTargetNoteInSemiTransparent]: prefer.s.showReplyTargetNoteInSemiTransparent }]"/>
+		<MkNoteSub v-if="appearNote.replyId" :note="appearNote.reply ?? null" :class="[$style.replyTo, { [$style.showReplyTargetNoteInSemiTransparent]: prefer.s.showReplyTargetNoteInSemiTransparent }]"/>
 		<article :class="$style.note" :style="{ paddingTop: prefer.s.showSubNoteFooterButton && appearNote.reply ? '14px' : '' }" @contextmenu.stop="onContextmenu">
 			<header :class="$style.noteHeader">
 				<MkAvatar v-if="!prefer.s.hideAvatarsInNote" :class="$style.noteHeaderAvatar" :user="appearNote.user" indicator link preview/>
@@ -63,9 +63,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</MkA>
 							<span v-if="appearNote.user.isLocked" :class="$style.userBadge"><i class="ti ti-lock"></i></span>
 							<span v-if="appearNote.user.isBot" :class="$style.userBadge"><i class="ti ti-robot"></i></span>
-							<span v-if="appearNote.user.badgeRoles" :class="$style.badgeRoles">
-								<img v-for="role in appearNote.user.badgeRoles" :key="role.id" v-tooltip="role.name" :class="$style.badgeRole" :src="role.iconUrl"/>
-							</span>
+						<span v-if="appearNote.user.badgeRoles" :class="$style.badgeRoles">
+							<img v-for="(role, i) in appearNote.user.badgeRoles" :key="i" v-tooltip="role.name" :class="$style.badgeRole" :src="role.iconUrl!"/>
+						</span>
 						</div>
 						<div :class="$style.noteHeaderUsername"><MkAcct :user="appearNote.user"/></div>
 					</div>
@@ -139,7 +139,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						:enableAnimatedMfm="enableAnimatedMfm"
 					/>
 					<a v-if="appearNote.renote != null" :class="$style.rn">RN:</a>
-					<div v-if="prefer.s.showTranslateButtonInNote && (!prefer.s.useAutoTranslate || (!$i.policies.canUseAutoTranslate || (prefer.s.useAutoTranslate && (appearNote.cw != null || !showContent)))) && instance.translatorAvailable && $i && $i.policies.canUseTranslator && (appearNote.text || appearNote.poll) && isForeignLanguage" style="padding: 5px 0; color: var(--MI_THEME-accent);">
+					<div v-if="prefer.s.showTranslateButtonInNote && (!prefer.s.useAutoTranslate || (!$i?.policies.canUseAutoTranslate || (prefer.s.useAutoTranslate && (appearNote.cw != null || !showContent)))) && instance.translatorAvailable && $i && $i.policies.canUseTranslator && (appearNote.text || appearNote.poll) && isForeignLanguage" style="padding: 5px 0; color: var(--MI_THEME-accent);">
 						<button v-if="translateStatus === 'none'" ref="translateButton" class="_button" @click="translate(false)">{{ i18n.ts.translateNote }}</button>
 						<button v-else class="_button" @click="translateStatus = 'none'; translation = null">{{ i18n.ts.close }}</button>
 					</div>
@@ -203,7 +203,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkA v-if="appearNote.channel && !inChannel" :class="$style.channel" :to="`/channels/${appearNote.channel.id}`"><i class="ti ti-device-tv"></i> {{ appearNote.channel.name }}</MkA>
 			</div>
 			<div v-if="!$i && isAnimatedMfm" :class="$style.play_mfm_action">
-				<MkSwitch v-model="enableAnimatedMfm">
+				<MkSwitch v-model="enableAnimatedMfmSwitch">
 					<template #label>{{ i18n.ts.enableAnimatedMfm }}</template>
 				</MkSwitch>
 			</div>
@@ -454,6 +454,19 @@ const props = withDefaults(defineProps<{
 	initialTab: 'replies',
 });
 
+const emit = defineEmits<{
+	(ev: 'reaction', emoji: string): void;
+	(ev: 'removeReaction', emoji: string): void;
+}>();
+
+function emitUpdReaction(emoji: string, delta: number) {
+	if (delta < 0) {
+		emit('removeReaction', emoji);
+	} else if (delta > 0) {
+		emit('reaction', emoji);
+	}
+}
+
 const inChannel = inject('inChannel', null);
 
 let note = deepClone(props.note);
@@ -485,6 +498,7 @@ const { $note: $appearNote, subscribe: subscribeManuallyToNoteCapture } = useNot
 });
 
 const enableAnimatedMfm = $i ? undefined : computed(store.makeGetterSetter('animatedMfm'));
+const enableAnimatedMfmSwitch = computed(store.makeGetterSetter('animatedMfm'));
 
 const rootEl = useTemplateRef('rootEl');
 const menuButton = useTemplateRef('menuButton');
@@ -730,7 +744,7 @@ async function react() {
 	}
 }
 
-async function toggleReaction(reaction) {
+async function toggleReaction(reaction: string) {
 	const oldReaction = $appearNote.myReaction;
 	if (oldReaction) {
 		const confirm = await os.confirm({

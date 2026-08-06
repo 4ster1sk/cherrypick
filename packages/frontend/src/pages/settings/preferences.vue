@@ -1980,7 +1980,7 @@ watch(trustedDomains, () => {
 
 onMounted(() => {
 	if (fontSizeBefore.value == null) {
-		fontSizeBefore.value = String(fontSize.value);
+		fontSizeBefore.value = String(fontSize.value) as '1' | '2' | '3' | null;
 	}
 });
 

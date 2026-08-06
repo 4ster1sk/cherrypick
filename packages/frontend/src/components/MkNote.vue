@@ -869,7 +869,7 @@ async function react() {
 	}
 }
 
-async function toggleReaction(reaction) {
+async function toggleReaction(reaction: string) {
 	const oldReaction = $appearNote.myReaction;
 	if (oldReaction) {
 		const confirm = await os.confirm({
@@ -1077,7 +1077,7 @@ async function translate(isAuto: boolean): Promise<void> {
 	});
 }
 
-async function showRenoteMenu(): void {
+async function showRenoteMenu() {
 	if (props.mock) {
 		return;
 	}
