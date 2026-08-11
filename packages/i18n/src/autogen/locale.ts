@@ -3553,6 +3553,10 @@ export interface Locale extends ILocale {
      */
     "channel": string;
     /**
+     * リノート先のチャンネルを表示
+     */
+    "viewRenotedChannel": string;
+    /**
      * 作成
      */
     "create": string;
@@ -6499,18 +6503,6 @@ export interface Locale extends ILocale {
      * 設定項目はありません
      */
     "nothingToConfigure": string;
-    /**
-     * リノート先のチャンネルを見る
-     */
-    "viewRenotedChannel": string;
-    /**
-     * テーマのプレビュー中
-     */
-    "previewingTheme": string;
-    /**
-     * 元に戻す
-     */
-    "previewingThemeRestore": string;
     "_imageEditing": {
         "_vars": {
             /**
