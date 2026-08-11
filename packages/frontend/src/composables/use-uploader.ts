@@ -90,6 +90,10 @@ export type UploaderItem = {
 	abortPreprocess?: (() => void) | null;
 };
 
+export function getUploadName(item: UploaderItem): string {
+	return item.uploadName ?? item.name;
+}
+
 function getCompressionSettings(level: 0 | 1 | 2 | 3 | 10, imageWidth: number, imageHeight: number) {
 	if (level === 1) {
 		return {

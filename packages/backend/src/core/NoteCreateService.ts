@@ -68,10 +68,10 @@ type NotificationType = 'reply' | 'renote' | 'quote' | 'mention';
 class NotificationManager {
 	private notifier: { id: MiUser['id']; };
 	private note: MiNote;
-	private queue: {
+	private queue: Map<MiLocalUser['id'], {
 		target: MiLocalUser['id'];
 		reason: NotificationType;
-	}[];
+	}>;
 
 	constructor(
 		private mutingsRepository: MutingsRepository,
@@ -82,7 +82,7 @@ class NotificationManager {
 	) {
 		this.notifier = notifier;
 		this.note = note;
-		this.queue = [];
+		this.queue = new Map();
 	}
 
 	@bindThis
@@ -90,7 +90,7 @@ class NotificationManager {
 		// 自分自身へは通知しない
 		if (this.notifier.id === notifiee) return;
 
-		const exist = this.queue.find(x => x.target === notifiee);
+		const exist = this.queue.get(notifiee);
 
 		if (exist) {
 			// 「メンションされているかつ返信されている」場合は、メンションとしての通知ではなく返信としての通知にする
@@ -98,7 +98,7 @@ class NotificationManager {
 				exist.reason = reason;
 			}
 		} else {
-			this.queue.push({
+			this.queue.set(notifiee, {
 				reason: reason,
 				target: notifiee,
 			});
@@ -107,24 +107,26 @@ class NotificationManager {
 
 	@bindThis
 	public async notify() {
-		if (this.queue.length === 0) {
+		if (this.queue.size === 0) {
 			return;
 		}
+
 		let followers = [] as string[];
 		if (this.note.visibility === 'followers') {
-			const target_users = this.queue.map(x => x.target);
-			const raw_followers = await this.followingsRepository.find({
+			const targetUsers = [...this.queue.values()].map(x => x.target);
+			const rawFollowers = await this.followingsRepository.find({
 				where: {
 					followeeId: this.note.userId,
 					followerHost: IsNull(),
-					followerId: Any(target_users),
+					followerId: Any(targetUsers),
 					isFollowerHibernated: false,
 				},
 				select: ['followerId'],
 			});
-			followers = raw_followers.map(x => x.followerId);
+			followers = rawFollowers.map(x => x.followerId);
 		}
-		for (const x of this.queue) {
+
+		for (const x of this.queue.values()) {
 			if (this.note.visibility === 'public' || this.note.visibility === 'home' || //無条件に公開
 				 (this.note.visibility === 'specified' && this.note.visibleUserIds.includes(x.target)) || //宛先のユーザーである場合
 				 (this.note.visibility === 'followers' && followers.includes(x.target))) { //フォロワーである場合
@@ -132,6 +134,7 @@ class NotificationManager {
 			} else {
 				continue;
 			}
+
 			if (x.reason === 'renote') {
 				this.notificationService.createNotification(x.target, 'renote', {
 					noteId: this.note.id,
