@@ -110,7 +110,6 @@ import FormSlot from '@/components/form/slot.vue';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';
 import { deepClone } from '@/utility/clone.js';
-import * as os from '@/os.js';
 
 type RoleLike = Pick<Misskey.entities.Role, 'name' | 'description' | 'isAdministrator' | 'isModerator' | 'color' | 'iconUrl' | 'target' | 'isPublic' | 'isExplorable' | 'asBadge' | 'canEditMembersByModerator' | 'displayOrder' | 'preserveAssignmentOnMoveAccount'> & {
 	id?: Misskey.entities.Role['id'] | null;
@@ -213,17 +212,6 @@ const save = throttle(100, () => {
 
 	emit('update:modelValue', data);
 });
-
-async function learnMoreAutoTranslate() {
-	if (!role.value.policies.canUseAutoTranslate.value) return;
-
-	const confirm = await os.confirm({
-		type: 'warning',
-		title: i18n.ts.useAutoTranslate,
-		text: i18n.ts._role._options.canUseAutoTranslateDescription,
-	});
-	if (confirm.canceled) role.value.policies.canUseAutoTranslate.value = false;
-}
 
 watch(() => JSON.stringify(role.value), save);
 </script>

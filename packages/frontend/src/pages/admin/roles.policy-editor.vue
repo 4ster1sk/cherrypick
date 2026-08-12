@@ -35,11 +35,31 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</template>
 		</XFolder>
 
+		<XFolder v-if="matchQuery([i18n.ts._role._options.btlAvailable, 'btlAvailable'])" v-model:policyMeta="policyMetaModel.btlAvailable" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.btlAvailable }}</template>
+			<template #valueText>{{ valuesModel.btlAvailable ? i18n.ts.yes : i18n.ts.no }}</template>
+			<template #default="{ disabled }">
+				<MkSwitch v-model="valuesModel.btlAvailable" :disabled="disabled">
+					<template #label>{{ i18n.ts.enable }}</template>
+				</MkSwitch>
+			</template>
+		</XFolder>
+
 		<XFolder v-if="matchQuery([i18n.ts._role._options.canPublicNote, 'canPublicNote'])" v-model:policyMeta="policyMetaModel.canPublicNote" :isBaseRole="isBaseRole" :readonly="readonly">
 			<template #label>{{ i18n.ts._role._options.canPublicNote }}</template>
 			<template #valueText>{{ valuesModel.canPublicNote ? i18n.ts.yes : i18n.ts.no }}</template>
 			<template #default="{ disabled }">
 				<MkSwitch v-model="valuesModel.canPublicNote" :disabled="disabled">
+					<template #label>{{ i18n.ts.enable }}</template>
+				</MkSwitch>
+			</template>
+		</XFolder>
+
+		<XFolder v-if="matchQuery([i18n.ts._role._options.canEditNote, 'canEditNote'])" v-model:policyMeta="policyMetaModel.canEditNote" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.canEditNote }}</template>
+			<template #valueText>{{ valuesModel.canEditNote ? i18n.ts.yes : i18n.ts.no }}</template>
+			<template #default="{ disabled }">
+				<MkSwitch v-model="valuesModel.canEditNote" :disabled="disabled">
 					<template #label>{{ i18n.ts.enable }}</template>
 				</MkSwitch>
 			</template>
@@ -151,11 +171,31 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</template>
 		</XFolder>
 
+		<XFolder v-if="matchQuery([i18n.ts._role._options.canAdvancedSearchNotes, 'canAdvancedSearchNotes'])" v-model:policyMeta="policyMetaModel.canAdvancedSearchNotes" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.canAdvancedSearchNotes }}</template>
+			<template #valueText>{{ valuesModel.canAdvancedSearchNotes ? i18n.ts.yes : i18n.ts.no }}</template>
+			<template #default="{ disabled }">
+				<MkSwitch v-model="valuesModel.canAdvancedSearchNotes" :disabled="disabled">
+					<template #label>{{ i18n.ts.enable }}</template>
+				</MkSwitch>
+			</template>
+		</XFolder>
+
 		<XFolder v-if="matchQuery([i18n.ts._role._options.canUseTranslator, 'canUseTranslator'])" v-model:policyMeta="policyMetaModel.canUseTranslator" :isBaseRole="isBaseRole" :readonly="readonly">
 			<template #label>{{ i18n.ts._role._options.canUseTranslator }}</template>
 			<template #valueText>{{ valuesModel.canUseTranslator ? i18n.ts.yes : i18n.ts.no }}</template>
 			<template #default="{ disabled }">
 				<MkSwitch v-model="valuesModel.canUseTranslator" :disabled="disabled">
+					<template #label>{{ i18n.ts.enable }}</template>
+				</MkSwitch>
+			</template>
+		</XFolder>
+
+		<XFolder v-if="matchQuery([i18n.ts._role._options.canUseAutoTranslate, 'canUseAutoTranslate'])" v-model:policyMeta="policyMetaModel.canUseAutoTranslate" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.canUseAutoTranslate }}</template>
+			<template #valueText>{{ valuesModel.canUseAutoTranslate ? i18n.ts.yes : i18n.ts.no }}</template>
+			<template #default="{ disabled }">
+				<MkSwitch v-model="valuesModel.canUseAutoTranslate" :disabled="disabled || !valuesModel.canUseTranslator" @update:modelValue="onCanUseAutoTranslateChange">
 					<template #label>{{ i18n.ts.enable }}</template>
 				</MkSwitch>
 			</template>
@@ -396,6 +436,34 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</MkSwitch>
 			</template>
 		</XFolder>
+
+		<XFolder v-if="matchQuery([i18n.ts._role._options.canSetFederationAvatarShape, 'canSetFederationAvatarShape'])" v-model:policyMeta="policyMetaModel.canSetFederationAvatarShape" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.canSetFederationAvatarShape }}</template>
+			<template #valueText>{{ valuesModel.canSetFederationAvatarShape ? i18n.ts.yes : i18n.ts.no }}</template>
+			<template #default="{ disabled }">
+				<MkSwitch v-model="valuesModel.canSetFederationAvatarShape" :disabled="disabled">
+					<template #label>{{ i18n.ts.enable }}</template>
+				</MkSwitch>
+			</template>
+		</XFolder>
+
+		<XFolder v-if="matchQuery([i18n.ts._role._options.mutualLinkSectionLimit, 'mutualLinkSectionLimit'])" v-model:policyMeta="policyMetaModel.mutualLinkSectionLimit" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.mutualLinkSectionLimit }}</template>
+			<template #valueText>{{ valuesModel.mutualLinkSectionLimit }}</template>
+			<template #default="{ disabled }">
+				<MkInput v-model="valuesModel.mutualLinkSectionLimit" type="number" :disabled="disabled">
+				</MkInput>
+			</template>
+		</XFolder>
+
+		<XFolder v-if="matchQuery([i18n.ts._role._options.mutualLinkLimit, 'mutualLinkLimit'])" v-model:policyMeta="policyMetaModel.mutualLinkLimit" :isBaseRole="isBaseRole" :readonly="readonly">
+			<template #label>{{ i18n.ts._role._options.mutualLinkLimit }}</template>
+			<template #valueText>{{ valuesModel.mutualLinkLimit }}</template>
+			<template #default="{ disabled }">
+				<MkInput v-model="valuesModel.mutualLinkLimit" type="number" :disabled="disabled">
+				</MkInput>
+			</template>
+		</XFolder>
 	</div>
 </template>
 
@@ -415,6 +483,7 @@ type PolicyMetaRecord = {
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { i18n } from '@/i18n.js';
+import * as os from '@/os.js';
 import XFolder from './roles.policy-editor.folder.vue';
 
 import MkInput from '@/components/MkInput.vue';
@@ -466,6 +535,17 @@ watch(() => props.policiesMeta, () => {
 function matchQuery(keywords: string[]): boolean {
 	if (props.roleQuery == null || props.roleQuery.trim().length === 0) return true;
 	return keywords.some(keyword => keyword.toLowerCase().includes(props.roleQuery!.toLowerCase()));
+}
+
+async function onCanUseAutoTranslateChange(value: boolean): Promise<void> {
+	if (!value) return;
+
+	const confirm = await os.confirm({
+		type: 'warning',
+		title: i18n.ts.useAutoTranslate,
+		text: i18n.ts._role._options.canUseAutoTranslateDescription,
+	});
+	if (confirm.canceled) valuesModel.value.canUseAutoTranslate = false;
 }
 
 const avatarDecorationLimit = computed({
