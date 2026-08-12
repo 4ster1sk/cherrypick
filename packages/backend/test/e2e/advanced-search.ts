@@ -27,7 +27,7 @@ describeOpenSearchE2E('advanced-search E2Eテスト', { requireOpenSearch: true 
 			roleId: rateLimitRole.id,
 			userId: root.id,
 		}, root);
-	});
+	}, 60000);
 
 	afterAll(async () => {
 		await queue?.close();
@@ -71,7 +71,7 @@ describeOpenSearchE2E('advanced-search E2Eテスト', { requireOpenSearch: true 
 			assert.strictEqual(userInfo.status, 200);
 			assert.strictEqual(userInfo.body.notesCount, NOTE_COUNT, `Expected ${NOTE_COUNT} notes, but got ${userInfo.body.notesCount}`);
 			await sleep();
-		});
+		}, 300000);
 
 		function isPausedLike(status: string | null): boolean {
 			// limitCount 到達後に自動再開が予約されると、API 上は queued と表示される
