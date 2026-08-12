@@ -227,3 +227,18 @@ async function learnMoreAutoTranslate() {
 
 watch(() => JSON.stringify(role.value), save);
 </script>
+
+<style lang="scss" module>
+.deleteBtn {
+	position: relative;
+	z-index: 2;
+	margin: 0 auto;
+	border: none;
+	background: none;
+	color: inherit;
+	font-size: 0.8em;
+	cursor: pointer;
+	pointer-events: auto;
+	-webkit-tap-highlight-color: transparent;
+}
+</style>

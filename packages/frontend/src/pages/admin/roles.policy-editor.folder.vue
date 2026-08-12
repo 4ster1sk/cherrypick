@@ -90,16 +90,4 @@ function priroityRangeTextConverter(v: number): string {
 .priorityIndicator {
 	margin-left: 8px;
 }
-.deleteBtn {
-	position: relative;
-	z-index: 2;
-	margin: 0 auto;
-	border: none;
-	background: none;
-	color: inherit;
-	font-size: 0.8em;
-	cursor: pointer;
-	pointer-events: auto;
-	-webkit-tap-highlight-color: transparent;
-}
 </style>
