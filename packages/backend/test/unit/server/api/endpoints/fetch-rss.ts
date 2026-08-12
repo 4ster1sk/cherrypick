@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { beforeEach, describe, expect, test, jest } from '@jest/globals';
-import type { Mocked } from 'jest-mock';
+import { beforeEach, describe, expect, test, vi, type Mocked } from 'vitest';
 import type { Response } from 'node-fetch';
 
-// --- rss-parser のモック登録は、テスト対象を import するより前に行う必要がある ---
-// (ESM環境では jest.mock の自動 hoisting が効かないため、
-//  jest.unstable_mockModule + 動的 import を使う)
-const mockRssParserConstructor = jest.fn<(options: unknown) => void>();
-const mockRssParserParseString = jest.fn<(input: string) => Promise<{ items: unknown[] }>>();
+// --- rss-parser のモック登録は、テスト対象を import するより早い段階で行う必要がある ---
+// (vitest では vi.mock が hoisting されるため、vi.hoisted で宣言したモックを参照する)
+const { mockRssParserConstructor, mockRssParserParseString } = vi.hoisted(() => ({
+	mockRssParserConstructor: vi.fn<(options: unknown) => void>(),
+	mockRssParserParseString: vi.fn<(input: string) => Promise<{ items: unknown[] }>>(),
+}));
 
-jest.unstable_mockModule('rss-parser', () => {
+vi.mock('rss-parser', () => {
 	class MockRssParser {
 		constructor(options: unknown) {
 			mockRssParserConstructor(options);
@@ -50,7 +50,7 @@ function deferred<T>() {
 function response(url: string, text = RSS): Response {
 	return {
 		url,
-		text: jest.fn<() => Promise<string>>().mockResolvedValue(text),
+		text: vi.fn<() => Promise<string>>().mockResolvedValue(text),
 	} as unknown as Response;
 }
 
@@ -63,7 +63,7 @@ describe('fetch-rss endpoint', () => {
 		mockRssParserParseString.mockReset();
 		mockRssParserParseString.mockResolvedValue({ items: [] });
 		httpRequestService = {
-			send: jest.fn(),
+			send: vi.fn(),
 		} as unknown as Mocked<InstanceType<typeof HttpRequestService>>;
 		endpoint = new FetchRssEndpoint(httpRequestService);
 	});
