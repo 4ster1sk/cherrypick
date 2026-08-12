@@ -75,6 +75,7 @@ export default defineConfig((args) => {
 		'ipaddr.js',
 		'oauth2orize',
 		'file-type',
+		'argon2',
 	];
 
 	if (isE2E) {
