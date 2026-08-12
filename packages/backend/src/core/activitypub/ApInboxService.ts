@@ -461,12 +461,6 @@ export class ApInboxService {
 				return 'skip: invalid actor for this activity';
 			}
 
-			if (fromRelay) {
-				const noteObj = await this.noteEntityService.pack(renote);
-				this.globalEventService.publishNotesStream(noteObj);
-				return;
-			}
-
 			this.logger.info(`Creating the (Re)Note: ${uri}`);
 
 			const activityAudience = await this.apAudienceService.parseAudience(actor, activity.to, activity.cc, resolver);
