@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { describe } from 'vitest';
 import { loadConfig } from '../../src/config.js';
 
 type Describe = typeof describe;
@@ -19,7 +20,7 @@ export function installOpenSearchE2EFilter(): void {
 	if (process.env.OPENSEARCH_E2E !== '1' || filterInstalled) return;
 	filterInstalled = true;
 
-	originalDescribe = globalThis.describe;
+	originalDescribe = describe;
 	const orig = originalDescribe;
 
 	const wrappedDescribe = ((...args: Parameters<Describe>) => {
@@ -33,11 +34,11 @@ export function installOpenSearchE2EFilter(): void {
 	wrappedDescribe.only = orig.only.bind(orig);
 	wrappedDescribe.each = orig.each.bind(orig);
 
-	globalThis.describe = wrappedDescribe;
+	(globalThis as { describe?: Describe }).describe = wrappedDescribe;
 }
 
 function runOpenSearchDescribe(name: string, fn: () => void): void {
-	const d = originalDescribe ?? globalThis.describe;
+	const d = originalDescribe ?? describe;
 	d(name, () => {
 		openSearchSuiteDepth++;
 		try {
@@ -74,7 +75,7 @@ export function describeOpenSearchE2E(
 	if (opts?.requireOpenSearch) {
 		const config = loadConfig();
 		if (!config.opensearch) {
-			(originalDescribe ?? globalThis.describe).skip(name, callback);
+			(originalDescribe ?? describe).skip(name, callback);
 			return;
 		}
 	}
@@ -84,5 +85,5 @@ export function describeOpenSearchE2E(
 		return;
 	}
 
-	globalThis.describe(name, callback);
+	describe(name, callback);
 }

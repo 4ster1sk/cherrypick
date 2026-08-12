@@ -7,6 +7,7 @@ process.env.NODE_ENV = 'test';
 
 import * as assert from 'assert';
 import type { INestApplicationContext } from '@nestjs/common';
+import { afterAll, beforeAll, describe, test } from 'vitest';
 import { api, post, role, signup, startJobQueue, sleep } from '../utils.js';
 import type * as misskey from 'misskey-js';
 import { describeOpenSearchE2E } from '../helpers/describe-opensearch-e2e.js';
