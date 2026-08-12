@@ -39,6 +39,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<template #label>{{ i18n.ts._role._options.btlAvailable }}</template>
 			<template #valueText>{{ valuesModel.btlAvailable ? i18n.ts.yes : i18n.ts.no }}</template>
 			<template #default="{ disabled }">
+				<MkInfo :warn="true">{{ i18n.ts.bubbleTimelineDescription }}</MkInfo>
 				<MkSwitch v-model="valuesModel.btlAvailable" :disabled="disabled">
 					<template #label>{{ i18n.ts.enable }}</template>
 				</MkSwitch>
@@ -491,6 +492,7 @@ import MkTextarea from '@/components/MkTextarea.vue';
 import MkRange from '@/components/MkRange.vue';
 import MkSwitch from '@/components/MkSwitch.vue';
 import MkSelect from '@/components/MkSelect.vue';
+import MkInfo from '@/components/MkInfo.vue';
 
 const props = defineProps<{
 	isBaseRole: boolean;
