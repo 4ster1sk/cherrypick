@@ -8,16 +8,15 @@ import { loadConfig } from '../../src/config.js';
 
 /**
  * describeOpenSearchE2E で宣言される suite の名前に付ける共通プレフィックス。
- * OPENSEARCH_E2E=1 のとき `vitest --testNamePattern="^\[opensearch\] "` で
- * このプレフィックスを持つ suite のみ実行する。
+ * `vitest --testNamePattern="^\[opensearch\] "` でこのプレフィックスを持つ suite のみ実行する。
  */
 export const OPENSEARCH_SUITE_PREFIX = '[opensearch] ';
 
 /**
- * OpenSearch E2E CI（OPENSEARCH_E2E=1）で実行する suite を宣言する。
+ * OpenSearch E2E CI で実行する suite を宣言する。
  *
- * OPENSEARCH_E2E=1 のときは package.json の test:e2e:opensearch スクリプトで
- * `--testNamePattern` を使って本関数で宣言された suite のみ実行する。
+ * package.json の test:e2e:opensearch スクリプトの `--testNamePattern` を使って
+ * 本関数で宣言された suite のみ実行する。
  * requireOpenSearch が true のとき、config に opensearch が無ければ skip する。
  */
 export function describeOpenSearchE2E(
