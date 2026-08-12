@@ -85,3 +85,5 @@ vite.config.local-dev.ts.timestamp-*
 
 # Serena
 .serena
+# Affinity
+*.af~lock~

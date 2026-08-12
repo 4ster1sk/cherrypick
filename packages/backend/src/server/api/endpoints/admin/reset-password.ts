@@ -7,9 +7,9 @@ import { Inject, Injectable } from '@nestjs/common';
 //import bcrypt from 'bcryptjs';
 import * as argon2 from 'argon2';
 import { Endpoint } from '@/server/api/endpoint-base.js';
+import { ApiError } from '@/server/api/error.js';
 import type { UsersRepository, UserProfilesRepository, MiMeta } from '@/models/_.js';
 import { DI } from '@/di-symbols.js';
-import { ApiError } from '@/server/api/error.js';
 import { secureRndstr } from '@/misc/secure-rndstr.js';
 import { RoleService } from '@/core/RoleService.js';
 import { ModerationLogService } from '@/core/ModerationLogService.js';
@@ -31,6 +31,11 @@ export const meta = {
 			message: 'Access denied.',
 			code: 'ACCESS_DENIED',
 			id: 'cda8f8ce-89a6-4f92-8055-33bbe0c1464d',
+		},
+		cannotResetPasswordOfRootUser: {
+			message: 'Cannot reset password of the root user.',
+			code: 'CANNOT_RESET_PASSWORD_OF_ROOT_USER',
+			id: 'f28fc207-42ca-44c7-a577-44b4f0ec5999',
 		},
 	},
 
@@ -80,6 +85,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (await this.roleService.isAdministrator(user) && me.id !== user.id) {
 				throw new ApiError(meta.errors.accessDenied);
+			}
+
+			if (this.serverSettings.rootUserId === user.id) {
+				throw new ApiError(meta.errors.cannotResetPasswordOfRootUser);
 			}
 
 			const passwd = secureRndstr(8);
