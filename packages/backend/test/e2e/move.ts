@@ -9,6 +9,7 @@ process.env.NODE_ENV = 'test';
 
 import { setTimeout } from 'node:timers/promises';
 import * as assert from 'assert';
+import { afterAll, beforeAll, afterEach, describe, test } from 'vitest';
 import { api, castAsError, initTestDb, signup, successfulApiCall, uploadFile } from '../utils.js';
 import type * as misskey from 'misskey-js';
 import { loadConfig } from '@/config.js';

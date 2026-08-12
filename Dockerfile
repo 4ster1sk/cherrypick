@@ -74,6 +74,8 @@ FROM --platform=$TARGETPLATFORM node:${NODE_VERSION}-slim AS runner
 ARG UID="991"
 ARG GID="991"
 
+ENV PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false
+
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 	ffmpeg tini curl libjemalloc-dev libjemalloc2 \
@@ -104,7 +106,6 @@ COPY --chown=misskey:misskey --from=native-builder /cherrypick/packages/misskey-
 COPY --chown=misskey:misskey --from=native-builder /cherrypick/packages/backend/built ./packages/backend/built
 COPY --chown=misskey:misskey --from=native-builder /cherrypick/packages/backend/src-js ./packages/backend/src-js
 COPY --chown=misskey:misskey --from=native-builder /cherrypick/packages/i18n/built ./packages/i18n/built
-COPY --chown=misskey:misskey --from=native-builder /cherrypick/fluent-emojis /cherrypick/fluent-emojis
 COPY --chown=misskey:misskey . ./
 
 ENV LD_PRELOAD=/usr/local/lib/libjemalloc.so
