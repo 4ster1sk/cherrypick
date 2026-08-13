@@ -165,10 +165,12 @@ import { QueueService } from './QueueService.js';
 import { LoggerService } from './LoggerService.js';
 import { NoteHistorySerivce } from './NoteHistoryService.js';
 import { NoteHistoryEntityService } from './entities/NoteHistoryEntityService.js';
+import { TelemetryService } from './telemetry/TelemetryService.js';
 import type { Provider } from '@nestjs/common';
 
 //#region 文字列ベースでのinjection用(循環参照対応のため)
 const $LoggerService: Provider = { provide: 'LoggerService', useExisting: LoggerService };
+const $TelemetryService: Provider = { provide: 'TelemetryService', useExisting: TelemetryService };
 const $AbuseReportService: Provider = { provide: 'AbuseReportService', useExisting: AbuseReportService };
 const $AbuseReportNotificationService: Provider = { provide: 'AbuseReportNotificationService', useExisting: AbuseReportNotificationService };
 const $AccountMoveService: Provider = { provide: 'AccountMoveService', useExisting: AccountMoveService };
@@ -490,6 +492,7 @@ const $ApClipService: Provider = { provide: 'ApClipService', useExisting: ApClip
 		ApGameService,
 		ApClipService,
 		QueueService,
+		TelemetryService,
 
 		//#region 文字列ベースでのinjection用(循環参照対応のため)
 		$LoggerService,
@@ -648,6 +651,7 @@ const $ApClipService: Provider = { provide: 'ApClipService', useExisting: ApClip
 		$ApEventService,
 		$ApGameService,
 		$ApClipService,
+		$TelemetryService,
 		//#endregion
 	],
 	exports: [
@@ -810,6 +814,7 @@ const $ApClipService: Provider = { provide: 'ApClipService', useExisting: ApClip
 		ApGameService,
 		ApClipService,
 		QueueService,
+		TelemetryService,
 
 		//#region 文字列ベースでのinjection用(循環参照対応のため)
 		$LoggerService,
@@ -967,6 +972,7 @@ const $ApClipService: Provider = { provide: 'ApClipService', useExisting: ApClip
 		$ApEventService,
 		$ApGameService,
 		$ApClipService,
+		$TelemetryService,
 		//#endregion
 	],
 })

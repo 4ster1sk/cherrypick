@@ -13,4 +13,4 @@ cp .devcontainer/devcontainer.yml .config/default.yml
 cp .config/cypress-devcontainer.yml .config/test.yml
 pnpm build
 pnpm migrate
-pnpm exec cypress install
+pnpm --filter frontend exec playwright install --with-deps chromium
