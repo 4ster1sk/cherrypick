@@ -62,6 +62,7 @@ minimumReleaseAgeExclude:
   - vite # 脆弱性対応。そのうち消す
   - form-data # 脆弱性対応。そのうち消す
   - tar
+  - typeorm # 脆弱性対応 (CVE)。そのうち消す
 overrides:
   '@aiscript-dev/aiscript-languageserver': '-'
   chokidar: 5.0.0
