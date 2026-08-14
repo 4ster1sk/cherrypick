@@ -53,16 +53,18 @@ describe('reset-password', () => {
 		expect(res.password).toHaveLength(8);
 	});
 
-	test('管理者が自分自身のパスワードをリセットが成功する', async () => {
-		const res = await successfulApiCall({
+	test('rootユーザー自身のパスワードをリセットすると CANNOT_RESET_PASSWORD_OF_ROOT_USER エラーになる', async () => {
+		await failedApiCall({
 			endpoint: 'admin/reset-password',
 			parameters: {
-				userId: root.id }, user: root,
+				userId: root.id,
+			},
+			user: root,
 		}, {
-			status: 200,
+			status: 400,
+			code: 'CANNOT_RESET_PASSWORD_OF_ROOT_USER',
+			id: 'f28fc207-42ca-44c7-a577-44b4f0ec5999',
 		});
-
-		expect(res.password).toHaveLength(8);
 	});
 
 	test('他の管理者が自分自身のパスワードをリセットが成功する', async () => {

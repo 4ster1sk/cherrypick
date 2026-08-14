@@ -34,9 +34,6 @@
 		"test-and-coverage:e2e:opensearch": "pnpm build:e2e && cross-env NODE_ENV=test pnpm compile-config && OPENSEARCH_E2E=1 vitest --coverage --config vitest.config.e2e.ts --testNamePattern=\"^\\[opensearch\\] \"",
 		"check-migrations": "node scripts/check_migrations_clean.js",
 		"generate-api-json": "pnpm compile-config && node ./scripts/generate_api_json.js",
-		"biome-lint": "pnpm typecheck && pnpm biome lint",
-		"format": "pnpm biome format",
-		"format:write": "pnpm biome format --write",
 		"schema:sync": "pnpm typeorm schema:sync -d ormconfig.js"
 	},
 	"optionalDependencies": {
@@ -158,7 +155,6 @@
 		"xev": "3.0.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.1",
 		"@kitajs/ts-html-plugin": "4.1.4",
 		"@nestjs/platform-express": "11.1.28",
 		"@rollup/plugin-esm-shim": "0.1.8",

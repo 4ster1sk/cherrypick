@@ -3,14 +3,21 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { describe, test, assert, afterEach } from 'vitest';
+import { describe, test, assert, beforeAll, afterEach } from 'vitest';
 import { render, cleanup, type RenderResult } from '@testing-library/vue';
 import type { SummalyResult } from '@misskey-dev/summaly';
 import { components } from '@/components/index.js';
 import { directives } from '@/directives/index.js';
 import MkUrlPreview from '@/components/MkUrlPreview.vue';
+import { instance } from '@/instance.js';
 
 describe('MkUrlPreview', () => {
+	beforeAll(() => {
+		// このフォークではMkUrlPreviewは `instance.urlPreviewEndpoint` を使用してURLプレビューを取得するため、
+		// テスト環境でも下の `fetchMock.mockOnceIf` の `/url` と一致するように初期化しておく
+		instance.urlPreviewEndpoint = '/url';
+	});
+
 	const renderPreviewBy = async (summary: Partial<SummalyResult>): Promise<RenderResult> => {
 		if (!summary.player) {
 			summary.player = {
