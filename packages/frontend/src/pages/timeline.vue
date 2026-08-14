@@ -77,7 +77,15 @@ const handleResize = () => {
 
 window.addEventListener('resize', handleResize);
 
-const schedulePostList = $i ? (await misskeyApi('notes/drafts/list', { scheduled: true })).length : 0;
+const schedulePostList = ref(0);
+if ($i) {
+	// トップレベルの await でページ全体の描画をブロックしないようにする
+	misskeyApi('notes/drafts/list', { scheduled: true }).then(drafts => {
+		schedulePostList.value = drafts.length;
+	}).catch(() => {
+		schedulePostList.value = 0;
+	});
+}
 
 const tlComponent = useTemplateRef('tlComponent');
 

@@ -123,7 +123,11 @@ const onKeydown = (ev: KeyboardEvent) => {
 
 	if (ev.code === 'Enter') {
 		focused.value = false;
-		inputEl.value?.blur();
+		// フォームの暗黙のsubmit (Enterでの送信) を妨げないよう、blurはdefault actionの後に実行する
+		// (Chromeはkeydown中のblurで暗黙のsubmitがキャンセルされる)
+		window.setTimeout(() => {
+			inputEl.value?.blur();
+		}, 0);
 		emit('enter', ev);
 	}
 };

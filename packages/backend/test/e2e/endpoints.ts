@@ -430,14 +430,21 @@ describe('Endpoints', () => {
 			assert.strictEqual(res.status, 200);
 
 			const connection = await initTestDb(true);
-			const Users = connection.getRepository(MiUser);
-			const newBob = await Users.findOneByOrFail({ id: bob.id });
-			assert.strictEqual(newBob.followersCount, 0);
-			assert.strictEqual(newBob.followingCount, 0);
-			const newAlice = await Users.findOneByOrFail({ id: alice.id });
-			assert.strictEqual(newAlice.followersCount, 0);
-			assert.strictEqual(newAlice.followingCount, 0);
-			connection.destroy();
+			try {
+				const Users = connection.getRepository(MiUser);
+				// unfollow はフォロー数のデクリメントを待たずに応答するため、
+				// DB 上のカウント反映を待ってから検証する (レース対策)
+				await vi.waitFor(async () => {
+					const newBob = await Users.findOneByOrFail({ id: bob.id });
+					assert.strictEqual(newBob.followersCount, 0);
+					assert.strictEqual(newBob.followingCount, 0);
+					const newAlice = await Users.findOneByOrFail({ id: alice.id });
+					assert.strictEqual(newAlice.followersCount, 0);
+					assert.strictEqual(newAlice.followingCount, 0);
+				}, waitForPushToTlOptions);
+			} finally {
+				connection.destroy();
+			}
 		});
 
 		test('フォローしていない場合は怒る', async () => {

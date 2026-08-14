@@ -180,7 +180,6 @@ import { instance } from '@/instance.js';
 import MkPushNotificationAllowButton from '@/components/MkPushNotificationAllowButton.vue';
 import { store } from '@/store.js';
 import * as os from '@/os.js';
-import { unisonReload } from '@/utility/unison-reload.js';
 
 const emit = defineEmits<{
 	(ev: 'closed'): void;
@@ -205,8 +204,9 @@ async function close(skip: boolean) {
 	}
 
 	dialog.value?.close();
+	// リロードしない。リロードするとリロード直後に accountSetupWizard が初期値(0)に戻って
+	// アカウント初期設定ウィザードが再表示されるため (finish側の setupComplete もリロードしない)
 	store.set('accountSetupWizard', -1);
-	unisonReload();
 }
 
 function setupComplete() {

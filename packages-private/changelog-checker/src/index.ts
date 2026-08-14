@@ -17,9 +17,8 @@ function abort(message?: string) {
 }
 
 function main() {
-<<<<<<< HEAD:scripts/changelog-checker/src/index.ts
 	if (!fs.existsSync('./CHANGELOG_YOJO-base.md') || !fs.existsSync('./CHANGELOG_YOJO-head.md')) {
-		console.error('CHANGELOG_YOJO-base.md or CHANGELOG_YOJO-head.md is missing.');
+		abort('CHANGELOG_YOJO-base.md or CHANGELOG_YOJO-head.md is missing.');
 		return;
 	}
 
