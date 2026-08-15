@@ -1,6 +1,6 @@
 ---
 name: misskey-api-reviewer
-description: Misskey backend の REST API エンドポイント (packages/backend/src/server/api/endpoints/) 追加・変更を機械レビューする。endpoint-list 登録漏れ・misskey-js 再生成漏れ・meta/paramDef/UUID/SPDX を検査。backend API を変更した PR レビューで呼ぶ。
+description: Misskey backend の REST API エンドポイント (packages/backend/src/server/api/endpoints/) 追加・変更を機械レビューする。endpoint-list 登録漏れ・misskey-js 再生成漏れ・meta/paramDef/UUID を検査。backend API を変更した PR レビューで呼ぶ。
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -30,7 +30,6 @@ BASE=$(git merge-base origin/develop HEAD)
 - `packages/backend/src/server/api/endpoint-list.ts`
 - `packages/backend/test/e2e/**` (とくに `endpoints.ts` と `<area>.ts`)
 - `packages/misskey-js/src/autogen/**`
-- `CHANGELOG.md`
 
 差分対象が空なら「レビュー対象の API エンドポイント変更なし」と短く報告して終了。
 
@@ -166,4 +165,4 @@ git diff --name-only "$BASE"...HEAD -- packages/misskey-js/src/autogen/
 - [endpoint-base.ts (Endpoint 基底クラス)](../../packages/backend/src/server/api/endpoint-base.ts)
 - [error.ts (ApiError)](../../packages/backend/src/server/api/error.ts)
 - [test/e2e/endpoints.ts](../../packages/backend/test/e2e/endpoints.ts)
-- [AGENTS.md](../../AGENTS.md) — SPDX / マイグレーション履歴 / CHANGELOG 書式などの最低限ルール (Codex / Copilot と共通)
+- [AGENTS.md](../../AGENTS.md) — 共通の安全規約と検証方針

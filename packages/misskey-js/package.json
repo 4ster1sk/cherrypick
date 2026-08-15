@@ -3,7 +3,7 @@
 	"name": "misskey-js",
 	"version": "1.9.0",
 	"basedCherrypickVersion": "4.17.0",
-	"basedMisskeyVersion": "2026.7.0",
+	"basedMisskeyVersion": "2026.8.0-alpha.0",
 	"description": "yojo-art SDK for JavaScript",
 	"license": "MIT",
 	"main": "./built/index.js",
