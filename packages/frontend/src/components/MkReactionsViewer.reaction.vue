@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	@click.stop="(ev) => { canToggle || alternative ? toggleReaction(ev) : stealReaction(ev) }"
 	@contextmenu.prevent.stop="menu"
 >
-	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[reaction.substring(1, reaction.length - 1)]" @click.stop="(ev) => { canToggle || alternative ? toggleReaction(ev) : stealReaction(ev) }"/>
+	<MkReactionIcon style="pointer-events: none;" :class="prefer.s.limitWidthOfReaction ? $style.limitWidth : ''" :reaction="reaction" :emojiUrl="reactionEmojis[reaction.substring(1, reaction.length - 1)]" @click.stop="(ev: PointerEvent) => { canToggle || alternative ? toggleReaction(ev) : stealReaction(ev) }"/>
 	<span :class="$style.count">{{ count }}</span>
 </button>
 </template>
@@ -39,6 +39,7 @@ import { prefer } from '@/preferences.js';
 import { DI } from '@/di.js';
 import { noteEvents } from '@/composables/use-note-capture.js';
 import { mute as muteEmoji, unmute as unmuteEmoji, checkMuted as isEmojiMuted } from '@/utility/emoji-mute.js';
+import { addToEmojiPalette } from '@/utility/emoji-palette.js';
 import { haptic } from '@/utility/haptic.js';
 import { copyToClipboard } from '@/utility/copy-to-clipboard.js';
 import { useRouter } from '@/router.js';
@@ -105,7 +106,7 @@ async function toggleReaction(ev: MouseEvent) {
 	haptic();
 
 	if (!canToggle.value) {
-		await chooseAlternative(ev);
+		await chooseAlternative(ev as PointerEvent);
 		return;
 	}
 	if ($i == null) return;
@@ -183,7 +184,7 @@ async function toggleReaction(ev: MouseEvent) {
 	}
 }
 
-function stealReaction(ev: MouseEvent) {
+function stealReaction(ev: PointerEvent) {
 	haptic();
 
 	let menuItems: MenuItem[] = [];
@@ -277,10 +278,20 @@ function stealReaction(ev: MouseEvent) {
 		});
 	}
 
+	if (canToggle.value) {
+		menuItems.push({
+			text: i18n.ts.addToEmojiPalette,
+			icon: 'ti ti-palette',
+			action: () => {
+				addToEmojiPalette(isLocalCustomEmoji ? `:${emojiName.value}:` : props.reaction);
+			},
+		});
+	}
+
 	os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
 }
 
-async function menu(ev) {
+async function menu(ev: PointerEvent) {
 	const isCustomEmoji = props.reaction.endsWith(':');
 	let menuItems: MenuItem[] = [];
 
@@ -419,7 +430,7 @@ function anime() {
 	});
 }
 
-async function chooseAlternative(ev) {
+async function chooseAlternative(ev: PointerEvent) {
 	// メニュー表示にして、モデレーター以上の場合は登録もできるように
 	if (!alternative.value) return;
 

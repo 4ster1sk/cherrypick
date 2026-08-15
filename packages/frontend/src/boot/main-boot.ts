@@ -29,6 +29,7 @@ import { prefer } from '@/preferences.js';
 import { updateCurrentAccountPartial } from '@/accounts.js';
 import { migrateOldSettings } from '@/pref-migrate.js';
 import { unisonReload } from '@/utility/unison-reload.js';
+import { isBirthday } from '@/utility/is-birthday.js';
 import { userName } from '@/filters/user.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import * as os from '@/os.js';
@@ -55,12 +56,6 @@ export async function mainBoot() {
 				break;
 			case 'visitor':
 				rootComponent = await import('@/ui/visitor.vue').then(x => x.default);
-				break;
-			case 'default':
-				rootComponent = await import('@/ui/universal.vue').then(x => x.default);
-				break;
-			case 'friendly':
-				rootComponent = await import('@/ui/friendly.vue').then(x => x.default);
 				break;
 			default:
 				rootComponent = await import('@/ui/universal.vue').then(x => x.default);
@@ -159,12 +154,8 @@ export async function mainBoot() {
 		const m = now.getMonth() + 1;
 		const d = now.getDate();
 
-		if ($i.birthday) {
-			const bm = parseInt($i.birthday.split('-')[1]);
-			const bd = parseInt($i.birthday.split('-')[2]);
-			if (m === bm && d === bd) {
-				claimAchievement('loggedInOnBirthday');
-			}
+		if (isBirthday($i, now)) {
+			claimAchievement('loggedInOnBirthday');
 		}
 
 		if (m === 1 && d === 1) {
@@ -434,8 +425,20 @@ export async function mainBoot() {
 			if ($i == null) return;
 			post();
 		},
-		'd': () => {
-			store.set('darkMode', !store.s.darkMode);
+		'd': async () => {
+			const value = !store.s.darkMode;
+			if (prefer.s.syncDeviceDarkMode) {
+				const { canceled } = await confirm({
+					type: 'question',
+					text: i18n.tsx.switchDarkModeManuallyWhenSyncEnabledConfirm({ x: i18n.ts.syncDeviceDarkMode }),
+				});
+				if (canceled) return;
+
+				prefer.commit('syncDeviceDarkMode', false);
+				store.set('darkMode', value);
+			} else {
+				store.set('darkMode', value);
+			}
 		},
 		's': () => {
 			mainRouter.push('/search');

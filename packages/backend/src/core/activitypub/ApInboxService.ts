@@ -34,6 +34,7 @@ import type { MiRemoteUser } from '@/models/User.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import { AbuseReportService } from '@/core/AbuseReportService.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
+import { trackPromise } from '@/misc/promise-tracker.js';
 import { getApHrefNullable, getApId, getApIds, getApType, isAccept, isActor, isAdd, isAnnounce, isBlock, isCollection, isCollectionOrOrderedCollection, isCreate, isDelete, isFlag, isFollow, isInvite, isLike, isMove, isPost, isRead, isReject, isRemove, isTombstone, isUndo, isUpdate, validActor, validPost, isJoin, isReversi, isLeave, isClip, isGame } from './type.js';
 import { ApNoteService } from './models/ApNoteService.js';
 import { ApLoggerService } from './ApLoggerService.js';
@@ -46,6 +47,7 @@ import { ApImageService } from './models/ApImageService.js';
 import { ApMfmService } from './ApMfmService.js';
 import { ApGameService } from './models/ApGameService.js';
 import { ApClipService } from './models/ApClipService.js';
+import { ApDeliverManagerService } from './ApDeliverManagerService.js';
 import type { Resolver } from './ApResolverService.js';
 import type { IAccept, IAdd, IAnnounce, IBlock, ICreate, IDelete, IFlag, IFollow, IInvite, ILike, IObject, IRead, IReject, IRemove, IUndo, IUpdate, IMove, IPost, IApGame, IJoin, ILeave } from './type.js';
 
@@ -116,6 +118,7 @@ export class ApInboxService {
 		private globalEventService: GlobalEventService,
 		private apgameService: ApGameService,
 		private apClipService: ApClipService,
+		private apDeliverManagerService: ApDeliverManagerService,
 	) {
 		this.logger = this.apLoggerService.logger;
 	}
@@ -363,7 +366,7 @@ export class ApInboxService {
 
 	@bindThis
 	private async add(actor: MiRemoteUser, activity: IAdd, resolver?: Resolver): Promise<string | void> {
-		if (actor.uri !== activity.actor) {
+		if (actor.uri !== getApId(activity.actor)) {
 			return 'invalid actor';
 		}
 
@@ -409,19 +412,19 @@ export class ApInboxService {
 
 	@bindThis
 	private async announceNote(actor: MiRemoteUser, activity: IAnnounce, target: IPost, resolver?: Resolver): Promise<string | void> {
-		const uri = getApId(activity);
-
 		if (actor.isSuspended) {
 			return;
 		}
 
+		// リレーからのAnnounceかチェック
+		const fromRelay = await this.relayService.isRelayActor(actor);
+		const uri = getApId(fromRelay ? target : activity);
+
 		// アナウンス先が許可されているかチェック
 		if (!this.utilityService.isFederationAllowedUri(uri)) return;
 
-		const relays = await this.relayService.getAcceptedRelays();
-		const fromRelay = !!actor.inbox && relays.map(r => r.inbox).includes(actor.inbox);
-
-		const unlock = await acquireApObjectLock(this.redisClient, uri);
+		const activityUri = getApId(activity);
+		const unlock = await acquireApObjectLock(this.redisClient, activityUri);
 
 		try {
 			// 既に同じURIを持つものが登録されていないかチェック
@@ -446,14 +449,16 @@ export class ApInboxService {
 				throw err;
 			}
 
-			if (!await this.noteEntityService.isVisibleForMe(renote, actor.id)) {
-				return 'skip: invalid actor for this activity';
-			}
-
+			// リレーからのAnnounceはリノートを作成せず、ノートを直接公開する
 			if (fromRelay) {
-				const noteObj = await this.noteEntityService.pack(renote);
+				this.logger.info(`Publishing relay-delivered note: ${uri}`);
+				const noteObj = await this.noteEntityService.pack(renote, null, { skipHide: true, withReactionAndUserPairCache: true });
 				this.globalEventService.publishNotesStream(noteObj);
 				return;
+			}
+
+			if (!await this.noteEntityService.isVisibleForMe(renote, actor.id)) {
+				return 'skip: invalid actor for this activity';
 			}
 
 			this.logger.info(`Creating the (Re)Note: ${uri}`);
@@ -470,6 +475,7 @@ export class ApInboxService {
 				channel = await this.channelsRepository.findOneBy({ id: actor.channelId });
 				if (channel)channel.actor = actor;
 			} else {
+				//リノートは本文情報が無いのでccにチャンネルアカウントが入ってるかだけ見る
 				for (const user of activityAudience.mentionedUsers) {
 					const channelId = user.channelId;
 					if (channelId) {
@@ -477,6 +483,16 @@ export class ApInboxService {
 						if (channel)channel.actor = user;
 					}
 					if (channel) break;//最初に発見されたチャンネルに投稿
+				}
+				if (channel?.actor && channel.actor.host === null) {
+					//リモートユーザーによるローカルのチャンネルへの投稿
+					const user = { id: channel.actor.id, host: null };
+					if (activity.signature) {
+						//内容に署名されていれば転送する
+						const dm = this.apDeliverManagerService.createDeliverManager(user, activity);
+						dm.addChannelFollowersRecipe(user.id);
+						trackPromise(dm.execute());
+					}
 				}
 			}
 
@@ -779,7 +795,7 @@ export class ApInboxService {
 
 	@bindThis
 	private async delete(actor: MiRemoteUser, activity: IDelete): Promise<string> {
-		if (actor.uri !== activity.actor) {
+		if (actor.uri !== getApId(activity.actor)) {
 			return 'invalid actor';
 		}
 
@@ -1000,7 +1016,7 @@ export class ApInboxService {
 
 	@bindThis
 	private async remove(actor: MiRemoteUser, activity: IRemove, resolver?: Resolver): Promise<string | void> {
-		if (actor.uri !== activity.actor) {
+		if (actor.uri !== getApId(activity.actor)) {
 			return 'invalid actor';
 		}
 
@@ -1048,7 +1064,7 @@ export class ApInboxService {
 
 	@bindThis
 	private async undo(actor: MiRemoteUser, activity: IUndo, resolver?: Resolver): Promise<string> {
-		if (actor.uri !== activity.actor) {
+		if (actor.uri !== getApId(activity.actor)) {
 			return 'invalid actor';
 		}
 
@@ -1240,7 +1256,7 @@ export class ApInboxService {
 	private async update(actor: MiRemoteUser, activity: IUpdate, resolver?: Resolver): Promise<string> {
 		const uri = getApId(activity);
 
-		if (actor.uri !== activity.actor) {
+		if (actor.uri !== getApId(activity.actor)) {
 			return 'skip: invalid actor';
 		}
 

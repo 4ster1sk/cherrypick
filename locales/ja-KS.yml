@@ -1348,9 +1348,6 @@ preferenceSyncConflictChoiceCancel: "同期の有効化はやめとくわ"
 postForm: "投稿フォーム"
 information: "情報"
 directMessage: "チャットしよか"
-migrateOldSettings: "旧設定情報をお引っ越し"
-migrateOldSettings_description: "通常これは自動で行われるはずなんやけど、なんかの理由で上手く移行できへんかったときは手動で移行処理をポチっとできるで。今の設定情報は上書きされるで。"
-settingsMigrating: "設定を移行しとるで。ちょっと待っとってな... (後で、設定→その他→旧設定情報を移行 で手動で移行することもできるで)"
 driveAboutTip: "ドライブでは、今までアップロードしたファイルがずらーっと表示されるで。<br>\nノートにファイルをもっかいのっけたり、あとで投稿するファイルをその辺に置いとくこともできるねん。<br>\n<b>ファイルをほかすと、前にそのファイルをのっけた全部の場所(ノート、ページ、アバター、バナー等)からも見えんくなるから気いつけてな。</b><br>\nフォルダを作って整理することもできるで。"
 turnItOn: "オンにしとこ"
 turnItOff: "オフでええわ"
@@ -1371,6 +1368,7 @@ widgets: "ウィジェット"
 deviceInfoDescription: "なんか技術的なことで分からんこと聞くときは、下の情報も一緒に書いてもらえると、こっちも分かりやすいし、はよ直ると思います。"
 youAreAdmin: "あんた、管理者やで"
 presets: "プリセット"
+previewingThemeRestore: "元に戻す"
 _imageEditing:
   _vars:
     filename: "ファイル名"
@@ -2464,6 +2462,15 @@ _widgets:
   clicker: "クリッカー"
   birthdayFollowings: "今日誕生日のツレ"
   chat: "チャットしよか"
+_widgetOptions:
+  showHeader: "ヘッダー出す"
+  height: "高さ"
+  _button:
+    colored: "色付き"
+  _clock:
+    size: "大きさ"
+  _birthdayFollowings:
+    period: "期間"
 _cw:
   hide: "隠す"
   show: "続き見して！"
@@ -2510,11 +2517,11 @@ _postForm:
   channelPlaceholder: "チャンネルに投稿..."
   _howToUse:
     toolbar_description: "ファイルとかアンケートを付けたり、注釈とかハッシュタグを書いたり、絵文字とかメンションとかを付け足したりできるで。"
-    account_description: "投稿するアカウントを変えたり、アカウントに保存した下書きとか予約投稿とかを見れるで。"
+    account_description: "投稿するアカウントを切り替えられるで。"
     visibility_title: "公開範囲"
     visibility_description: "ノートを誰に見せたいかはここで切り替えてな。"
     menu_title: "メニュー"
-    menu_description: "下書きに保存したり、投稿の予約したり、リアクションの受け入れ設定とか…なんか色々できるで。"
+    menu_description: "下書きの保存・一覧、投稿の予約、リアクションの受け入れ設定とか…なんか色々できるで。"
     submit_description: "ノートを投稿するときはここ押してな。Ctrl + Enter / Cmd + Enter でも投稿できるで。"
   _placeholders:
     a: "いまどないしとるん？"

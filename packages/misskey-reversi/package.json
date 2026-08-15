@@ -21,20 +21,15 @@
 		"watch": "nodemon -w package.json -e json --exec \"node ./build.js --watch\"",
 		"eslint": "eslint './**/*.{js,jsx,ts,tsx}'",
 		"typecheck": "tsc --noEmit",
-		"lint": "pnpm typecheck && pnpm eslint",
-		"biome-lint": "pnpm typecheck && pnpm biome lint",
-		"format": "pnpm biome format",
-		"format:write": "pnpm biome format --write"
+		"lint": "pnpm typecheck && pnpm eslint"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.3.1",
-		"@types/node": "24.10.2",
-		"@typescript-eslint/eslint-plugin": "8.49.0",
-		"@typescript-eslint/parser": "8.49.0",
+		"@types/node": "26.1.1",
+		"@typescript-eslint/eslint-plugin": "8.63.0",
+		"@typescript-eslint/parser": "8.63.0",
 		"esbuild": "0.28.1",
 		"execa": "9.6.1",
-		"nodemon": "3.1.11",
-		"typescript": "5.9.3"
+		"nodemon": "3.1.14"
 	},
 	"files": [
 		"built"

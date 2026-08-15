@@ -1,3 +1,64 @@
+## 1.9.0
+Cherrypick 4.17.0  
+Misskey 2025.12.2
+
+### Release Date
+2026-08-01
+
+### General
+- Feat: チャンネルにアイコンを設定・表示できるように [#1189](https://github.com/yojo-art/cherrypick/pull/1189)
+- Feat: コンディショナルロールにチャンネルユーザー条件を追加 [#1188](https://github.com/yojo-art/cherrypick/pull/1188)
+
+### Client
+- Enhance: 新しいノート件数が上限に達したとき「100個以上」と表示する [#1150](https://github.com/yojo-art/cherrypick/pull/1150)
+- Change: ナビゲーションバーのデフォルト値をmisskeyと同じに変更 [#1125](https://github.com/yojo-art/cherrypick/pull/1125)
+- Remove: Cherrypickを支援のボタンをサイドバーから削除 [#1147](https://github.com/yojo-art/cherrypick/pull/1147)
+
+### Server
+- Fix: チャンネルの参加人数が間違って表示される問題の修正 [#1238](https://github.com/yojo-art/cherrypick/pull/1238)
+
+### Others
+- ciとtestの各種ファイルをmisskeyに変更 [#1185](https://github.com/yojo-art/cherrypick/pull/1185)
+- Fix: devcontainer用dbコンテナのvolumeのマウントパスを変更 [#1199](https://github.com/yojo-art/cherrypick/pull/1199)
+
+## 1.8.2
+Cherrypick 4.17.0  
+Misskey 2025.10.2
+
+### Release Date
+2026-07-30
+
+### General
+
+### Client
+
+### Server
+
+### Others
+- 1.8.1でバージョン番号の変更を忘れたため作成されたリリースです
+
+## 1.8.1
+Cherrypick 4.17.0  
+Misskey 2025.10.2
+
+### Release Date
+2026-07-28
+
+### General
+
+### Client
+- Fix: チャンネルミュート期間が空な問題の修正 [#1176](https://github.com/yojo-art/cherrypick/pull/1176)
+
+### Server
+- Fix: チャンネルメンションの挙動修正 [#1170](https://github.com/yojo-art/cherrypick/pull/1170)
+  - yojo-art以外の実装で作成された投稿者とGroupが同じインスタンスの投稿が正しく処理されるようになります
+- Fix: チャンネル作成時にユーザーアカウントに名前が設定されない問題を修正 [#1187](https://github.com/yojo-art/cherrypick/pull/1187)
+- Fix: チャンネル作成時にバナーが設定されない問題を修正 [#1197](https://github.com/yojo-art/cherrypick/pull/1197)
+- Fix: チャンネル内リノートが配送されない問題の修正 [#1200](https://github.com/yojo-art/cherrypick/pull/1200)
+  - チャンネルアカウント、投稿者双方が修正されたバージョンである必要があります。
+	- yojo-art以外の実装では無視される可能性があります。
+- Fix: セキュリティに関する修正 (Cherry-picked from misskey)
+
 ## 1.8.0
 Cherrypick 4.17.0  
 Misskey 2025.10.2

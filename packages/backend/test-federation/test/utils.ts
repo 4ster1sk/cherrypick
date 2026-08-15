@@ -51,17 +51,21 @@ type DeliverFederationTestNoteResponse = {
 /**
  * z.test に stub Note の署名付き inbox 配送を依頼する。
  * `notePath` は `stub/notes/` からの相対パス（例: `ap-emoji-1049/10-copy-permission-none`）。
+ * `options.placeholders` で stub Note JSON 内の `{{key}}` を実際の値に置換できる。
+ * stub ファイルの `type` が `Announce` の場合はそのまま Activity として配送し、
+ * それ以外は `Create` Activity でラップして配送する。
  */
 export async function deliverFederationTestNote(
 	targetHost: FederationTestTargetHost,
 	notePath: string,
+	options?: { placeholders?: Record<string, string> },
 ): Promise<DeliverFederationTestNoteResponse> {
 	const response = await fetch(federationTestStubUri('deliver'), {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ targetHost, notePath }),
+		body: JSON.stringify({ targetHost, notePath, ...options }),
 	});
 	const body = await response.json() as DeliverFederationTestNoteResponse & { error?: string };
 	strictEqual(
@@ -95,6 +99,7 @@ export async function waitForFederationTestNote(
 			const notes = await viewer.client.request('users/notes', {
 				userId: zack.id,
 				limit: 1,
+				withChannelNotes: true,
 			});
 			if (notes[0].uri !== targetUri) return false;
 			note = notes[0];
@@ -370,30 +375,26 @@ export async function isFired<C extends keyof Misskey.Channels, T extends keyof 
 	cond: (msg: Parameters<Misskey.Channels[C]['events'][T]>[0]) => boolean,
 	params?: Misskey.Channels[C]['params'],
 ): Promise<boolean> {
-	return new Promise<boolean>(async (resolve, reject) => {
-		const stream = new Misskey.Stream(`wss://${host}`, { token: user.i }, { WebSocket });
+	const stream = new Misskey.Stream(`wss://${host}`, { token: user.i }, { WebSocket });
+	try {
 		const connection = stream.useChannel(channel, params);
-		connection.on(type as any, ((msg: any) => {
-			if (cond(msg)) {
-				stream.close();
-				clearTimeout(timer);
-				resolve(true);
-			}
-		}) as any);
 
-		let timer: NodeJS.Timeout | undefined;
-
-		await trigger().then(() => {
-			timer = setTimeout(() => {
-				stream.close();
-				resolve(false);
-			}, 500);
-		}).catch(err => {
-			stream.close();
-			clearTimeout(timer);
-			reject(err);
+		const receivePromise = new Promise<boolean>((resolve) => {
+			connection.on(type as never, ((msg: any) => {
+				if (cond(msg)) {
+					resolve(true);
+				}
+			}) as any);
 		});
-	});
+
+		await trigger();
+		return await Promise.race([
+			receivePromise,
+			sleep(500).then(() => false),
+		]);
+	} finally {
+		stream.close();
+	}
 };
 
 export async function isNoteUpdatedEventFired(
@@ -403,30 +404,27 @@ export async function isNoteUpdatedEventFired(
 	trigger: () => Promise<unknown>,
 	cond: (msg: Parameters<Misskey.StreamEvents['noteUpdated']>[0]) => boolean,
 ): Promise<boolean> {
-	return new Promise<boolean>(async (resolve, reject) => {
-		const stream = new Misskey.Stream(`wss://${host}`, { token: user.i }, { WebSocket });
+	const stream = new Misskey.Stream(`wss://${host}`, { token: user.i }, { WebSocket });
+	try {
 		stream.send('s', { id: noteId });
-		stream.on('noteUpdated', msg => {
-			if (cond(msg)) {
-				stream.close();
-				clearTimeout(timer);
-				resolve(true);
-			}
+
+		const receivePromise = new Promise<boolean>((resolve) => {
+			stream.on('noteUpdated', msg => {
+				if (cond(msg)) {
+					resolve(true);
+				}
+			});
 		});
 
-		let timer: NodeJS.Timeout | undefined;
+		await trigger();
 
-		await trigger().then(() => {
-			timer = setTimeout(() => {
-				stream.close();
-				resolve(false);
-			}, 500);
-		}).catch(err => {
-			stream.close();
-			clearTimeout(timer);
-			reject(err);
-		});
-	});
+		return await Promise.race([
+			receivePromise,
+			sleep(500).then(() => false),
+		]);
+	} finally {
+		stream.close();
+	}
 };
 
 export async function assertNotificationReceived(

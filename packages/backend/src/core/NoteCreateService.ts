@@ -68,10 +68,10 @@ type NotificationType = 'reply' | 'renote' | 'quote' | 'mention';
 class NotificationManager {
 	private notifier: { id: MiUser['id']; };
 	private note: MiNote;
-	private queue: {
+	private queue: Map<MiLocalUser['id'], {
 		target: MiLocalUser['id'];
 		reason: NotificationType;
-	}[];
+	}>;
 
 	constructor(
 		private mutingsRepository: MutingsRepository,
@@ -82,7 +82,7 @@ class NotificationManager {
 	) {
 		this.notifier = notifier;
 		this.note = note;
-		this.queue = [];
+		this.queue = new Map();
 	}
 
 	@bindThis
@@ -90,7 +90,7 @@ class NotificationManager {
 		// 自分自身へは通知しない
 		if (this.notifier.id === notifiee) return;
 
-		const exist = this.queue.find(x => x.target === notifiee);
+		const exist = this.queue.get(notifiee);
 
 		if (exist) {
 			// 「メンションされているかつ返信されている」場合は、メンションとしての通知ではなく返信としての通知にする
@@ -98,7 +98,7 @@ class NotificationManager {
 				exist.reason = reason;
 			}
 		} else {
-			this.queue.push({
+			this.queue.set(notifiee, {
 				reason: reason,
 				target: notifiee,
 			});
@@ -107,31 +107,49 @@ class NotificationManager {
 
 	@bindThis
 	public async notify() {
-		if (this.queue.length === 0) {
+		if (this.queue.size === 0) {
 			return;
 		}
-		let followers = [] as string[];
-		if (this.note.visibility === 'followers') {
-			const target_users = this.queue.map(x => x.target);
-			const raw_followers = await this.followingsRepository.find({
-				where: {
-					followeeId: this.note.userId,
-					followerHost: IsNull(),
-					followerId: Any(target_users),
-					isFollowerHibernated: false,
-				},
-				select: ['followerId'],
-			});
-			followers = raw_followers.map(x => x.followerId);
+
+		let visibleUserIds: Set<MiUser['id']> | null;
+
+		switch (this.note.visibility) {
+			case 'public':
+			case 'home':
+				visibleUserIds = null;
+				break;
+
+			case 'specified':
+				visibleUserIds = new Set(this.note.visibleUserIds);
+				break;
+
+			case 'followers': {
+			// TODO: フォロワー限定ノートにフォロワーではない人がメンションされた場合通知されるのが正しい挙動なのか確認（一部に挙動の不一致がありそう）。現状は通知されるためフィルタしない
+				const targetUserIds = this.queue.keys().toArray();
+				const followers = await this.followingsRepository.find({
+					where: {
+						followeeId: this.note.userId,
+						followerId: In(targetUserIds),
+						isFollowerHibernated: false,
+					},
+					select: { followerId: true },
+				});
+				visibleUserIds = new Set(followers.map(f => f.followerId));
+				break;
+			}
+
+			default:
+				visibleUserIds = new Set();
+				break;
 		}
-		for (const x of this.queue) {
-			if (this.note.visibility === 'public' || this.note.visibility === 'home' || //無条件に公開
-				 (this.note.visibility === 'specified' && this.note.visibleUserIds.includes(x.target)) || //宛先のユーザーである場合
-				 (this.note.visibility === 'followers' && followers.includes(x.target))) { //フォロワーである場合
-				//visibleUser
-			} else {
+
+		for (const x of this.queue.values()) {
+			const isVisibleToTarget = visibleUserIds === null || visibleUserIds.has(x.target);
+
+			if (!isVisibleToTarget) {
 				continue;
 			}
+
 			if (x.reason === 'renote') {
 				this.notificationService.createNotification(x.target, 'renote', {
 					noteId: this.note.id,
@@ -172,6 +190,7 @@ type Option = {
 	visibleUsers?: MinimumUser[] | null;
 	channel?: MiChannel | null;
 	apMentions?: MinimumUser[] | null;
+	apMentionRawCount?: number | null;
 	apHashtags?: string[] | null;
 	apEmojis?: string[] | null;
 	uri?: string | null;
@@ -318,7 +337,11 @@ export class NoteCreateService implements OnApplicationShutdown {
 			// Fetch renote to note
 			renote = await this.notesRepository.findOne({
 				where: { id: data.renoteId },
-				relations: ['user', 'renote', 'reply'],
+				relations: {
+					user: true,
+					renote: true,
+					reply: true,
+				},
 			});
 
 			if (renote == null) {
@@ -367,14 +390,14 @@ export class NoteCreateService implements OnApplicationShutdown {
 			// Fetch reply
 			reply = await this.notesRepository.findOne({
 				where: { id: data.replyId },
-				relations: ['user'],
+				relations: { user: true },
 			});
 
 			if (reply == null) {
 				throw new IdentifiableError('60142edb-1519-408e-926d-4f108d27bee0', 'No such reply target');
 			} else if (isRenote(reply) && !isQuote(reply)) {
 				throw new IdentifiableError('f089e4e2-c0e7-4f60-8a23-e5a6bf786b36', 'Cannot reply to pure renote');
-			} else if (!await this.noteEntityService.isVisibleForMe(reply, user.id)) {
+			} else if (!(await this.noteEntityService.isVisibleForMe(reply, user.id))) {
 				throw new IdentifiableError('11cd37b3-a411-4f77-8633-c580ce6a8dce', 'No such reply target');
 			} else if (reply.visibility === 'specified' && data.visibility !== 'specified') {
 				throw new IdentifiableError('ced780a1-2012-4caf-bc7e-a95a291294cb', 'Cannot reply to specified note with different visibility');
@@ -512,12 +535,19 @@ export class NoteCreateService implements OnApplicationShutdown {
 						throw new Error('Renote target is not public or home');
 					}
 
-					// Renote対象がfollowersならfollowersにする
-					data.visibility = 'followers';
+					// followers noteはfollowers以下にrenote可能
+					if (data.visibility === 'public' || data.visibility === 'home') {
+						data.visibility = 'followers';
+					}
 					break;
 				case 'specified':
 					// specified / direct noteはreject
 					throw new Error('Renote target is not public or home');
+			}
+
+			// ローカルのみをRenoteしたらローカルのみにする
+			if (data.renote.localOnly && data.channel == null) {
+				data.localOnly = true;
 			}
 		}
 
@@ -533,19 +563,35 @@ export class NoteCreateService implements OnApplicationShutdown {
 			}
 		}
 
-		// 返信対象がpublicではないならhomeにする
-		if (data.reply && data.reply.visibility !== 'public' && data.visibility === 'public') {
-			data.visibility = 'home';
-		}
+		if (data.reply) {
+			switch (data.reply.visibility) {
+				case 'public':
+					// public noteは無条件にreply可能
+					break;
+				case 'home':
+					// home noteはhome以下にreply可能
+					if (data.visibility === 'public') {
+						data.visibility = 'home';
+					}
+					break;
+				case 'followers':
+					// followers noteはfollowers以下にreply可能
+					if (data.visibility === 'public' || data.visibility === 'home') {
+						data.visibility = 'followers';
+					}
+					break;
+				case 'specified':
+					// specified / direct noteはspecifiedのみreply可能
+					if (data.visibility !== 'specified') {
+						data.visibility = 'specified';
+					}
+					break;
+			}
 
-		// ローカルのみをRenoteしたらローカルのみにする
-		if (data.renote && data.renote.localOnly && data.channel == null) {
-			data.localOnly = true;
-		}
-
-		// ローカルのみにリプライしたらローカルのみにする
-		if (data.reply && data.reply.localOnly && data.channel == null) {
-			data.localOnly = true;
+			// ローカルのみにリプライしたらローカルのみにする
+			if (data.reply.localOnly && data.channel == null) {
+				data.localOnly = true;
+			}
 		}
 
 		if (data.text) {
@@ -580,7 +626,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 
 			emojis = data.apEmojis ?? extractCustomEmojisFromMfm(combinedTokens);
 
-			mentionedUsers = data.apMentions ?? await this.extractMentionedUsers(user, combinedTokens);
+			mentionedUsers = data.apMentions ?? (await this.extractMentionedUsers(user, combinedTokens));
 		}
 
 		// if the host is media-silenced, custom emojis are not allowed
@@ -610,7 +656,8 @@ export class NoteCreateService implements OnApplicationShutdown {
 			mentionedUsers = mentionedUsers.filter(x => x.id !== data.channel?.actorId);
 		}
 
-		if (mentionedUsers.length > 0 && mentionedUsers.length > (await this.roleService.getUserPolicies(user.id)).mentionLimit) {
+		const effectiveMentionCount = Math.max(mentionedUsers.length, data.apMentionRawCount ?? 0);
+		if (effectiveMentionCount > 0 && effectiveMentionCount > (await this.roleService.getUserPolicies(user.id)).mentionLimit) {
 			throw new IdentifiableError('9f466dab-c856-48cd-9e65-ff90ff750580', 'Note contains too many mentions');
 		}
 		const note = await this.insertNote(user, data, tags, emojis, mentionedUsers);
@@ -908,11 +955,17 @@ export class NoteCreateService implements OnApplicationShutdown {
 						dm.addDirectRecipe(u as MiRemoteUser);
 					}
 
-					if (note.channel != null && note.channel.host != null && note.channel.actorId) {
-						//リモートのチャンネルに投稿する時はそのホストに配送
-						note.channel.actor ??= await this.usersRepository.findOneBy({ id: note.channel.actorId });
-						if (note.channel.actor?.host && note.channel.actor.uri) {
-							dm.addDirectRecipe(note.channel.actor as MiRemoteUser);
+					if (note.channel != null && user.channelId === null && note.channel.actorId) {
+						// yojo-art: チャンネルのフォロワーに配送
+						if (isPureRenote) {
+							//チャンネル内リノート
+							dm.addChannelFollowersRecipe(note.channel.actorId);
+						} else if (note.channel.host != null) {
+							//リモートのチャンネルに投稿する時はそのホストに配送
+							note.channel.actor ??= await this.usersRepository.findOneBy({ id: note.channel.actorId });
+							if (note.channel.actor?.host && note.channel.actor.uri) {
+								dm.addDirectRecipe(note.channel.actor as MiRemoteUser);
+							}
 						}
 					}
 
@@ -945,13 +998,13 @@ export class NoteCreateService implements OnApplicationShutdown {
 				note.channel.actor ??= await this.usersRepository.findOneBy({ id: note.channel.actorId });
 				if (note.channel.actor) {
 					//awaitせず非同期でやる
-					this.create(note.channel.actor, {
+					trackPromise(this.create(note.channel.actor, {
 						createdAt: this.idService.parse(note.id).date,
 						renote: note,
 						visibility: note.visibility,
 						searchableBy: note.searchableBy,
 						channel: note.channel,
-					});
+					}));
 				} else {
 					console.log('チャンネルに連動したアカウントが見つからない');
 				}
@@ -959,7 +1012,8 @@ export class NoteCreateService implements OnApplicationShutdown {
 			//#endregion
 		}
 
-		if (data.channel) {
+		// yojo-art: チャンネルアカウントの自動リノートは除外する
+		if (data.channel && !user.channelId) {
 			this.channelsRepository.increment({ id: data.channel.id }, 'notesCount', 1);
 			this.channelsRepository.update(data.channel.id, {
 				lastNotedAt: new Date(),
@@ -1113,12 +1167,8 @@ export class NoteCreateService implements OnApplicationShutdown {
 		if (note.channel?.actorId === user.id) {
 			//チャンネルユーザーが作成したチャンネル投稿
 			if (isRenote(note) && !isQuote(note)) {
-				note.renote = await this.notesRepository.findOneBy({ id: note.renoteId });
-			}
-			if (note.renote) {
-				note.renote.channel = note.channel;
-				//TLにはリノートの中身を投入する
-				note = note.renote;
+				//純粋リノートはTLに含めない
+				return;
 			}
 		}
 		if (note.channelId && note.channel) {
@@ -1126,7 +1176,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 				where: {
 					followeeId: note.channel.actorId,
 				},
-				select: ['followerId'],
+				select: { followerId: true },
 			}) : [];
 
 			for (const channelFollowing of channelFollowings) {
@@ -1148,13 +1198,20 @@ export class NoteCreateService implements OnApplicationShutdown {
 						followerHost: IsNull(),
 						isFollowerHibernated: false,
 					},
-					select: ['followerId', 'withReplies'],
+					select: {
+						followerId: true,
+						withReplies: true,
+					},
 				}),
 				this.userListMembershipsRepository.find({
 					where: {
 						userId: user.id,
 					},
-					select: ['userListId', 'userListUserId', 'withReplies'],
+					select: {
+						userListId: true,
+						userListUserId: true,
+						withReplies: true,
+					},
 				}),
 			]);
 
@@ -1262,7 +1319,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 				id: In(samples.map(x => x.followerId)),
 				lastActiveDate: LessThan(new Date(Date.now() - (1000 * 60 * 60 * 24 * 50))),
 			},
-			select: ['id'],
+			select: { id: true },
 		});
 
 		if (hibernatedUsers.length > 0) {

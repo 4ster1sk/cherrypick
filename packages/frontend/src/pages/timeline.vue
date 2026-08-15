@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="src" :actions="headerActions" :tabs="$i ? headerTabs : headerTabsWhenNotLogin" :swipable="true" :displayMyAvatar="true" :canOmitTitle="!isFriendly().value">
+<PageWithHeader v-model:tab="src" :actions="headerActions" :tabs="$i ? headerTabs : headerTabsWhenNotLogin" :swipable="true" :displayMyAvatar="true" :canOmitTitle="true">
 	<div class="_spacer" style="--MI_SPACER-w: 800px;">
 		<MkTip v-if="isBasicTimeline(src)" :k="`tl.${src}`" style="margin-bottom: var(--MI-margin);">
 			{{ i18n.ts._timelineDescription[src] }}
@@ -46,6 +46,7 @@ import { computed, watch, provide, useTemplateRef, defineAsyncComponent, ref, on
 import type { Tab } from '@/components/global/MkPageHeader.tabs.vue';
 import type { MenuItem } from '@/types/menu.js';
 import type { BasicTimelineType } from '@/timelines.js';
+import type { PageHeaderItem } from '@/types/page-header.js';
 import MkStreamingNotesTimeline from '@/components/MkStreamingNotesTimeline.vue';
 import MkPostForm from '@/components/MkPostForm.vue';
 import * as os from '@/os.js';
@@ -62,7 +63,6 @@ import { availableBasicTimelines, hasWithReplies, isAvailableBasicTimeline, isBa
 import { prefer } from '@/preferences.js';
 import { globalEvents } from '@/events.js';
 import { suggestReload } from '@/utility/reload-suggest.js';
-import { isFriendly } from '@/utility/is-friendly.js';
 import MkInfo from '@/components/MkInfo.vue';
 
 const DESKTOP_THRESHOLD = 1100;
@@ -77,7 +77,15 @@ const handleResize = () => {
 
 window.addEventListener('resize', handleResize);
 
-const schedulePostList = $i ? (await misskeyApi('notes/drafts/list', { scheduled: true })).length : 0;
+const schedulePostList = ref(0);
+if ($i) {
+	// トップレベルの await でページ全体の描画をブロックしないようにする
+	misskeyApi('notes/drafts/list', { scheduled: true }).then(drafts => {
+		schedulePostList.value = drafts.length;
+	}).catch(() => {
+		schedulePostList.value = 0;
+	});
+}
 
 const tlComponent = useTemplateRef('tlComponent');
 
@@ -151,7 +159,6 @@ const withSensitive = computed<boolean>({
 const showFixedPostForm = prefer.model('showFixedPostForm');
 
 const enableWidgetsArea = ref(prefer.s.enableWidgetsArea);
-const friendlyUiEnableNotificationsArea = ref(prefer.s.friendlyUiEnableNotificationsArea);
 
 const enableHomeTimeline = ref(prefer.s.enableHomeTimeline);
 const enableLocalTimeline = ref(prefer.s.enableLocalTimeline);
@@ -175,11 +182,6 @@ const disableNyaize = ref(prefer.s.disableNyaize);
 
 watch(enableWidgetsArea, (x) => {
 	prefer.commit('enableWidgetsArea', x);
-	suggestReload();
-});
-
-watch(friendlyUiEnableNotificationsArea, (x) => {
-	prefer.commit('friendlyUiEnableNotificationsArea', x);
 	suggestReload();
 });
 
@@ -283,7 +285,7 @@ watch(disableNyaize, (x) => {
 	reloadNotification();
 });
 
-async function chooseList(ev: MouseEvent): Promise<void> {
+async function chooseList(ev: PointerEvent): Promise<void> {
 	const lists = await userListsCache.fetch();
 	const items: (MenuItem | undefined)[] = [
 		...lists.map(list => ({
@@ -302,7 +304,7 @@ async function chooseList(ev: MouseEvent): Promise<void> {
 	os.popupMenu(items.filter(i => i != null), ev.currentTarget ?? ev.target);
 }
 
-async function chooseAntenna(ev: MouseEvent): Promise<void> {
+async function chooseAntenna(ev: PointerEvent): Promise<void> {
 	const antennas = await antennasCache.fetch();
 	const items: (MenuItem | undefined)[] = [
 		...antennas.map(antenna => ({
@@ -363,7 +365,7 @@ async function chooseHashTag(ev: MouseEvent): Promise<void> {
 	os.popupMenu(items, ev.currentTarget ?? ev.target);
 }
 
-async function chooseChannel(ev: MouseEvent): Promise<void> {
+async function chooseChannel(ev: PointerEvent): Promise<void> {
 	const channels = await favoritedChannelsCache.fetch();
 	const items: (MenuItem | undefined)[] = [
 		...channels.map(channel => {
@@ -439,34 +441,12 @@ onActivated(() => {
 	switchTlIfNeeded();
 });
 
-const headerActions = computed(() => {
-	const items = [{
+const headerActions = computed<PageHeaderItem[]>(() => {
+	const items: PageHeaderItem[] = [{
 		icon: 'ti ti-dots',
 		text: i18n.ts.options,
 		handler: (ev) => {
 			const menuItems: MenuItem[] = [];
-
-			if (isFriendly().value) {
-				menuItems.push({
-					type: 'parent',
-					icon: 'ti ti-layout-board',
-					text: 'Friendly UI',
-					children: async () => {
-						const friendlyUiChildMenu = [] as MenuItem[];
-
-						if (isDesktop.value) {
-							friendlyUiChildMenu.push({
-								type: 'switch',
-								icon: 'ti ti-layout-sidebar-right',
-								text: i18n.ts._cherrypick.friendlyUiEnableNotificationsArea,
-								ref: friendlyUiEnableNotificationsArea,
-							});
-						}
-
-						return friendlyUiChildMenu;
-					},
-				});
-			}
 
 			menuItems.push({
 				type: 'switch',
@@ -643,7 +623,7 @@ const headerActions = computed(() => {
 		items.unshift({
 			icon: 'ti ti-refresh',
 			text: i18n.ts.reload,
-			handler: (ev: Event) => {
+			handler: () => {
 				tlComponent.value?.reloadTimeline();
 			},
 		});

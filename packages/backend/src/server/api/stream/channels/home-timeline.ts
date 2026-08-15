@@ -53,10 +53,9 @@ export class HomeTimelineChannel extends Channel {
 				return;
 			}
 			if (note.user.channelId != null) {
-				// チャンネルアカウントによる純粋なリノートの場合
-				if (isRenotePacked(note) && !isQuotePacked(note) && note.renote) {
-					//yojo-art その内容部分の投稿を展開してTLに流す
-					note = note.renote;
+				// yojo-art: チャンネルアカウントによる純粋なリノートの場合
+				if ( isRenotePacked(note) && !isQuotePacked(note) && note.renote) {
+					return;
 				}
 			}
 		}
@@ -74,6 +73,9 @@ export class HomeTimelineChannel extends Channel {
 			// その投稿のユーザーをフォローしていなかったら弾く
 			if (!isMe && !Object.hasOwn(this.following, note.userId)) return;
 		}
+
+		if (!this.isNoteVisibleForMe(note)) return;
+
 		if (note.reply) {
 			const reply = note.reply;
 			if (this.following[note.userId]?.withReplies) {

@@ -189,6 +189,7 @@ export class ApNoteService {
 			throw new IdentifiableError('85ab9bd7-3a41-4530-959d-f07073900109', 'actor has been suspended');
 		}
 
+		const apMentionRawCount = new Set(this.apMentionService.extractApMentionObjects(note.tag).map(x => x.href)).size;
 		const apMentions = await this.apMentionService.extractApMentions(note.tag, resolver);
 		const apHashtags = extractApHashtags(note.tag);
 
@@ -239,11 +240,13 @@ export class ApNoteService {
 		}
 		let channel = null as MiChannel | null;
 		if (actor.channelId) {
-			//チャンネルアカウントによる投稿はすべてチャンネル投稿
+			//yojo-art: チャンネルアカウントによる投稿はすべてチャンネル投稿
 			channel = await this.channelsRepository.findOneBy({ id: actor.channelId });
 			if (channel)channel.actor = actor;
 		} else {
-			for (const user of noteAudience.mentionedUsers) {
+			//通常ノートはローカルユーザーにメンションされていることがあるのでccとメンション両方見る
+			const users = new Map(apMentions.concat(noteAudience.mentionedUsers).map(user => [user.id, user])).values();
+			for (const user of users) {
 				const channelId = user.channelId;
 				if (channelId) {
 					channel = await this.channelsRepository.findOneBy({ id: channelId });
@@ -357,6 +360,7 @@ export class ApNoteService {
 				visibleUsers,
 				searchableBy: searchableBy,
 				apMentions,
+				apMentionRawCount,
 				apHashtags,
 				apEmojis,
 				poll,
