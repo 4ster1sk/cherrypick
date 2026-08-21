@@ -913,6 +913,12 @@ export function useUploader(options: {
 		item.preprocessedFile = markRaw(preprocessedFile);
 	}
 
+	function applyVideoEncodeSettings(item: UploaderItem, settings: VideoEncodeDialogResult) {
+		item.videoCodec = settings.videoCodec;
+		item.videoQualityLevel = settings.videoQualityLevel;
+		item.videoBitrateValue = settings.videoBitrateValue;
+	}
+
 	function reset() {
 		for (const item of items.value) {
 			if (item.thumbnail != null) URL.revokeObjectURL(item.thumbnail);
