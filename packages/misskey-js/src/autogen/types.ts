@@ -11041,6 +11041,7 @@ export interface operations {
                         bubbleInstances: string[];
                         customRobotsTxt: string | null;
                         showRoleBadgesOfRemoteUsers: boolean;
+                        opensearchEnabled: boolean;
                     };
                 };
             };
