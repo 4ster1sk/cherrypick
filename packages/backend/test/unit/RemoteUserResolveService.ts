@@ -109,7 +109,7 @@ describe('RemoteUserResolveService', () => {
 		// リモートサーバーが落ちている想定 (WebFinger が失敗する)
 		vi.spyOn(webfingerService, 'webfinger').mockRejectedValueOnce(new Error('remote server is down'));
 
-		const user = await remoteUserResolveService.resolveUser(cached.usernameLower ?? cached.username, host);
+		const user = await remoteUserResolveService.resolveUser(cached.usernameLower, host);
 
 		// 再取得(WebFinger)が実際に試行されたことを保証する
 		expect(webfingerService.webfinger).toHaveBeenCalledTimes(1);
