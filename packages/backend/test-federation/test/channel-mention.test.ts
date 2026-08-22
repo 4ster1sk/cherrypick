@@ -1,4 +1,3 @@
-import { describe, test } from 'vitest';
 import assert, { strictEqual, notStrictEqual } from 'node:assert';
 import { describe, test } from 'vitest';
 import { createAccount, randomUsername, waitForFederationTestNote, deliverFederationTestNote } from './utils.js';
