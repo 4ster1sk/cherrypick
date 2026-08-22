@@ -32,11 +32,6 @@ export const meta = {
 			code: 'ACCESS_DENIED',
 			id: 'cda8f8ce-89a6-4f92-8055-33bbe0c1464d',
 		},
-		cannotResetPasswordOfRootUser: {
-			message: 'Cannot reset password of the root user.',
-			code: 'CANNOT_RESET_PASSWORD_OF_ROOT_USER',
-			id: 'f28fc207-42ca-44c7-a577-44b4f0ec5999',
-		},
 	},
 
 	res: {
@@ -85,10 +80,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (await this.roleService.isAdministrator(user) && me.id !== user.id) {
 				throw new ApiError(meta.errors.accessDenied);
-			}
-
-			if (this.serverSettings.rootUserId === user.id) {
-				throw new ApiError(meta.errors.cannotResetPasswordOfRootUser);
 			}
 
 			const passwd = secureRndstr(8);
