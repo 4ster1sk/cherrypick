@@ -13,7 +13,7 @@ import {
 	PutBucketPolicyCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
-import { api, failedApiCall, signup, startJobQueue, uploadFile } from '../utils.js';
+import { api, failedApiCall, role, signup, startJobQueue, uploadFile } from '../utils.js';
 import { describeObjectStorageE2E } from '../helpers/describe-object-storage-e2e.js';
 import type { INestApplicationContext } from '@nestjs/common';
 import type * as misskey from 'misskey-js';
@@ -169,6 +169,46 @@ describeObjectStorageE2E('絵文字コピー', () => {
 		}, { timeout: 30_000, interval: 500 });
 
 		// 絵文字自体は引き続き取得できる
+		const listRes = await api('admin/emoji/list', { query: emojiName }, root);
+		assert.ok(listRes.body!.some(e => e.name === emojiName));
+		const fetched = await fetch(emoji.url);
+		assert.strictEqual(fetched.status, 200);
+	});
+
+	test('絵文字を登録したユーザーがアカウント削除されても絵文字とオブジェクトは残る', async () => {
+		const uploader = await signup({ username: 'obj_uploader' });
+		const emojiRole = await role(root, { name: 'ObjStorageEmojiRole' }, {
+			canManageCustomEmojis: { priority: 0, useDefault: false, value: true },
+		});
+		await api('admin/roles/assign', { userId: uploader.id, roleId: emojiRole.id }, root);
+
+		const upRes = await uploadFile(uploader, { path: '192.png' });
+		assert.strictEqual(upRes.status, 200);
+		const originalFile = upRes.body!;
+		const emojiName = 'obj_survive_' + originalFile.id.slice(0, 6);
+
+		const addRes = await api('admin/emoji/add', {
+			name: emojiName,
+			fileId: originalFile.id,
+		}, uploader);
+		assert.strictEqual(addRes.status, 200);
+		const emoji = addRes.body!;
+
+		// アップローダーの削除ジョブ完了を確認するための参照ファイル
+		const refUpRes = await uploadFile(uploader, { path: '192.jpg' });
+		assert.strictEqual(refUpRes.status, 200);
+		const refFile = refUpRes.body!;
+
+		const delRes = await api('i/delete-account', { password: 'test' }, uploader);
+		assert.strictEqual(delRes.status, 204);
+
+		// アップローダー自身のファイルが全て削除し切るまで待つ
+		await vi.waitFor(async () => {
+			const res = await fetch(refFile.url);
+			assert.notStrictEqual(res.status, 200, 'uploader reference file still exists');
+		}, { timeout: 60_000, interval: 500 });
+
+		// 絵文字 (システム所有・userId:null のコピー) はアカウント削除の影響を受けない
 		const listRes = await api('admin/emoji/list', { query: emojiName }, root);
 		assert.ok(listRes.body!.some(e => e.name === emojiName));
 		const fetched = await fetch(emoji.url);
