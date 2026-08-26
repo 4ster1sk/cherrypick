@@ -6,16 +6,17 @@
 process.env.NODE_ENV = 'test';
 
 import * as assert from 'assert';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { afterAll, beforeAll, describe, test, vi } from 'vitest';
 import {
 	CreateBucketCommand,
+	DeleteObjectCommand,
 	ListObjectsV2Command,
 	PutBucketPolicyCommand,
 	S3Client,
 } from '@aws-sdk/client-s3';
-import { api, signup, startJobQueue, uploadFile } from '../utils.js';
+import { api, signup, startJobQueue, uploadFile, uploadUrl } from '../utils.js';
 import { describeObjectStorageE2E } from '../helpers/describe-object-storage-e2e.js';
 import type { INestApplicationContext } from '@nestjs/common';
 import type * as misskey from 'misskey-js';
@@ -160,5 +161,92 @@ describeObjectStorageE2E('オブジェクトストレージ', () => {
 
 		// 匿名GETが404になることも確認する(403など「読めないがオブジェクトが残っている」状態と区別するため)
 		assert.strictEqual((await fetch(file.url)).status, 404);
+	});
+
+	test('8MBを超えるファイルはマルチパートアップロードされ、単一オブジェクトとして取得できる', async () => {
+		// lib-storage の partSize (8MB) を超えるサイズでマルチパート経路を発火させる
+		// 既存リソースに大容量画像はないため、ランタイムでバイナリを生成する (octet-streamなのでsharp処理もスキップされる)
+		const body = new Uint8Array(8 * 1024 * 1024 + 1);
+		for (let i = 0; i < body.length; i += 4096) {
+			body.fill((i / 4096) % 251, i, Math.min(i + 4096, body.length));
+		}
+		const expectedMd5 = createHash('md5').update(body).digest('hex');
+
+		const upRes = await uploadFile(root, {
+			blob: new Blob([body], { type: 'application/octet-stream' }),
+			name: 'multipart-test.bin',
+		});
+		assert.strictEqual(upRes.status, 200);
+		const file = upRes.body!;
+		assert.strictEqual(file.size, body.length);
+		assert.strictEqual(file.md5, expectedMd5);
+
+		const expectedPrefix = `${OBJECT_STORAGE_ENDPOINT}/${OBJECT_STORAGE_BUCKET}/test/`;
+		assert.ok(file.url.startsWith(expectedPrefix), `actual url: ${file.url}`);
+
+		// マルチパートで組み立てられた単一オブジェクトとして取得できる
+		const fetched = await fetch(file.url);
+		assert.strictEqual(fetched.status, 200);
+		const fetchedBody = new Uint8Array(await fetched.arrayBuffer());
+		assert.strictEqual(fetchedBody.length, body.length);
+		assert.strictEqual(createHash('md5').update(fetchedBody).digest('hex'), expectedMd5);
+
+		// バケット上に単一オブジェクトとして存在する (パートが露出していない)
+		const key = new URL(file.url).pathname.replace(`/${OBJECT_STORAGE_BUCKET}/`, '');
+		const listed = await s3Client.send(new ListObjectsV2Command({
+			Bucket: OBJECT_STORAGE_BUCKET,
+			Prefix: 'test/',
+		}));
+		const sameKeyObjects = (listed.Contents ?? []).filter(o => o.Key === key);
+		assert.strictEqual(sameKeyObjects.length, 1);
+		assert.strictEqual(sameKeyObjects[0].Size, body.length);
+	});
+
+	test('URLアップロードでもオブジェクトストレージへ保存される', async () => {
+		// drive.ts の通常E2Eと同じ、CIから到達可能な既存リソースのURLを使う
+		const url = 'https://raw.githubusercontent.com/yojo-art/cherrypick/develop/packages/backend/test/resources/192.jpg';
+
+		const file = await uploadUrl(root, url);
+
+		const expectedPrefix = `${OBJECT_STORAGE_ENDPOINT}/${OBJECT_STORAGE_BUCKET}/test/`;
+		assert.ok(file.url.startsWith(expectedPrefix), `actual url: ${file.url}`);
+		assert.strictEqual(file.type, 'image/jpeg');
+		assert.ok(file.thumbnailUrl != null && file.thumbnailUrl.startsWith(expectedPrefix));
+
+		const original = await fetch(file.url);
+		assert.strictEqual(original.status, 200);
+		assert.strictEqual(original.headers.get('content-type'), 'image/jpeg');
+
+		const thumbnail = await fetch(file.thumbnailUrl!);
+		assert.strictEqual(thumbnail.status, 200);
+		assert.strictEqual(thumbnail.headers.get('content-type'), 'image/webp');
+	});
+
+	test('削除対象のオブジェクトが既に存在しなくてもジョブは詰まらない', async () => {
+		// 先に実体だけ手動で消したファイルを削除し (NoSuchKey)、
+		// 続く別ファイルの削除ジョブが正常完遂することでワーカーが生きていることを確認する
+		const upResA = await uploadFile(root, { path: '192.png' });
+		assert.strictEqual(upResA.status, 200);
+		const fileA = upResA.body!;
+		const keyA = new URL(fileA.url).pathname.replace(`/${OBJECT_STORAGE_BUCKET}/`, '');
+
+		await s3Client.send(new DeleteObjectCommand({
+			Bucket: OBJECT_STORAGE_BUCKET,
+			Key: keyA,
+		}));
+
+		const delResA = await api('drive/files/delete', { fileId: fileA.id }, root);
+		assert.strictEqual(delResA.status, 204);
+
+		const upResB = await uploadFile(root, { path: '192.jpg' });
+		assert.strictEqual(upResB.status, 200);
+		const fileB = upResB.body!;
+		const delResB = await api('drive/files/delete', { fileId: fileB.id }, root);
+		assert.strictEqual(delResB.status, 204);
+
+		await vi.waitFor(async () => {
+			const res = await fetch(fileB.url);
+			assert.notStrictEqual(res.status, 200, 'fileB object still exists (queue may be stuck)');
+		}, { timeout: 30_000, interval: 500 });
 	});
 });
