@@ -875,6 +875,7 @@ describeOpenSearchE2E('検索', () => {
 		assert.strictEqual(rdres4.status, 204);
 		assert.strictEqual(rdres5.status, 204);
 
+		// リアクションの削除が完了していることを確認する
 		await vi.waitFor(async () => {
 			const n = await api('notes/advanced-search', {
 				query: 'SearchableBy_Test',
