@@ -50,9 +50,10 @@ export class CleanRemoteDriveFilesProcessorService {
 		if (fileIds.length === 0) return new Set();
 		const rows = await this.driveFilesRepository.query(
 			`SELECT f."id" AS "id" FROM drive_file f WHERE f."id" = ANY($1)
-				AND NOT EXISTS (SELECT 1 FROM note WHERE f."id" = ANY(note."fileIds"))
+				-- 配列側を左辺にした @> で GIN (IDX_NOTE_FILE_IDS) を効かせる (= ANY(配列列) では使えない)
+				AND NOT EXISTS (SELECT 1 FROM note WHERE note."fileIds" @> ARRAY[f."id"])
 				AND NOT EXISTS (SELECT 1 FROM "user" WHERE "avatarId" = f."id" OR "bannerId" = f."id")
-				AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE f."id" = ANY(gallery_post."fileIds"))
+				AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE gallery_post."fileIds" @> ARRAY[f."id"])
 				AND NOT EXISTS (SELECT 1 FROM chat_message WHERE "fileId" = f."id")
 				AND NOT EXISTS (SELECT 1 FROM page WHERE "eyeCatchingImageId" = f."id")
 				-- ページ本文の画像ブロックも参照しうる (children にネストしうるためテキスト検索で判定)。
@@ -220,9 +221,15 @@ export class CleanRemoteDriveFilesProcessorService {
 			job.log(msg);
 		}
 
-		const summary = `cleaning of remote drive files completed. Deleted ${deletedCount} orphan files (checked ${checkedCount} files).`;
-		this.logger.succ(summary);
-		job.log(summary);
+		if (completed) {
+			const summary = `cleaning of remote drive files completed. Deleted ${deletedCount} orphan files (checked ${checkedCount} files).`;
+			this.logger.succ(summary);
+			job.log(summary);
+		} else {
+			const summary = `cleaning of remote drive files stopped before completion (last cursor: ${cursor}). Deleted ${deletedCount} orphan files (checked ${checkedCount} files).`;
+			this.logger.warn(summary);
+			job.log(summary);
+		}
 
 		return {
 			deletedCount,
