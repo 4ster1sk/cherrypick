@@ -96,6 +96,8 @@ export class CleanRemoteDriveFilesProcessorService {
 		let deletedCount = 0;
 		let checkedCount = 0;
 		let transientErrors = 0;
+		let consecutiveErrors = 0;
+		const maxConsecutiveErrors = 10;
 		let completed = false;
 
 		for (;;) {
@@ -139,9 +141,6 @@ export class CleanRemoteDriveFilesProcessorService {
 			}
 
 			for (const file of files) {
-				cursor = file.id;
-				checkedCount++;
-
 				// ID は時系列順なので、保持期限内のファイルに到達したら以降は全て期限内。今回の走査は完了扱いにする
 				if (file.id >= newestLimit) {
 					await this.metasRepository.update(meta.id, { remoteDriveFilesCleaningLastCursorId: null });
@@ -154,9 +153,14 @@ export class CleanRemoteDriveFilesProcessorService {
 				try {
 					referenced = await this.isReferenced(file.id);
 				} catch (e) {
-					// 判定クエリの失敗は一時的なものとして次バッチ以降に委ねる
+					// カーソルを進めずに残すことで次バッチ以降にリトライさせる
 					transientErrors++;
+					consecutiveErrors++;
 					job.log(`Error checking references of file ${file.id}: ${e} (transient error?)`);
+					if (consecutiveErrors >= maxConsecutiveErrors) {
+						job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
+						break;
+					}
 					continue;
 				}
 
@@ -165,11 +169,25 @@ export class CleanRemoteDriveFilesProcessorService {
 						await this.driveService.deleteFileSync(file);
 						deletedCount++;
 					} catch (e) {
-						// 判定と削除の間の競合による制約違反などは次回に委ねる
+						// 判定と削除の間の競合による制約違反などは、カーソルを進めずに残すことで次バッチ以降にリトライさせる
 						transientErrors++;
+						consecutiveErrors++;
 						job.log(`Error deleting file ${file.id}: ${e} (transient race condition?)`);
+						if (consecutiveErrors >= maxConsecutiveErrors) {
+							job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
+							break;
+						}
+						continue;
 					}
 				}
+
+				cursor = file.id;
+				checkedCount++;
+				consecutiveErrors = 0;
+			}
+
+			if (consecutiveErrors >= maxConsecutiveErrors) {
+				break;
 			}
 
 			// 次回はここから再開できるようカーソルを永続化する

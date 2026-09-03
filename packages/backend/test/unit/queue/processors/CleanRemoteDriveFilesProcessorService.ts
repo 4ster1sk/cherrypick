@@ -163,6 +163,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 
 	beforeEach(async () => {
 		vi.clearAllMocks();
+		driveServiceMock.deleteFileSync.mockReset();
 		await enableCleaning();
 	}, 60 * 1000);
 
@@ -257,6 +258,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			const result = await service.process(job as any);
 
 			expect(result.deletedCount).toBe(0);
+			expect(result.checkedCount).toBe(0);
 			expect(result.completed).toBe(true);
 			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
 		});
@@ -285,6 +287,32 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			expect(result.deletedCount).toBe(1);
 			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(1);
 			expect(driveServiceMock.deleteFileSync.mock.calls[0][0].id).toBe(newer.id);
+		});
+
+		test('should retry a file when deletion fails transiently', async () => {
+			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			driveServiceMock.deleteFileSync.mockRejectedValueOnce(new Error('transient storage error'));
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(1);
+			expect(result.transientErrors).toBe(1);
+			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(2);
+			expect(driveServiceMock.deleteFileSync.mock.calls[1][0].id).toBe(file.id);
+		});
+
+		test('should stop after too many consecutive errors', async () => {
+			await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			driveServiceMock.deleteFileSync.mockRejectedValue(new Error('persistent storage error'));
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(0);
+			expect(result.completed).toBe(false);
+			expect(result.transientErrors).toBe(10);
+			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(10);
 		});
 	});
 });
