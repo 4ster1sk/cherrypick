@@ -49,7 +49,11 @@ export class CleanRemoteDriveFilesProcessorService {
 	private async findUnreferencedIds(fileIds: MiDriveFile['id'][]): Promise<Set<MiDriveFile['id']>> {
 		if (fileIds.length === 0) return new Set();
 		const rows = await this.driveFilesRepository.query(
-			`SELECT f."id" AS "id" FROM drive_file f WHERE f."id" = ANY($1)
+			`WITH page_text AS (
+				-- page 全文走査はバッチあたり1回にまとめる (候補ごとの相関スキャンを避ける)
+				SELECT string_agg(page."content"::text, chr(10)) AS t FROM page
+			)
+			SELECT f."id" AS "id" FROM drive_file f, page_text WHERE f."id" = ANY($1)
 				-- 配列側を左辺にした @> で GIN (IDX_NOTE_FILE_IDS) を効かせる (= ANY(配列列) では使えない)
 				AND NOT EXISTS (SELECT 1 FROM note WHERE note."fileIds" @> ARRAY[f."id"])
 				AND NOT EXISTS (SELECT 1 FROM "user" WHERE "avatarId" = f."id" OR "bannerId" = f."id")
@@ -58,7 +62,7 @@ export class CleanRemoteDriveFilesProcessorService {
 				AND NOT EXISTS (SELECT 1 FROM page WHERE "eyeCatchingImageId" = f."id")
 				-- ページ本文の画像ブロックも参照しうる (children にネストしうるためテキスト検索で判定)。
 				-- 誤検出しても温存側に倒れるだけなので安全
-				AND NOT EXISTS (SELECT 1 FROM page WHERE strpos(page."content"::text, f."id") > 0)
+				AND NOT EXISTS (SELECT 1 FROM page_text WHERE strpos(page_text.t, f."id") > 0)
 				AND NOT EXISTS (SELECT 1 FROM channel WHERE "bannerId" = f."id")`,
 			[fileIds],
 		) as { id: MiDriveFile['id'] }[];
