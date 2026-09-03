@@ -865,6 +865,28 @@ export class MiMeta {
 	@Column('boolean', {
 		default: false,
 	})
+	public enableRemoteDriveFilesCleaning: boolean;
+
+	@Column('integer', {
+		default: 60, // minutes
+	})
+	public remoteDriveFilesCleaningMaxProcessingDurationInMinutes: number;
+
+	@Column('integer', {
+		default: 90, // days
+	})
+	public remoteDriveFilesCleaningExpiryDaysForEachFiles: number;
+
+	@Column('varchar', {
+		length: 32,
+		nullable: true,
+		comment: 'The resume cursor (drive_file ID) of the remote drive files cleaning. Null means starting from the beginning.',
+	})
+	public remoteDriveFilesCleaningLastCursorId: string | null;
+
+	@Column('boolean', {
+		default: false,
+	})
 	public showRoleBadgesOfRemoteUsers: boolean;
 
 	@Column('jsonb', {

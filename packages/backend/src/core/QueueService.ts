@@ -89,6 +89,10 @@ const REPEATABLE_SYSTEM_JOB_DEF = [{
 	name: 'autoDeleteNotes',
 	// 毎日午前3時に起動
 	pattern: '0 3 * * *',
+}, {
+	name: 'cleanRemoteDriveFiles',
+	// 毎日午前2時に起動
+	pattern: '0 2 * * *',
 }];
 
 function parseRedisInfo(infoText: string): Record<string, string> {

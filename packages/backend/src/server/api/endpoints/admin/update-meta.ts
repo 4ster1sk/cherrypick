@@ -243,6 +243,9 @@ export const paramDef = {
 		enableRemoteNotesCleaning: { type: 'boolean' },
 		remoteNotesCleaningExpiryDaysForEachNotes: { type: 'number' },
 		remoteNotesCleaningMaxProcessingDurationInMinutes: { type: 'number' },
+		enableRemoteDriveFilesCleaning: { type: 'boolean' },
+		remoteDriveFilesCleaningExpiryDaysForEachFiles: { type: 'number' },
+		remoteDriveFilesCleaningMaxProcessingDurationInMinutes: { type: 'number' },
 		showRoleBadgesOfRemoteUsers: { type: 'boolean' },
 		doNotSendNotificationEmailsForAbuseReport: { type: 'boolean' },
 		emailToReceiveAbuseReport: { type: 'string', nullable: true },
@@ -903,6 +906,18 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.remoteNotesCleaningMaxProcessingDurationInMinutes !== undefined) {
 				set.remoteNotesCleaningMaxProcessingDurationInMinutes = ps.remoteNotesCleaningMaxProcessingDurationInMinutes;
+			}
+
+			if (ps.enableRemoteDriveFilesCleaning !== undefined) {
+				set.enableRemoteDriveFilesCleaning = ps.enableRemoteDriveFilesCleaning;
+			}
+
+			if (ps.remoteDriveFilesCleaningExpiryDaysForEachFiles !== undefined) {
+				set.remoteDriveFilesCleaningExpiryDaysForEachFiles = ps.remoteDriveFilesCleaningExpiryDaysForEachFiles;
+			}
+
+			if (ps.remoteDriveFilesCleaningMaxProcessingDurationInMinutes !== undefined) {
+				set.remoteDriveFilesCleaningMaxProcessingDurationInMinutes = ps.remoteDriveFilesCleaningMaxProcessingDurationInMinutes;
 			}
 
 			if (ps.showRoleBadgesOfRemoteUsers !== undefined) {

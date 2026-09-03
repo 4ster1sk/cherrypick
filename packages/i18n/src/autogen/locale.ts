@@ -8276,6 +8276,22 @@ export interface Locale extends ILocale {
          */
         "remoteNotesCleaningExpiryDaysForEachNotes": string;
         /**
+         * リモートドライブファイルの自動クリーニング
+         */
+        "remoteDriveFilesCleaning": string;
+        /**
+         * 有効にすると、どのノートやプロフィールからも参照されていないリモートのドライブファイルを定期的にクリーンアップしてストレージとデータベースの肥大化を抑制します。
+         */
+        "remoteDriveFilesCleaning_description": string;
+        /**
+         * 最大クリーニング処理継続時間
+         */
+        "remoteDriveFilesCleaningMaxProcessingDuration": string;
+        /**
+         * 最低ファイル保持日数
+         */
+        "remoteDriveFilesCleaningExpiryDaysForEachFiles": string;
+        /**
          * 問い合わせ先URL
          */
         "inquiryUrl": string;

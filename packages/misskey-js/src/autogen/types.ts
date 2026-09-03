@@ -11040,6 +11040,9 @@ export interface operations {
                         moderatorInactivityLimitDays: number;
                         bubbleInstances: string[];
                         customRobotsTxt: string | null;
+                        enableRemoteDriveFilesCleaning: boolean;
+                        remoteDriveFilesCleaningExpiryDaysForEachFiles: number;
+                        remoteDriveFilesCleaningMaxProcessingDurationInMinutes: number;
                         showRoleBadgesOfRemoteUsers: boolean;
                         opensearchEnabled: boolean;
                     };
@@ -14646,6 +14649,9 @@ export interface operations {
                     enableRemoteNotesCleaning?: boolean;
                     remoteNotesCleaningExpiryDaysForEachNotes?: number;
                     remoteNotesCleaningMaxProcessingDurationInMinutes?: number;
+                    enableRemoteDriveFilesCleaning?: boolean;
+                    remoteDriveFilesCleaningExpiryDaysForEachFiles?: number;
+                    remoteDriveFilesCleaningMaxProcessingDurationInMinutes?: number;
                     showRoleBadgesOfRemoteUsers?: boolean;
                     doNotSendNotificationEmailsForAbuseReport?: boolean;
                     emailToReceiveAbuseReport?: string | null;

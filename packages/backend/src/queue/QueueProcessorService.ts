@@ -49,6 +49,7 @@ import { AggregateRetentionProcessorService } from './processors/AggregateRetent
 import { CleanRemoteNotesProcessorService } from './processors/CleanRemoteNotesProcessorService.js';
 import { ScheduledNoteDeleteProcessorService } from './processors/ScheduledNoteDeleteProcessorService.js';
 import { FullIndexProcessorService } from './processors/FullIndexProcessorService.js';
+import { CleanRemoteDriveFilesProcessorService } from './processors/CleanRemoteDriveFilesProcessorService.js';
 import { QueueLoggerService } from './QueueLoggerService.js';
 import { AutoDeleteNotesProcessorService } from './processors/AutoDeleteNotesProcessorService.js';
 import { QUEUE, baseWorkerOptions } from './const.js';
@@ -142,6 +143,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 		private cleanRemoteNotesProcessorService: CleanRemoteNotesProcessorService,
 		private fullIndexProcessorService: FullIndexProcessorService,
 		private scheduledNoteDeleteProcessorService: ScheduledNoteDeleteProcessorService,
+		private cleanRemoteDriveFilesProcessorService: CleanRemoteDriveFilesProcessorService,
 	) {
 		this.logger = this.queueLoggerService.logger;
 
@@ -192,6 +194,7 @@ export class QueueProcessorService implements OnApplicationShutdown {
 					case 'clean': return this.cleanProcessorService.process();
 					case 'cleanRemoteNotes': return this.cleanRemoteNotesProcessorService.process(job);
 					case 'autoDeleteNotes': return this.autoDeleteNotesProcessorService.process(job);
+					case 'cleanRemoteDriveFiles': return this.cleanRemoteDriveFilesProcessorService.process(job);
 					default: throw new Error(`unrecognized job type ${job.name} for system`);
 				}
 			};

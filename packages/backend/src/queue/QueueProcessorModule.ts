@@ -21,6 +21,7 @@ import { CleanProcessorService } from './processors/CleanProcessorService.js';
 import { CheckModeratorsActivityProcessorService } from './processors/CheckModeratorsActivityProcessorService.js';
 import { CleanRemoteNotesProcessorService } from './processors/CleanRemoteNotesProcessorService.js';
 import { FullIndexProcessorService } from './processors/FullIndexProcessorService.js';
+import { CleanRemoteDriveFilesProcessorService } from './processors/CleanRemoteDriveFilesProcessorService.js';
 import { CleanRemoteFilesProcessorService } from './processors/CleanRemoteFilesProcessorService.js';
 import { AutoDeleteNotesProcessorService } from './processors/AutoDeleteNotesProcessorService.js';
 import { DeleteAccountProcessorService } from './processors/DeleteAccountProcessorService.js';
@@ -96,6 +97,7 @@ import { ScheduledNoteDeleteProcessorService } from './processors/ScheduledNoteD
 		CleanRemoteNotesProcessorService,
 		FullIndexProcessorService,
 		AutoDeleteNotesProcessorService,
+		CleanRemoteDriveFilesProcessorService,
 		QueueProcessorService,
 		ScheduledNoteDeleteProcessorService,
 	],

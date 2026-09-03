@@ -178,6 +178,37 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</div>
 					</MkFolder>
 				</SearchMarker>
+
+				<SearchMarker>
+					<MkFolder :defaultOpen="true">
+						<template #icon><SearchIcon><i class="ti ti-recycle"></i></SearchIcon></template>
+						<template #label><SearchLabel>{{ i18n.ts._serverSettings.remoteDriveFilesCleaning }}</SearchLabel></template>
+						<template v-if="remoteDriveFilesCleaningForm.savedState.enableRemoteDriveFilesCleaning" #suffix>Enabled</template>
+						<template v-else #suffix>Disabled</template>
+						<template v-if="remoteDriveFilesCleaningForm.modified.value" #footer>
+							<MkFormFooter :form="remoteDriveFilesCleaningForm"/>
+						</template>
+
+						<div class="_gaps_m">
+							<MkSwitch v-model="remoteDriveFilesCleaningForm.state.enableRemoteDriveFilesCleaning">
+								<template #label><SearchLabel>{{ i18n.ts.enable }}</SearchLabel><span v-if="remoteDriveFilesCleaningForm.modifiedStates.enableRemoteDriveFilesCleaning" class="_modified">{{ i18n.ts.modified }}</span></template>
+								<template #caption><SearchText>{{ i18n.ts._serverSettings.remoteDriveFilesCleaning_description }}</SearchText></template>
+							</MkSwitch>
+
+							<template v-if="remoteDriveFilesCleaningForm.state.enableRemoteDriveFilesCleaning">
+								<MkInput v-model="remoteDriveFilesCleaningForm.state.remoteDriveFilesCleaningExpiryDaysForEachFiles" type="number">
+									<template #label><SearchLabel>{{ i18n.ts._serverSettings.remoteDriveFilesCleaningExpiryDaysForEachFiles }}</SearchLabel> ({{ i18n.ts.inDays }})<span v-if="remoteDriveFilesCleaningForm.modifiedStates.remoteDriveFilesCleaningExpiryDaysForEachFiles" class="_modified">{{ i18n.ts.modified }}</span></template>
+									<template #suffix>{{ i18n.ts._time.day }}</template>
+								</MkInput>
+
+								<MkInput v-model="remoteDriveFilesCleaningForm.state.remoteDriveFilesCleaningMaxProcessingDurationInMinutes" type="number">
+									<template #label><SearchLabel>{{ i18n.ts._serverSettings.remoteDriveFilesCleaningMaxProcessingDuration }}</SearchLabel> ({{ i18n.ts.inMinutes }})<span v-if="remoteDriveFilesCleaningForm.modifiedStates.remoteDriveFilesCleaningMaxProcessingDurationInMinutes" class="_modified">{{ i18n.ts.modified }}</span></template>
+									<template #suffix>{{ i18n.ts._time.minute }}</template>
+								</MkInput>
+							</template>
+						</div>
+					</MkFolder>
+				</SearchMarker>
 			</div>
 		</SearchMarker>
 	</div>
@@ -301,6 +332,19 @@ const remoteNotesCleaningForm = useForm({
 		enableRemoteNotesCleaning: state.enableRemoteNotesCleaning,
 		remoteNotesCleaningExpiryDaysForEachNotes: state.remoteNotesCleaningExpiryDaysForEachNotes,
 		remoteNotesCleaningMaxProcessingDurationInMinutes: state.remoteNotesCleaningMaxProcessingDurationInMinutes,
+	});
+	fetchInstance(true);
+});
+
+const remoteDriveFilesCleaningForm = useForm({
+	enableRemoteDriveFilesCleaning: meta.enableRemoteDriveFilesCleaning,
+	remoteDriveFilesCleaningExpiryDaysForEachFiles: meta.remoteDriveFilesCleaningExpiryDaysForEachFiles,
+	remoteDriveFilesCleaningMaxProcessingDurationInMinutes: meta.remoteDriveFilesCleaningMaxProcessingDurationInMinutes,
+}, async (state) => {
+	await os.apiWithDialog('admin/update-meta', {
+		enableRemoteDriveFilesCleaning: state.enableRemoteDriveFilesCleaning,
+		remoteDriveFilesCleaningExpiryDaysForEachFiles: state.remoteDriveFilesCleaningExpiryDaysForEachFiles,
+		remoteDriveFilesCleaningMaxProcessingDurationInMinutes: state.remoteDriveFilesCleaningMaxProcessingDurationInMinutes,
 	});
 	fetchInstance(true);
 });
