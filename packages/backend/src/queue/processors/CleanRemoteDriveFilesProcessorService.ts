@@ -55,6 +55,9 @@ export class CleanRemoteDriveFilesProcessorService {
 				AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE f."id" = ANY(gallery_post."fileIds"))
 				AND NOT EXISTS (SELECT 1 FROM chat_message WHERE "fileId" = f."id")
 				AND NOT EXISTS (SELECT 1 FROM page WHERE "eyeCatchingImageId" = f."id")
+				-- ページ本文の画像ブロックも参照しうる (children にネストしうるためテキスト検索で判定)。
+				-- 誤検出しても温存側に倒れるだけなので安全
+				AND NOT EXISTS (SELECT 1 FROM page WHERE strpos(page."content"::text, f."id") > 0)
 				AND NOT EXISTS (SELECT 1 FROM channel WHERE "bannerId" = f."id")`,
 			[fileIds],
 		) as { id: MiDriveFile['id'] }[];
@@ -155,6 +158,7 @@ export class CleanRemoteDriveFilesProcessorService {
 				continue;
 			}
 
+			let batchHadDeleteError = false;
 			for (const file of targets) {
 				if (!unreferencedIds.has(file.id)) {
 					cursor = file.id;
@@ -172,6 +176,7 @@ export class CleanRemoteDriveFilesProcessorService {
 					transientErrors++;
 					consecutiveErrors++;
 					job.log(`Error deleting file ${file.id}: ${e} (transient race condition?)`);
+					batchHadDeleteError = true;
 					break;
 				}
 
@@ -185,7 +190,7 @@ export class CleanRemoteDriveFilesProcessorService {
 				break;
 			}
 
-			if (hitNewestLimit) {
+			if (hitNewestLimit && !batchHadDeleteError) {
 				// 保持期限内のファイルに到達したので今回の走査は完了扱いにする
 				await this.metasRepository.update(meta.id, { remoteDriveFilesCleaningLastCursorId: null });
 				cursor = null;

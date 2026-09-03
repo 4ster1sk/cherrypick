@@ -9,11 +9,13 @@ import {
 	type MiDriveFile,
 	type MiGalleryPost,
 	type MiNote,
+	type MiPage,
 	type MiUser,
 	type DriveFilesRepository,
 	type GalleryPostsRepository,
 	type MetasRepository,
 	type NotesRepository,
+	type PagesRepository,
 	type UsersRepository,
 	type UserProfilesRepository,
 } from '@/models/_.js';
@@ -33,6 +35,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 	let metasRepository: MetasRepository;
 	let notesRepository: NotesRepository;
 	let galleryPostsRepository: GalleryPostsRepository;
+	let pagesRepository: PagesRepository;
 	let usersRepository: UsersRepository;
 	let userProfilesRepository: UserProfilesRepository;
 	let driveServiceMock: { deleteFileSync: ReturnType<typeof vi.fn> };
@@ -152,6 +155,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 		metasRepository = app.get(DI.metasRepository);
 		notesRepository = app.get(DI.notesRepository);
 		galleryPostsRepository = app.get(DI.galleryPostsRepository);
+		pagesRepository = app.get(DI.pagesRepository);
 		usersRepository = app.get(DI.usersRepository);
 		userProfilesRepository = app.get(DI.userProfilesRepository);
 
@@ -172,6 +176,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			driveFilesRepository.createQueryBuilder().delete().execute(),
 			notesRepository.createQueryBuilder().delete().execute(),
 			galleryPostsRepository.createQueryBuilder().delete().execute(),
+			pagesRepository.createQueryBuilder().delete().execute(),
 		]);
 	}, 60 * 1000);
 
@@ -243,6 +248,52 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 				userId: bob.id,
 				fileIds: [file.id],
 			} satisfies Partial<MiGalleryPost>);
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(0);
+			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
+		});
+
+		test('should keep a file embedded in a page content block', async () => {
+			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			await pagesRepository.insert({
+				id: idService.gen(Date.now() - (100 * DAY)),
+				updatedAt: new Date(),
+				title: 'page',
+				name: `page_${file.id}`,
+				alignCenter: false,
+				font: 'sans-serif',
+				userId: alice.id,
+				content: [{ type: 'image', fileId: file.id }] as MiPage['content'],
+				variables: [],
+				visibility: 'public',
+				visibleUserIds: [],
+			} satisfies Partial<MiPage>);
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(0);
+			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
+		});
+
+		test('should keep a file embedded in a nested page content block', async () => {
+			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			await pagesRepository.insert({
+				id: idService.gen(Date.now() - (100 * DAY)),
+				updatedAt: new Date(),
+				title: 'page',
+				name: `nested_${file.id}`,
+				alignCenter: false,
+				font: 'sans-serif',
+				userId: alice.id,
+				content: [{ type: 'section', children: [{ type: 'image', fileId: file.id }] }] as MiPage['content'],
+				variables: [],
+				visibility: 'public',
+				visibleUserIds: [],
+			} satisfies Partial<MiPage>);
 			const job = createMockJob();
 
 			const result = await service.process(job as any);
