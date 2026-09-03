@@ -302,6 +302,22 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			expect(driveServiceMock.deleteFileSync.mock.calls[1][0].id).toBe(file.id);
 		});
 
+		test('should not skip a failed file when later files in the same batch succeed', async () => {
+			const first = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (101 * DAY));
+			const second = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			expect(first.id < second.id).toBe(true);
+			driveServiceMock.deleteFileSync.mockRejectedValueOnce(new Error('transient storage error'));
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(2);
+			expect(result.transientErrors).toBe(1);
+			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(3);
+			// 失敗ファイルは後続ファイルに飛び越えされず、次バッチで先にリトライされる
+			expect(driveServiceMock.deleteFileSync.mock.calls.map(call => call[0].id)).toEqual([first.id, first.id, second.id]);
+		});
+
 		test('should stop after too many consecutive errors', async () => {
 			await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
 			driveServiceMock.deleteFileSync.mockRejectedValue(new Error('persistent storage error'));

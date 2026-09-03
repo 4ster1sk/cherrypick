@@ -46,25 +46,19 @@ export class CleanRemoteDriveFilesProcessorService {
 	}
 
 	@bindThis
-	private async isReferenced(fileId: MiDriveFile['id']): Promise<boolean> {
-		const row = await this.driveFilesRepository.createQueryBuilder('file')
-			.select('EXISTS(SELECT 1 FROM note WHERE :fileId = ANY(note."fileIds"))', 'referencedByNote')
-			.addSelect('EXISTS(SELECT 1 FROM "user" WHERE "avatarId" = :fileId OR "bannerId" = :fileId)', 'referencedByUser')
-			.addSelect('EXISTS(SELECT 1 FROM gallery_post WHERE :fileId = ANY(gallery_post."fileIds"))', 'referencedByGalleryPost')
-			.addSelect('EXISTS(SELECT 1 FROM chat_message WHERE "fileId" = :fileId)', 'referencedByChatMessage')
-			.addSelect('EXISTS(SELECT 1 FROM page WHERE "eyeCatchingImageId" = :fileId)', 'referencedByPage')
-			.addSelect('EXISTS(SELECT 1 FROM channel WHERE "bannerId" = :fileId)', 'referencedByChannel')
-			.where('file.id = :fileId', { fileId })
-			.getRawOne<Record<string, boolean>>();
-
-		if (row == null) return true; // 判定不能な場合は安全側(温存)に倒す
-
-		return row.referencedByNote
-			|| row.referencedByUser
-			|| row.referencedByGalleryPost
-			|| row.referencedByChatMessage
-			|| row.referencedByPage
-			|| row.referencedByChannel;
+	private async findUnreferencedIds(fileIds: MiDriveFile['id'][]): Promise<Set<MiDriveFile['id']>> {
+		if (fileIds.length === 0) return new Set();
+		const rows = await this.driveFilesRepository.query(
+			`SELECT f."id" AS "id" FROM drive_file f WHERE f."id" = ANY($1)
+				AND NOT EXISTS (SELECT 1 FROM note WHERE f."id" = ANY(note."fileIds"))
+				AND NOT EXISTS (SELECT 1 FROM "user" WHERE "avatarId" = f."id" OR "bannerId" = f."id")
+				AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE f."id" = ANY(gallery_post."fileIds"))
+				AND NOT EXISTS (SELECT 1 FROM chat_message WHERE "fileId" = f."id")
+				AND NOT EXISTS (SELECT 1 FROM page WHERE "eyeCatchingImageId" = f."id")
+				AND NOT EXISTS (SELECT 1 FROM channel WHERE "bannerId" = f."id")`,
+			[fileIds],
+		) as { id: MiDriveFile['id'] }[];
+		return new Set(rows.map(r => r.id));
 	}
 
 	@bindThis
@@ -140,45 +134,45 @@ export class CleanRemoteDriveFilesProcessorService {
 				break;
 			}
 
-			for (const file of files) {
-				// ID は時系列順なので、保持期限内のファイルに到達したら以降は全て期限内。今回の走査は完了扱いにする
-				if (file.id >= newestLimit) {
-					await this.metasRepository.update(meta.id, { remoteDriveFilesCleaningLastCursorId: null });
-					cursor = null;
-					completed = true;
+			// ID は時系列順なので、保持期限内のファイルに到達したら以降は全て期限内。今回の走査は完了扱いにする
+			const cutoffIndex = files.findIndex(file => file.id >= newestLimit);
+			const targets = cutoffIndex === -1 ? files : files.slice(0, cutoffIndex);
+			const hitNewestLimit = cutoffIndex !== -1;
+
+			let unreferencedIds: Set<MiDriveFile['id']>;
+			try {
+				// バッチ内の参照チェックを1クエリに集約する (N+1 回避)
+				unreferencedIds = await this.findUnreferencedIds(targets.map(file => file.id));
+			} catch (e) {
+				// 判定不能な場合は安全側(温存)に倒し、カーソルを進めず次バッチで同じ範囲から再試行する
+				transientErrors++;
+				consecutiveErrors++;
+				job.log(`Error checking references of ${targets.length} files: ${e} (transient error?)`);
+				if (consecutiveErrors >= maxConsecutiveErrors) {
+					job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
 					break;
 				}
+				continue;
+			}
 
-				let referenced: boolean;
-				try {
-					referenced = await this.isReferenced(file.id);
-				} catch (e) {
-					// カーソルを進めずに残すことで次バッチ以降にリトライさせる
-					transientErrors++;
-					consecutiveErrors++;
-					job.log(`Error checking references of file ${file.id}: ${e} (transient error?)`);
-					if (consecutiveErrors >= maxConsecutiveErrors) {
-						job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
-						break;
-					}
+			for (const file of targets) {
+				if (!unreferencedIds.has(file.id)) {
+					cursor = file.id;
+					checkedCount++;
+					consecutiveErrors = 0;
 					continue;
 				}
 
-				if (!referenced) {
-					try {
-						await this.driveService.deleteFileSync(file);
-						deletedCount++;
-					} catch (e) {
-						// 判定と削除の間の競合による制約違反などは、カーソルを進めずに残すことで次バッチ以降にリトライさせる
-						transientErrors++;
-						consecutiveErrors++;
-						job.log(`Error deleting file ${file.id}: ${e} (transient race condition?)`);
-						if (consecutiveErrors >= maxConsecutiveErrors) {
-							job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
-							break;
-						}
-						continue;
-					}
+				try {
+					await this.driveService.deleteFileSync(file);
+					deletedCount++;
+				} catch (e) {
+					// バッチを打ち切り、カーソルを最後の成功位置に留めることで次バッチでこのファイルから再開させる
+					// (continue すると後続ファイルの成功でカーソルが失敗ファイルを飛び越えてしまう)
+					transientErrors++;
+					consecutiveErrors++;
+					job.log(`Error deleting file ${file.id}: ${e} (transient race condition?)`);
+					break;
 				}
 
 				cursor = file.id;
@@ -187,7 +181,15 @@ export class CleanRemoteDriveFilesProcessorService {
 			}
 
 			if (consecutiveErrors >= maxConsecutiveErrors) {
+				job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
 				break;
+			}
+
+			if (hitNewestLimit) {
+				// 保持期限内のファイルに到達したので今回の走査は完了扱いにする
+				await this.metasRepository.update(meta.id, { remoteDriveFilesCleaningLastCursorId: null });
+				cursor = null;
+				completed = true;
 			}
 
 			// 次回はここから再開できるようカーソルを永続化する
