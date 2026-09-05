@@ -256,7 +256,7 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
 		});
 
-		test('should keep a file embedded in a page content block', async () => {
+		test('should delete an orphan file even if referenced from a page content block (pages are not reference sources)', async () => {
 			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
 			await pagesRepository.insert({
 				id: idService.gen(Date.now() - (100 * DAY)),
@@ -275,31 +275,9 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 
 			const result = await service.process(job as any);
 
-			expect(result.deletedCount).toBe(0);
-			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
-		});
-
-		test('should keep a file embedded in a nested page content block', async () => {
-			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
-			await pagesRepository.insert({
-				id: idService.gen(Date.now() - (100 * DAY)),
-				updatedAt: new Date(),
-				title: 'page',
-				name: `nested_${file.id}`,
-				alignCenter: false,
-				font: 'sans-serif',
-				userId: alice.id,
-				content: [{ type: 'section', children: [{ type: 'image', fileId: file.id }] }] as MiPage['content'],
-				variables: [],
-				visibility: 'public',
-				visibleUserIds: [],
-			} satisfies Partial<MiPage>);
-			const job = createMockJob();
-
-			const result = await service.process(job as any);
-
-			expect(result.deletedCount).toBe(0);
-			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
+			expect(result.deletedCount).toBe(1);
+			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(1);
+			expect(driveServiceMock.deleteFileSync.mock.calls[0][0].id).toBe(file.id);
 		});
 
 		test('should keep a young file even if it is orphan', async () => {
@@ -380,6 +358,55 @@ describe('CleanRemoteDriveFilesProcessorService', () => {
 			expect(result.completed).toBe(false);
 			expect(result.transientErrors).toBe(10);
 			expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(10);
+		});
+
+		test('should stop the run without retry when the reference check fails', async () => {
+			await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			vi.spyOn(service as any, 'findUnreferencedIds').mockRejectedValueOnce(new Error('query failed'));
+			const job = createMockJob();
+
+			const result = await service.process(job as any);
+
+			expect(result.deletedCount).toBe(0);
+			expect(result.completed).toBe(false);
+			expect(result.transientErrors).toBe(1);
+			expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
+			expect(job.log).toHaveBeenCalledWith(expect.stringContaining('stopping this run'));
+		});
+
+		test('should not delete a file referenced after the batch check (TOCTOU guard)', async () => {
+			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			await createNoteWithFiles(bob, [file.id], Date.now() - (100 * DAY));
+			// バッチ判定時点では未参照だったことにする (判定後に参照が増えた状況を再現)
+			const spy = vi.spyOn(service as any, 'findUnreferencedIds').mockResolvedValue(new Set([file.id]));
+			const job = createMockJob();
+
+			try {
+				const result = await service.process(job as any);
+
+				expect(result.deletedCount).toBe(0);
+				expect(result.checkedCount).toBe(1);
+				expect(driveServiceMock.deleteFileSync).not.toHaveBeenCalled();
+			} finally {
+				spy.mockRestore();
+			}
+		});
+
+		test('should recover when the pre-delete re-check fails transiently', async () => {
+			const file = await createDriveFile({ userId: bob.id, userHost: bob.host }, Date.now() - (100 * DAY));
+			const spy = vi.spyOn(service as any, 'isUnreferenced').mockRejectedValueOnce(new Error('query failed'));
+			const job = createMockJob();
+
+			try {
+				const result = await service.process(job as any);
+
+				expect(result.deletedCount).toBe(1);
+				expect(result.transientErrors).toBe(1);
+				expect(driveServiceMock.deleteFileSync).toHaveBeenCalledTimes(1);
+				expect(driveServiceMock.deleteFileSync.mock.calls[0][0].id).toBe(file.id);
+			} finally {
+				spy.mockRestore();
+			}
 		});
 	});
 });

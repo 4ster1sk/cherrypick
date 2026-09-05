@@ -6,6 +6,7 @@
 import { setTimeout } from 'node:timers/promises';
 import { Inject, Injectable } from '@nestjs/common';
 import { IsNull, MoreThan, Not } from 'typeorm';
+import type { DataSource } from 'typeorm';
 import { DI } from '@/di-symbols.js';
 import type { DriveFilesRepository, MetasRepository, MiDriveFile, MiMeta } from '@/models/_.js';
 import type Logger from '@/logger.js';
@@ -25,6 +26,9 @@ export class CleanRemoteDriveFilesProcessorService {
 
 		@Inject(DI.metasRepository)
 		private metasRepository: MetasRepository,
+
+		@Inject(DI.db)
+		private db: DataSource,
 
 		private driveService: DriveService,
 		private idService: IdService,
@@ -46,27 +50,67 @@ export class CleanRemoteDriveFilesProcessorService {
 	}
 
 	@bindThis
-	private async findUnreferencedIds(fileIds: MiDriveFile['id'][]): Promise<Set<MiDriveFile['id']>> {
+	private async findUnreferencedIds(fileIds: MiDriveFile['id'][], timeoutMs: number): Promise<Set<MiDriveFile['id']>> {
 		if (fileIds.length === 0) return new Set();
-		const rows = await this.driveFilesRepository.query(
-			`WITH page_text AS (
-				-- page 全文走査はバッチあたり1回にまとめる (候補ごとの相関スキャンを避ける)
-				SELECT string_agg(page."content"::text, chr(10)) AS t FROM page
-			)
-			SELECT f."id" AS "id" FROM drive_file f, page_text WHERE f."id" = ANY($1)
-				-- 配列側を左辺にした @> で GIN (IDX_NOTE_FILE_IDS) を効かせる (= ANY(配列列) では使えない)
-				AND NOT EXISTS (SELECT 1 FROM note WHERE note."fileIds" @> ARRAY[f."id"])
-				AND NOT EXISTS (SELECT 1 FROM "user" WHERE "avatarId" = f."id" OR "bannerId" = f."id")
-				AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE gallery_post."fileIds" @> ARRAY[f."id"])
-				AND NOT EXISTS (SELECT 1 FROM chat_message WHERE "fileId" = f."id")
-				AND NOT EXISTS (SELECT 1 FROM page WHERE "eyeCatchingImageId" = f."id")
-				-- ページ本文の画像ブロックも参照しうる (children にネストしうるためテキスト検索で判定)。
-				-- 誤検出しても温存側に倒れるだけなので安全
-				AND NOT EXISTS (SELECT 1 FROM page_text WHERE strpos(page_text.t, f."id") > 0)
-				AND NOT EXISTS (SELECT 1 FROM channel WHERE "bannerId" = f."id")`,
-			[fileIds],
-		) as { id: MiDriveFile['id'] }[];
-		return new Set(rows.map(r => r.id));
+		// 大規模環境では NOT EXISTS 群が重くなり、デフォルトの statement_timeout (10s) で57014になりうる。
+		// 実行予定時間 (remoteDriveFilesCleaningMaxProcessingDurationInMinutes) に連動させ、
+		// このクエリだけ SET LOCAL で延長する。SET LOCAL はトランザクション内必須のため QueryRunner を使用する。
+		const clampedTimeoutMs = Math.min(Math.max(Math.floor(timeoutMs), 1000), 2147483647);
+		const queryRunner = this.db.createQueryRunner('master');
+		try {
+			await queryRunner.connect();
+			await queryRunner.startTransaction();
+			await queryRunner.query(`SET LOCAL statement_timeout = ${clampedTimeoutMs}`);
+			const rows = await queryRunner.query(
+				// page は eyeCatchingImage・本文ブロックいずれも参照元になりえない
+				// (eyeCatchingImage は本人所有ファイルのみ許可され、本人所有ファイルの userHost は必ず null。
+				// 本文ブロックは UI 上は自ドライブからの選択のみ) ため判定対象外とする。
+				// page 全文集約は10分規模の重クエリの主因だったため、これにより CTE を除去する。
+				`SELECT f."id" AS "id" FROM drive_file f WHERE f."id" = ANY($1)
+					-- 配列側を左辺にした @> で GIN (IDX_NOTE_FILE_IDS) を効かせる (= ANY(配列列) では使えない)
+					AND NOT EXISTS (SELECT 1 FROM note WHERE note."fileIds" @> ARRAY[f."id"])
+					AND NOT EXISTS (SELECT 1 FROM "user" WHERE "avatarId" = f."id" OR "bannerId" = f."id")
+					AND NOT EXISTS (SELECT 1 FROM gallery_post WHERE gallery_post."fileIds" @> ARRAY[f."id"])
+					AND NOT EXISTS (SELECT 1 FROM chat_message WHERE "fileId" = f."id")
+					AND NOT EXISTS (SELECT 1 FROM channel WHERE "bannerId" = f."id")`,
+				[fileIds],
+			) as { id: MiDriveFile['id'] }[];
+			await queryRunner.commitTransaction();
+			return new Set(rows.map(r => r.id));
+		} catch (e) {
+			try {
+				await queryRunner.rollbackTransaction();
+			} catch {
+				// ロールバック失敗は元のエラーを優先する
+			}
+			throw e;
+		} finally {
+			await queryRunner.release();
+		}
+	}
+
+	@bindThis
+	private async isUnreferenced(fileId: MiDriveFile['id']): Promise<boolean> {
+		// 削除直前の単一行再判定 (TOCTOU 対策)。1行の EXISTS のみで page は対象外のため軽量であり、
+		// 明示トランザクションや statement_timeout 延長なしで実行する。
+		// gallery_post / chat_message / channel に有効なインデックスはないが、
+		// いずれも件数が小規模なテーブルであるため逐次実行でも問題ない。
+		const rows = await this.db.query(
+			`SELECT EXISTS (
+				SELECT 1 FROM note WHERE note."fileIds" @> ARRAY[$1::varchar]
+				UNION ALL
+				SELECT 1 FROM "user" WHERE "avatarId" = $1 OR "bannerId" = $1
+				UNION ALL
+				SELECT 1 FROM gallery_post WHERE gallery_post."fileIds" @> ARRAY[$1::varchar]
+				UNION ALL
+				SELECT 1 FROM chat_message WHERE "fileId" = $1
+				UNION ALL
+				SELECT 1 FROM channel WHERE "bannerId" = $1
+			) AS "referenced"`,
+			[fileId],
+		) as { referenced: boolean }[];
+		// 判定不能な場合は安全側(温存)に倒す
+		return !(rows[0]?.referenced ?? true);
 	}
 
 	@bindThis
@@ -149,23 +193,47 @@ export class CleanRemoteDriveFilesProcessorService {
 
 			let unreferencedIds: Set<MiDriveFile['id']>;
 			try {
-				// バッチ内の参照チェックを1クエリに集約する (N+1 回避)
-				unreferencedIds = await this.findUnreferencedIds(targets.map(file => file.id));
-			} catch (e) {
-				// 判定不能な場合は安全側(温存)に倒し、カーソルを進めず次バッチで同じ範囲から再試行する
-				transientErrors++;
-				consecutiveErrors++;
-				job.log(`Error checking references of ${targets.length} files: ${e} (transient error?)`);
-				if (consecutiveErrors >= maxConsecutiveErrors) {
-					job.log(`Too many consecutive errors (${consecutiveErrors}), stopping... (last cursor: ${cursor})`);
+				// バッチ内の参照チェックを1クエリに集約する (N+1 回避)。
+				// 100件ずつ取得し、タイムアウトは実行予定時間の残りに連動させる (実環境で10分規模のため)。
+				const remainingMs = maxDuration - (Date.now() - startAt);
+				if (remainingMs < 1000) {
+					job.log(`Not enough remaining time (${remainingMs}ms) to check references of ${targets.length} files, stopping... (last cursor: ${cursor})`);
 					break;
 				}
-				continue;
+				unreferencedIds = await this.findUnreferencedIds(targets.map(file => file.id), remainingMs);
+			} catch (e) {
+				// 判定クエリの失敗は即時リトライしても回復見込みが薄いため、ログを残して今回の実行を打ち切る。
+				// カーソルは進めないので次回実行時に同範囲から再開される。待機を挟んだ再試行はしない。
+				transientErrors++;
+				const msg = `Error checking references of ${targets.length} files: ${e} (stopping this run; will resume from cursor ${cursor} next time)`;
+				this.logger.warn(msg);
+				job.log(msg);
+				break;
 			}
 
 			let batchHadDeleteError = false;
 			for (const file of targets) {
 				if (!unreferencedIds.has(file.id)) {
+					cursor = file.id;
+					checkedCount++;
+					consecutiveErrors = 0;
+					continue;
+				}
+
+				let stillUnreferenced: boolean;
+				try {
+					// バッチ先頭の一括判定から時間が経っており、その間に連合経由で
+					// 参照が増えている可能性があるため、削除直前に単一行で再判定する
+					stillUnreferenced = await this.isUnreferenced(file.id);
+				} catch (e) {
+					transientErrors++;
+					consecutiveErrors++;
+					job.log(`Error re-checking references of file ${file.id}: ${e} (transient error?)`);
+					batchHadDeleteError = true;
+					break;
+				}
+
+				if (!stillUnreferenced) {
 					cursor = file.id;
 					checkedCount++;
 					consecutiveErrors = 0;
@@ -208,7 +276,7 @@ export class CleanRemoteDriveFilesProcessorService {
 			}
 
 			const batchDuration = Date.now() - batchBeginAt;
-			job.log(`Checked ${files.length} files (total checked: ${checkedCount}, deleted: ${deletedCount}); ${batchDuration}ms`);
+			job.log(`Checked ${targets.length} files (total checked: ${checkedCount}, deleted: ${deletedCount}); ${batchDuration}ms`);
 
 			if (completed) {
 				break;
