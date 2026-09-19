@@ -16,7 +16,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストなし → signature削除
+    Proc->>Proc: LDなしのまま継続 (現ブランチはHTTP有効時にLD検証・剥離しない)
     Proc->>AP: performActivity(Create)
     AP->>DB: Note作成
     Tester->>Inbox: users/notes (zack) をポーリング
@@ -35,7 +35,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストあり → verifyJsonLDを試行 → 成功 (署名保持)
+    Proc->>Proc: 現ブランチはHTTP有効時にLD不検証のまま継続 (署名保持)
     Proc->>AP: performActivity(Create)
     AP->>DB: Note作成
     Tester->>Inbox: users/notes (zack) をポーリング
@@ -54,7 +54,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストなし → signature削除 (検証せず)
+    Proc->>Proc: 現ブランチはLD不検証のまま継続 (署名保持)。Create経路に転送はない
     Proc->>AP: performActivity(Create)
     AP->>DB: Note作成
     Tester->>Inbox: users/notes (zack) をポーリング
@@ -93,7 +93,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストあり → verifyJsonLDを試行 → 失敗 → signature削除
+    Proc->>Proc: 現ブランチはLD不検証のまま継続 (偽造署名が残存)。Create経路に転送はないため取り込まれる
     Proc->>AP: performActivity(Create)
     AP->>DB: Note作成 (現行の寛容仕様を固定)
     Tester->>Inbox: users/notes (zack) をポーリング
@@ -199,7 +199,7 @@ sequenceDiagram
     Inbox-->>Stub: 202
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
-    Proc->>Proc: HTTP署名 OK、LD検証 OK
+    Proc->>Proc: HTTP署名 OK (現ブランチはLD不検証)
     Proc->>Proc: activity.idホスト(evil.test) != 署名者(z.test) → UnrecoverableError
     Note over Proc,DB: Noteは作成されない
     Tester->>Inbox: users/notes (zack) を10秒ポーリング

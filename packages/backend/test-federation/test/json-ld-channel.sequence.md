@@ -16,7 +16,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストあり → verifyJsonLD試行 → LDなし → signatureなし扱いで継続
+    Proc->>Proc: LDなしのまま継続 (現ブランチはHTTP有効時にLD検証・剥離しない)
     Proc->>AP: performActivity(Create)
     AP->>AP: cc言及からチャンネル検出
     AP->>DB: Note作成 (channelId付き)
@@ -36,7 +36,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストあり → verifyJsonLDを試行 → 成功 (署名保持)
+    Proc->>Proc: 現ブランチはHTTP有効時にLD不検証のまま継続 (署名保持)
     Proc->>AP: performActivity(Create)
     AP->>AP: cc言及からチャンネル検出
     AP->>DB: Note作成 (channelId付き)
@@ -76,7 +76,7 @@ sequenceDiagram
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
     Proc->>Proc: HTTP署名検証 OK かつ actor一致
-    Proc->>Proc: audienceに自ホストあり → verifyJsonLDを試行 → 失敗 → signature削除
+    Proc->>Proc: 現ブランチはLD不検証のまま継続 (偽造署名が残存)。Create経路に転送はないため取り込まれる
     Proc->>AP: performActivity(Create)
     AP->>AP: cc言及からチャンネル検出
     AP->>DB: Note作成 (channelId付き、現行の寛容仕様を固定)
@@ -190,7 +190,7 @@ sequenceDiagram
     Inbox-->>Stub: 202
     Inbox->>Queue: inboxジョブを投入
     Queue->>Proc: process(activity, signature)
-    Proc->>Proc: HTTP署名 OK、ccに自チャンネル → verifyJsonLD成功 (署名保持)
+    Proc->>Proc: HTTP署名 OK (現ブランチはLD不検証、署名保持)
     Proc->>AP: performActivity(Announce) → announceNote
     AP->>AP: cc言及からチャンネル検出 → renote作成 (channel付き)
     AP->>DB: Renote作成 (uri=activityId)
@@ -291,7 +291,7 @@ sequenceDiagram
     Inbox-->>Tester: activityId は一度も現れない
 ```
 判定: `assertFederationTestNoteNotIngested(alice, activityId)`。
-備考: `creator-mismatch` / `tampered-value` は Create 側と同一 `verifyJsonLD` 経路で検証済みのため Announce では省略。
+備考: HTTP破壊時の拒否はプロセッサ層の判定であり、中継ゲート以前に排除される。HTTP有効時の偽造LDの中継可否は fan-out節 (R-N1/R-N3〜R-N5) で検証する。
 
 ## R-P1. 正規LDのAnnounceはフォロワーのサーバーへ中継される (valid/valid)
 
@@ -304,9 +304,9 @@ sequenceDiagram
     Stub->>InboxA: POST /a.test/inbox
     InboxA-->>Stub: 202
     InboxA->>QueueA: inboxジョブを投入
-    QueueA->>ProcA: HTTP署名 OK、LD検証成功 (署名保持)
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、署名保持)
     ProcA->>APA: performActivity(Announce) → announceNote
-    APA->APA: チャンネル検出 → renote作成
+    APA->>APA: チャンネル検出 → renote作成 (channel付き)
     APA->>APA: activity.signatureあり → チャンネルフォロワーへ転送
     APA->>InboxB: POST /b.test/inbox (チャンネルアクター鍵のHTTP署名 + zackのLD署名)
     InboxB-->>APA: 202
@@ -327,14 +327,14 @@ sequenceDiagram
     Stub->>InboxA: POST /a.test/inbox
     InboxA-->>Stub: 202
     InboxA->>QueueA: inboxジョブを投入
-    QueueA->>ProcA: HTTP署名 OK → verifyJsonLD試行 → 失敗 → signature剥離
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、偽造署名が残存)
     ProcA->>APA: performActivity(Announce) → announceNote
     APA->>APA: チャンネル検出 → renote作成 (ローカル取り込みは継続)
-    APA->>APA: activity.signatureなし → 転送しない
-    Note over APA,InboxB: b.testへは何も配送されない (AMPにならない)
+    APA->>APA: activity.signatureあり → 転送する (現状の穴・H3修正後は転送しない)
+    APA->>InboxB: POST /b.test/inbox (中継発生)
     Tester->>InboxA: チャンネルリノート作成を確認 (channelId一致)
     Tester->>InboxB: notes/timeline (bob) を約20秒ポーリング
-    InboxB-->>Tester: activityId は一度も現れない
+    InboxB-->>Tester: 現状は activityId が出現しRED (修正後は不出現でGREEN)
 ```
 判定: a.testで取り込み確認＋b.test HTL不在確認。
 
@@ -346,7 +346,7 @@ sequenceDiagram
     Stub->>InboxA: POST /a.test/inbox (LD署名なし)
     InboxA-->>Stub: 202
     InboxA->>QueueA: inboxジョブを投入
-    QueueA->>ProcA: HTTP署名 OK → verifyJsonLD試行 → LDなしで失敗 → 継続 (署名なし)
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、LDなしのまま継続)
     ProcA->>APA: performActivity(Announce) → announceNote
     APA->>APA: チャンネル検出 → renote作成 (ローカル取り込みは継続)
     APA->>APA: activity.signatureなし → 転送しない
@@ -354,5 +354,71 @@ sequenceDiagram
     Tester->>InboxA: チャンネルリノート作成を確認 (channelId一致)
     Tester->>InboxB: notes/timeline (bob) を約20秒ポーリング
     InboxB-->>Tester: activityId は一度も現れない
+```
+判定: a.testで取り込み確認＋b.test HTL不在確認。
+
+## R-N3. 署名値改竄LDのAnnounceは取り込まれるが中継されない (tampered-value/valid)
+
+H3修正 (`080f24a647` 相当) 適用までは中継されてREDが正しい。
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=tampered-value, http=valid)
+    Stub->>Stub: signatureValue中央1文字を反転
+    Stub->>InboxA: POST /a.test/inbox
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、偽造署名が残存)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成 (ローカル取り込みは継続)
+    APA->>APA: activity.signatureあり → 転送する (現状の穴・修正後は検証失敗で転送しない)
+    APA->>InboxB: POST /b.test/inbox (中継発生)
+    Tester->>InboxA: チャンネルリノート作成を確認 (channelId一致)
+    Tester->>InboxB: notes/timeline (bob) を約20秒ポーリング
+    InboxB-->>Tester: 現状は activityId が出現しRED (修正後は不出現でGREEN)
+```
+判定: a.testで取り込み確認＋b.test HTL不在確認。
+
+## R-N4. 型不正LDのAnnounceは取り込まれるが中継されない (wrong-type/valid)
+
+H3 PoCの「any truthy」そのもの。H3修正 (`080f24a647` 相当) 適用までは中継されてREDが正しい。
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=wrong-type, http=valid)
+    Stub->>Stub: signature.type をDataIntegrityProofにすり替え
+    Stub->>InboxA: POST /a.test/inbox
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、偽造署名が残存)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成 (ローカル取り込みは継続)
+    APA->>APA: activity.signatureあり(truthy) → 転送する (現状の穴・修正後は型検査で転送しない)
+    APA->>InboxB: POST /b.test/inbox (中継発生)
+    Tester->>InboxA: チャンネルリノート作成を確認 (channelId一致)
+    Tester->>InboxB: notes/timeline (bob) を約20秒ポーリング
+    InboxB-->>Tester: 現状は activityId が出現しRED (修正後は不出現でGREEN)
+```
+判定: a.testで取り込み確認＋b.test HTL不在確認。
+
+## R-N5. creator不一致LDのAnnounceは取り込まれるが中継されない (creator-mismatch/valid)
+
+修正のcreator=actor束縛を直接検証する。H3修正 (`080f24a647` 相当) 適用までは中継されてREDが正しい。
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=creator-mismatch, http=valid)
+    Stub->>Stub: mallory鍵で署名 (creator=mallory, actor=zackのまま)
+    Stub->>InboxA: POST /a.test/inbox
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、偽造署名が残存)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成 (ローカル取り込みは継続)
+    APA->>APA: activity.signatureあり → 転送する (現状の穴・修正後はsigner!=actorで転送しない)
+    APA->>InboxB: POST /b.test/inbox (中継発生)
+    Tester->>InboxA: チャンネルリノート作成を確認 (channelId一致)
+    Tester->>InboxB: notes/timeline (bob) を約20秒ポーリング
+    InboxB-->>Tester: 現状は activityId が出現しRED (修正後は不出現でGREEN)
 ```
 判定: a.testで取り込み確認＋b.test HTL不在確認。

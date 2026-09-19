@@ -86,7 +86,7 @@ describe('JsonLD署名検証', () => {
 		});
 
 		test('HTTP有効+LD改ざん はLDを剥がして取り込まれる', async () => {
-			// NOTE: HTTP-Signature が有効な場合、LD 検証の失敗は署名剥離で継続する (現行仕様の固定)
+			// NOTE: 現ブランチはHTTP有効時にLD不検証のまま継続し、Create経路には転送がないため取り込まれる (現行仕様の固定)
 			const { noteUri } = await deliverLdCase(bob, recipient, {
 				notePath: 'json-ld-signature/01-mention-self',
 				ld: 'tampered-body',

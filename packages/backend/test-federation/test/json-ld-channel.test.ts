@@ -76,7 +76,7 @@ describe('JsonLD署名検証 (チャンネル投稿)', () => {
 		});
 
 		test('HTTP有効+LD改ざん はLDを剥がしてチャンネル投稿として取り込まれる', async () => {
-			// NOTE: HTTP-Signature が有効な場合、LD 検証の失敗は署名剥離で継続する (現行仕様の固定)
+			// NOTE: 現ブランチはHTTP有効時にLD不検証のまま継続し、Create経路には転送がないため取り込まれる (現行仕様の固定)
 			const noteUri = await deliverChannelNote({ ld: 'tampered-body', http: 'valid' });
 			const note = await waitForFederationTestNoteUri(alice, noteUri);
 			strictEqual(note.channelId, aliceCh.id);
@@ -109,7 +109,6 @@ describe('JsonLD署名検証 (チャンネル投稿)', () => {
 	});
 
 	describe('チャンネル宛Announce', () => {
-		// NOTE: creator-mismatch / tampered-value は Create 側と同一の verifyJsonLD 経路で検証済みのため省略
 		test('HTTP有効+LD有効 はチャンネルリノートとして取り込まれる', async () => {
 			const activityId = await deliverChannelAnnounce({ ld: 'valid', http: 'valid' });
 			const renote = await waitForFederationTestNoteUri(alice, activityId);
@@ -199,7 +198,36 @@ describe('JsonLD署名検証 (チャンネル投稿)', () => {
 		});
 
 		test('HTTP有効+LD改ざん のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			// H3 (vuln_scan/ap/REPORT.md): 現ブランチはHTTP有効時にLDを検証・剥離しないため、
+			// 偽造LDが activity.signature として残り中継される。修正 (080f24a647相当) 適用まではREDが正しい。
 			const activityId = await deliverChannelAnnounce({ ld: 'tampered-body', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			await assertTimelineNotContains(bob, activityId);
+		});
+
+		test('HTTP有効+LD署名値改ざん のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			// H3: R-N1と同経路。修正 (080f24a647相当) 適用まではREDが正しい。
+			const activityId = await deliverChannelAnnounce({ ld: 'tampered-value', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			await assertTimelineNotContains(bob, activityId);
+		});
+
+		test('HTTP有効+LD型不正 のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			// H3: truthyなsignatureなら型不問で中継されるのが現状の穴。修正 (080f24a647相当) 適用まではREDが正しい。
+			const activityId = await deliverChannelAnnounce({ ld: 'wrong-type', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			await assertTimelineNotContains(bob, activityId);
+		});
+
+		test('HTTP有効+LD creator不一致 のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			// H3: 修正のcreator=actor束縛を直接検証する。修正 (080f24a647相当) 適用まではREDが正しい。
+			const activityId = await deliverChannelAnnounce({ ld: 'creator-mismatch', http: 'valid' });
 			const renote = await waitForFederationTestNoteUri(alice, activityId);
 			strictEqual(renote.channelId, aliceCh.id);
 
