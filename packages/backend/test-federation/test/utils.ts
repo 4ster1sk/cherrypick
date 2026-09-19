@@ -48,17 +48,32 @@ type DeliverFederationTestNoteResponse = {
 	inboxStatus: number;
 };
 
+/** z.test の LD 署名モード (`stub-deliver.mjs` の `ld` パラメータに対応) */
+export type FederationTestLdMode = 'none' | 'valid' | 'tampered-body' | 'tampered-value' | 'wrong-type' | 'creator-mismatch';
+/** z.test の HTTP 署名モード (`stub-deliver.mjs` の `http` パラメータに対応) */
+export type FederationTestHttpMode = 'valid' | 'broken';
+
+export type DeliverFederationTestNoteOptions = {
+	placeholders?: Record<string, string>;
+	ld?: FederationTestLdMode;
+	http?: FederationTestHttpMode;
+	activityId?: string;
+};
+
 /**
  * z.test に stub Note の署名付き inbox 配送を依頼する。
  * `notePath` は `stub/notes/` からの相対パス（例: `ap-emoji-1049/10-copy-permission-none`）。
  * `options.placeholders` で stub Note JSON 内の `{{key}}` を実際の値に置換できる。
+ * `options.ld` で Activity への JsonLD 署名の付与・改変を制御できる（既定 `'none'`）。
+ * `options.http` を `'broken'` にすると HTTP Signature を破壊して配送する（LD フォールバック経路の検証用）。
+ * `options.activityId` で配送する Activity の `id` を上書きできる。
  * stub ファイルの `type` が `Announce` の場合はそのまま Activity として配送し、
  * それ以外は `Create` Activity でラップして配送する。
  */
 export async function deliverFederationTestNote(
 	targetHost: FederationTestTargetHost,
 	notePath: string,
-	options?: { placeholders?: Record<string, string> },
+	options?: DeliverFederationTestNoteOptions,
 ): Promise<DeliverFederationTestNoteResponse> {
 	const response = await fetch(federationTestStubUri('deliver'), {
 		method: 'POST',
@@ -90,26 +105,63 @@ export async function waitForFederationTestNote(
 	notePath: string,
 	options?: { timeout?: number },
 ): Promise<Misskey.entities.Note> {
+	return waitForFederationTestNoteUri(viewer, federationTestStubUri(`notes/${notePath}`), options);
+}
+
+/**
+ * `viewer` のインスタンスが指定 URI の stub Note を連合受信するまで待つ。
+ * Note の `id` が stub パスと一致しない場合 (`{{nonce}}` 等で一意化した場合) に使う。
+ * 他スイートと並行実行されても誤検出しないよう最新複数件から照合する。
+ */
+export async function waitForFederationTestNoteUri(
+	viewer: LoginUser,
+	noteUri: string,
+	options?: { timeout?: number },
+): Promise<Misskey.entities.Note> {
 	let note: Misskey.entities.Note | undefined;
-	const targetUri = federationTestStubUri(`notes/${notePath}`);
 	const zack = await resolveRemoteUser(FEDERATION_STUB_HOST, 'zack', viewer);
 
 	await waitFor(async () => {
 		try {
 			const notes = await viewer.client.request('users/notes', {
 				userId: zack.id,
-				limit: 1,
+				limit: 20,
 				withChannelNotes: true,
 			});
-			if (notes[0].uri !== targetUri) return false;
-			note = notes[0];
-			return true;
+			note = notes.find(candidate => candidate.uri === noteUri);
+			return note != null;
 		} catch {
 			return false;
 		}
 	}, { timeout: options?.timeout ?? 30_000, interval: 1_000 });
-	if (note == null) throw new Error(`federation test note not ingested: ${targetUri}`);
+	if (note == null) throw new Error(`federation test note not ingested: ${noteUri}`);
 	return note;
+}
+
+/**
+ * `viewer` のインスタンスが指定 URI の stub Note を連合受信しないことを確認する。
+ * 不正署名の拒否テスト用。一定時間ポーリングして一度も現れなければ成功とする。
+ */
+export async function assertFederationTestNoteNotIngested(
+	viewer: LoginUser,
+	noteUri: string,
+	options?: { timeout?: number },
+): Promise<void> {
+	const zack = await resolveRemoteUser(FEDERATION_STUB_HOST, 'zack', viewer);
+	const timeout = options?.timeout ?? 10_000;
+	const start = Date.now();
+	for (;;) {
+		const notes = await viewer.client.request('users/notes', {
+			userId: zack.id,
+			limit: 20,
+			withChannelNotes: true,
+		});
+		if (notes.some(note => note.uri === noteUri)) {
+			throw new Error(`federation test note should not have been ingested but was: ${noteUri}`);
+		}
+		if (Date.now() - start >= timeout) return;
+		await sleep(1_000);
+	}
 }
 
 export async function sleep(ms = 250): Promise<void> {

@@ -39,10 +39,20 @@ services:
         target: /app/stub-deliver.mjs
         read_only: true
       - type: bind
+        source: ./stub-deliver-contexts.json
+        target: /app/ld-contexts.json
+        read_only: true
+      - type: bind
         source: ./certificates/rootCA.crt
         target: /usr/local/share/ca-certificates/rootCA.crt
         read_only: true
-    command: node /app/stub-deliver.mjs
+    # LD署名の生成・検証に jsonld が必要。plain node イメージのため起動時に導入する
+    command: >
+      bash -c "
+        npm init -y --prefix /tmp/stub-deps >/dev/null 2>&1
+        npm install --prefix /tmp/stub-deps --no-audit --no-fund jsonld@9.0.0
+        node /app/stub-deliver.mjs
+      "
     healthcheck:
       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 5s
