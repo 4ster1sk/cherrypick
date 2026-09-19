@@ -152,6 +152,10 @@ async function applyLdMode(activity, ld) {
 			signed.object = { ...signed.object, content: `${signed.object.content}<p>tampered</p>` };
 		} else if (typeof signed.content === 'string') {
 			signed.content = `${signed.content}<p>tampered</p>`;
+		} else {
+			// Announce 等 (object が文字列): 署名後に audience へ無害な URI を追加して署名を壊す
+			const to = Array.isArray(signed.to) ? signed.to : [signed.to].filter(v => v != null);
+			signed.to = [...to, `https://${STUB_HOST}/tampered`];
 		}
 		return signed;
 	}

@@ -1,0 +1,143 @@
+import assert, { strictEqual } from 'node:assert';
+import { describe, test, beforeAll } from 'vitest';
+import type * as Misskey from 'misskey-js';
+import {
+	assertFederationTestNoteNotIngested,
+	createAccount,
+	deliverFederationTestNote,
+	randomUsername,
+	sleep,
+	waitForFederationTestNoteUri,
+	type FederationTestHttpMode,
+	type FederationTestLdMode,
+	type LoginUser,
+} from './utils.js';
+
+const ORIGINAL_PATH = 'json-ld-signature/10-ch-original';
+const ORIGINAL_URI = 'https://z.test/notes/json-ld-signature/10-ch-original';
+const ANNOUNCE_PATH = 'json-ld-signature/11-ch-announce';
+
+describe('JsonLD署名検証 (チャンネル投稿)', () => {
+	let alice: LoginUser;
+	let aliceCh: Misskey.entities.Channel;
+	let channelActorUri: string;
+
+	beforeAll(async () => {
+		alice = await createAccount('a.test');
+		aliceCh = await alice.client.request('channels/create', { username: randomUsername() });
+		assert(aliceCh.actorId);
+		channelActorUri = `https://a.test/users/${aliceCh.actorId}`;
+		await sleep();
+	});
+
+	async function deliverChannelNote(options: { ld: FederationTestLdMode; http: FederationTestHttpMode }): Promise<string> {
+		const nonce = crypto.randomUUID().replaceAll('-', '');
+		const noteUri = `https://z.test/notes/json-ld-signature/${nonce}`;
+		await deliverFederationTestNote('a.test', 'json-ld-signature/01-mention-self', {
+			placeholders: { nonce, recipient: channelActorUri },
+			ld: options.ld,
+			http: options.http,
+		});
+		return noteUri;
+	}
+
+	async function deliverChannelAnnounce(options: { ld: FederationTestLdMode; http: FederationTestHttpMode }): Promise<string> {
+		// Announce 対象のオリジナルを先に取り込ませる (再配送は重複スキップされ安全)
+		await deliverFederationTestNote('a.test', ORIGINAL_PATH);
+		await waitForFederationTestNoteUri(alice, ORIGINAL_URI);
+
+		const delivered = await deliverFederationTestNote('a.test', ANNOUNCE_PATH, {
+			placeholders: { channelActor: channelActorUri },
+			ld: options.ld,
+			http: options.http,
+		});
+		return delivered.activityId;
+	}
+
+	describe('チャンネル宛Create', () => {
+		test('HTTP署名のみ (LDなし) はチャンネル投稿として取り込まれる', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'none', http: 'valid' });
+			const note = await waitForFederationTestNoteUri(alice, noteUri);
+			strictEqual(note.channelId, aliceCh.id);
+		});
+
+		test('HTTP有効+LD有効 はチャンネル投稿として取り込まれる', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'valid', http: 'valid' });
+			const note = await waitForFederationTestNoteUri(alice, noteUri);
+			strictEqual(note.channelId, aliceCh.id);
+		});
+
+		test('HTTP破壊+LD有効 はLDフォールバックでチャンネル投稿として取り込まれる', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'valid', http: 'broken' });
+			const note = await waitForFederationTestNoteUri(alice, noteUri);
+			strictEqual(note.channelId, aliceCh.id);
+		});
+
+		test('HTTP有効+LD改ざん はLDを剥がしてチャンネル投稿として取り込まれる', async () => {
+			// NOTE: HTTP-Signature が有効な場合、LD 検証の失敗は署名剥離で継続する (現行仕様の固定)
+			const noteUri = await deliverChannelNote({ ld: 'tampered-body', http: 'valid' });
+			const note = await waitForFederationTestNoteUri(alice, noteUri);
+			strictEqual(note.channelId, aliceCh.id);
+		});
+
+		test('HTTP破壊+LDなし は拒否される', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'none', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, noteUri);
+		});
+
+		test('HTTP破壊+LD本文改ざん は拒否される', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'tampered-body', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, noteUri);
+		});
+
+		test('HTTP破壊+LD署名値改ざん は拒否される', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'tampered-value', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, noteUri);
+		});
+
+		test('HTTP破壊+LD型不正 は拒否される', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'wrong-type', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, noteUri);
+		});
+
+		test('HTTP破壊+LD creator不一致 (mallory署名) は拒否される', async () => {
+			const noteUri = await deliverChannelNote({ ld: 'creator-mismatch', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, noteUri);
+		});
+	});
+
+	describe('チャンネル宛Announce', () => {
+		// NOTE: creator-mismatch / tampered-value は Create 側と同一の verifyJsonLD 経路で検証済みのため省略
+		test('HTTP有効+LD有効 はチャンネルリノートとして取り込まれる', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'valid', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+			assert(renote.renoteId != null);
+
+			const tl = await alice.client.request('channels/timeline', { channelId: aliceCh.id, limit: 20 });
+			assert(tl.some(note => note.id === renote.id), 'チャンネルTLにリノートが流れる');
+		});
+
+		test('HTTP破壊+LD有効 はLDフォールバックでチャンネルリノートとして取り込まれる', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'valid', http: 'broken' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+			assert(renote.renoteId != null);
+		});
+
+		test('HTTP破壊+LDなし は拒否される', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'none', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, activityId);
+		});
+
+		test('HTTP破壊+LD本文改ざん は拒否される', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'tampered-body', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, activityId);
+		});
+
+		test('HTTP破壊+LD型不正 は拒否される', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'wrong-type', http: 'broken' });
+			await assertFederationTestNoteNotIngested(alice, activityId);
+		});
+	});
+});
