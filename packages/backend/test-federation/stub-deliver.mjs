@@ -63,8 +63,13 @@ async function getMalloryPrivateKeyPem() {
 
 function loadJsonLd() {
 	if (jsonldLib == null) {
-		const stubRequire = createRequire('/tmp/stub-deps/package.json');
-		const mod = stubRequire('jsonld');
+		let mod;
+		try {
+			// ./stub-vendor (setup.sh で調達) を /app/vendor にマウントして使う
+			mod = createRequire('/app/vendor/package.json')('jsonld');
+		} catch (error) {
+			throw new Error(`jsonld is not vendored; run setup.sh with network access first: ${error instanceof Error ? error.message : String(error)}`);
+		}
 		jsonldLib = mod.default ?? mod;
 	}
 	return jsonldLib;

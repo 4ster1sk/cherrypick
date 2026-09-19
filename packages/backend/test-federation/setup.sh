@@ -52,3 +52,11 @@ generate a.test
 generate b.test
 generate c.test
 generate_stub z.test
+
+# z.test.deliver (LD署名生成用) の依存を調達する。
+# deliverコンテナは隔離NW (internal) のため起動時に npm install できない。
+# backend と同じ jsonld@9.0.0 を ./stub-vendor に前もって入れておく。
+if ! (npm init -y --prefix ./stub-vendor >/dev/null 2>&1 && npm install --prefix ./stub-vendor --no-save --no-audit --no-fund jsonld@9.0.0); then
+  echo "WARNING: failed to vendor jsonld for z.test.deliver (network required)." >&2
+  echo "WARNING: LD-signature delivery modes (ld=valid/...) will fail until this succeeds." >&2
+fi

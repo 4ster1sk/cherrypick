@@ -35,3 +35,9 @@ Tests under `describe('AP絵文字タグの正規化')` in `test/emoji.test.ts` 
 `stub/` には `outbox` / `inbox` / `.well-known/nodeinfo` / `manifest.json` など、b.test がリモートインスタンスとして参照する最小エンドポイントも置いている。Note フィクスチャは `stub/notes/<suite>/` にテストスイートごとに分ける（`#1049` は `stub/notes/ap-emoji-1049/`）。絵文字画像は `stub/emoji/hello_world.png` の 1 枚を共通利用する。
 
 `bash ./setup.sh` で `z.test` の TLS 証明書・`.config/z.test.conf`・`zack` の鍵ペア（`stub/users/zack` / `stub/users/zack-key.json`）を生成する。`z.test.deliver` 起動時にも鍵は再生成される。
+
+### LD署名用の依存調達 (`stub-vendor/`)
+
+`z.test.deliver` は隔離ネットワーク (`internal`) 上にあるため、起動時に npm registry へ到達できない。このため LD 署名に使う `jsonld` (backend 依存と同バージョン) は `setup.sh` がホスト側 (ネットワークあり) で `./stub-vendor/` に前もって install し、`compose.z.yml` で `/app/vendor` にマウントして使う。`stub-vendor/` は生成物のため git 管理外 (`.gitignore` 済み)。
+
+`setup.sh` をネットワークなしで実行した場合、`stub-vendor/` が無い状態になる。この場合 `z.test.deliver` 自体は起動するが、`ld=valid/...` を指定した配送は「`setup.sh` をネットワークありで実行せよ」という明示的エラーで失敗する (`ld=none` の従来配送には影響しない)。

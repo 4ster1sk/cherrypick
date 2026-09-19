@@ -43,16 +43,16 @@ services:
         target: /app/ld-contexts.json
         read_only: true
       - type: bind
+        source: ./stub-vendor
+        target: /app/vendor
+        read_only: true
+      - type: bind
         source: ./certificates/rootCA.crt
         target: /usr/local/share/ca-certificates/rootCA.crt
         read_only: true
-    # LD署名の生成・検証に jsonld が必要。plain node イメージのため起動時に導入する
-    command: >
-      bash -c "
-        npm init -y --prefix /tmp/stub-deps >/dev/null 2>&1
-        npm install --prefix /tmp/stub-deps --no-audit --no-fund jsonld@9.0.0
-        node /app/stub-deliver.mjs
-      "
+    # jsonld は setup.sh で ./stub-vendor に調達済み (deliverコンテナは隔離NWのため起動時取得不可)。
+    # ./stub-vendor が無い場合も起動はするが、LD署名モードの配送は明示的エラーで失敗する。
+    command: node /app/stub-deliver.mjs
     healthcheck:
       test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 5s
