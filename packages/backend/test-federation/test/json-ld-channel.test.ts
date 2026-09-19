@@ -3,13 +3,17 @@ import { describe, test, beforeAll } from 'vitest';
 import type * as Misskey from 'misskey-js';
 import {
 	assertFederationTestNoteNotIngested,
+	clearStubReceived,
 	createAccount,
 	deliverFederationTestNote,
+	fetchStubReceived,
+	followAsStub,
 	randomUsername,
 	resolveRemoteUser,
 	sleep,
 	waitFor,
 	waitForFederationTestNoteUri,
+	waitForStubReceived,
 	type FederationTestHttpMode,
 	type FederationTestLdMode,
 	type LoginUser,
@@ -240,6 +244,71 @@ describe('JsonLD署名検証 (チャンネル投稿)', () => {
 			strictEqual(renote.channelId, aliceCh.id);
 
 			await assertTimelineNotContains(bob, activityId);
+		});
+	});
+
+	describe('中継トラフィックの観測 (z.test/inbox)', () => {
+		// HTL観測 (R節) では、b.test側の検証で落ちるため「a.testが転送したか」が分からない。
+		// ここでは zack 自身をチャンネルフォロワーにし、z.test/inbox の受信記録 (/received) で
+		// 転送トラフィックの有無を直接観測する。H3修正 (080f24a647相当) の判別子になる。
+		beforeAll(async () => {
+			await followAsStub('a.test', channelActorUri);
+			await waitFor(async () => {
+				try {
+					assert(aliceCh.actorId);
+					const followers = await alice.client.request('users/followers', { userId: aliceCh.actorId, limit: 100 });
+					return followers.some((f: any) => f.follower?.host === 'z.test');
+				} catch {
+					return false;
+				}
+			}, { timeout: 30_000, interval: 1_000 });
+		});
+
+		// 対象配送の後に正規プローブを流し、プローブ到達をもってキューの消化を確認してから不在を判定する。
+		// (note-update-delivery.test.ts と同型の手法。追い越し対策に sleep を挟む)
+		async function assertNotRelayed(activityId: string): Promise<void> {
+			const probe = await deliverChannelAnnounce({ ld: 'valid', http: 'valid' });
+			await waitForStubReceived(probe, { timeout: 60_000 });
+			await sleep(3000);
+			strictEqual((await fetchStubReceived(activityId)).length, 0);
+		}
+
+		test('正規LDのAnnounceはzackへ中継される (観測路のsanity)', async () => {
+			await clearStubReceived();
+			const activityId = await deliverChannelAnnounce({ ld: 'valid', http: 'valid' });
+			await waitForStubReceived(activityId, { timeout: 60_000 });
+			assert((await fetchStubReceived(activityId)).length > 0);
+		});
+
+		test('改竄LDのAnnounceの中継トラフィックは観測されない (H3)', async () => {
+			// H3: 現ブランチ (080f24a647未適用) では転送されるためREDが正しい。修正後はGREEN。
+			await clearStubReceived();
+			const activityId = await deliverChannelAnnounce({ ld: 'tampered-body', http: 'valid' });
+			await waitForFederationTestNoteUri(alice, activityId);
+			await assertNotRelayed(activityId);
+		});
+
+		test('LDなしAnnounceの中継トラフィックは観測されない', async () => {
+			await clearStubReceived();
+			const activityId = await deliverChannelAnnounce({ ld: 'none', http: 'valid' });
+			await waitForFederationTestNoteUri(alice, activityId);
+			await assertNotRelayed(activityId);
+		});
+
+		test('型不正LDのAnnounceの中継トラフィックは観測されない (H3)', async () => {
+			// H3: truthyなsignatureなら型不問で転送されるのが現状の穴。修正後はGREEN。
+			await clearStubReceived();
+			const activityId = await deliverChannelAnnounce({ ld: 'wrong-type', http: 'valid' });
+			await waitForFederationTestNoteUri(alice, activityId);
+			await assertNotRelayed(activityId);
+		});
+
+		test('creator不一致LDのAnnounceの中継トラフィックは観測されない (H3)', async () => {
+			// H3: 修正のcreator=actor束縛を転送可否で直接検証する。修正後はGREEN。
+			await clearStubReceived();
+			const activityId = await deliverChannelAnnounce({ ld: 'creator-mismatch', http: 'valid' });
+			await waitForFederationTestNoteUri(alice, activityId);
+			await assertNotRelayed(activityId);
 		});
 	});
 });

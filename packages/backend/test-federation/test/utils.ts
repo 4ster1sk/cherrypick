@@ -164,6 +164,67 @@ export async function assertFederationTestNoteNotIngested(
 	}
 }
 
+/**
+ * z.test の zack として `targetHost` の `objectUri` (ユーザー) をフォローする。
+ * 中継配送の観測者として zack を使うための準備 (`note-update-delivery.test.ts` と同型)。
+ */
+export async function followAsStub(
+	targetHost: FederationTestTargetHost,
+	objectUri: string,
+): Promise<void> {
+	const response = await fetch(federationTestStubUri('follow'), {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ targetHost, object: objectUri }),
+	});
+	const body = await response.json() as { inboxStatus?: number; error?: string };
+	strictEqual(
+		response.status,
+		200,
+		`z.test follow API failed for ${objectUri} -> ${targetHost}: ${response.status} ${JSON.stringify(body)}`,
+	);
+	strictEqual(
+		body.inboxStatus,
+		202,
+		`z.test follow delivery failed for ${objectUri} -> ${targetHost}: inbox returned ${body.inboxStatus}`,
+	);
+}
+
+/**
+ * z.test の `/inbox` 受信記録 (`stub-deliver.mjs` の `receivedActivities`) を全消去する。
+ */
+export async function clearStubReceived(): Promise<void> {
+	const response = await fetch(federationTestStubUri('received/clear'), { method: 'POST' });
+	strictEqual(response.status, 200);
+}
+
+/**
+ * z.test の `/inbox` 受信記録のうち、JSON に `text` を含むものを返す。
+ */
+export async function fetchStubReceived(text: string): Promise<unknown[]> {
+	const response = await fetch(`${federationTestStubUri('received')}?text=${encodeURIComponent(text)}`);
+	strictEqual(response.status, 200);
+	return await response.json() as unknown[];
+}
+
+/**
+ * z.test の `/inbox` に `text` を含む配送が届くまで待つ。
+ */
+export async function waitForStubReceived(
+	text: string,
+	options?: { timeout?: number },
+): Promise<void> {
+	await waitFor(async () => {
+		try {
+			return (await fetchStubReceived(text)).length > 0;
+		} catch {
+			return false;
+		}
+	}, { timeout: options?.timeout ?? 60_000, interval: 2_000 });
+}
+
 export async function sleep(ms = 250): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }

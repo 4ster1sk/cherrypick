@@ -422,3 +422,83 @@ sequenceDiagram
     InboxB-->>Tester: 現状は activityId が出現しRED (修正後は不出現でGREEN)
 ```
 判定: a.testで取り込み確認＋b.test HTL不在確認。
+
+## T-P1. 正規LDのAnnounceはzackへ中継される (観測路のsanity)
+
+前提: zackが `POST z.test/follow` でチャンネルをフォロー済み (`users/followers` で確認)。z.test/inboxの受信記録を `/received` で観測する。
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /received/clear
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=valid, http=valid)
+    Stub->>Stub: AnnounceにRsaSignature2017を付与
+    Stub->>InboxA: POST /a.test/inbox
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、署名保持)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成
+    APA->>APA: activity.signatureあり → フォロワー (zack含む) へ転送
+    APA->>Stub: POST /z.test/inbox (転送・記録される)
+    Tester->>Stub: GET /received?text=activityId を最大60秒ポーリング
+    Stub-->>Tester: 該当ありを確認
+```
+判定: `/received` に `activityId` を含む受信があること。
+
+## T-N1. 改竄LDのAnnounceの中継トラフィックは観測されない (H3)
+
+H3修正 (`080f24a647` 相当) 適用までは転送されてREDが正しい。
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /received/clear
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=tampered-body, http=valid)
+    Stub->>Stub: 署名後にtoへジャンクURI追加
+    Stub->>InboxA: POST /a.test/inbox
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、偽造署名が残存)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成
+    APA->>APA: activity.signatureあり → 転送する (現状の穴・修正後は転送しない)
+    Tester->>InboxA: チャンネルリノート作成を確認 (転送機会の確定)
+    Tester->>Stub: POST /deliver (正規プローブ)
+    Stub->>InboxA: POST /a.test/inbox
+    APA->>Stub: POST /z.test/inbox (プローブの転送・現状は対象も転送される)
+    Tester->>Stub: プローブ到達まで待機→sleep 3秒 (キュー消化の確定)
+    Tester->>Stub: GET /received?text=対象activityId
+    Stub-->>Tester: 修正後は不出現 (現状は出現しRED)
+```
+判定: プローブ到達後に `activityId` を含む受信がないこと。
+
+## T-N2. LDなしAnnounceの中継トラフィックは観測されない
+
+```mermaid
+sequenceDiagram
+    Tester->>Stub: POST /received/clear
+    Tester->>Stub: POST /deliver (11-ch-announce, ld=none, http=valid)
+    Stub->>InboxA: POST /a.test/inbox (LD署名なし)
+    InboxA-->>Stub: 202
+    InboxA->>QueueA: inboxジョブを投入
+    QueueA->>ProcA: HTTP署名 OK (現ブランチはLD不検証、LDなしのまま継続)
+    ProcA->>APA: performActivity(Announce) → announceNote
+    APA->>APA: チャンネル検出 → renote作成
+    APA->>APA: activity.signatureなし → 転送しない
+    Tester->>InboxA: チャンネルリノート作成を確認
+    Tester->>Stub: POST /deliver (正規プローブ) → 到達待ち→sleep 3秒
+    Tester->>Stub: GET /received?text=対象activityId
+    Stub-->>Tester: 不出現を確認
+```
+判定: プローブ到達後に `activityId` を含む受信がないこと。
+
+## T-N3. 型不正LDのAnnounceの中継トラフィックは観測されない (H3)
+
+H3修正 (`080f24a647` 相当) 適用までは転送されてREDが正しい。`signature.type` を `DataIntegrityProof` にすり替えた以外は T-N1 と同一シーケンスのため図略。要点のみ:
+- 現状: truthyな `signature` の存在だけで転送→ `/received` に出現しRED
+- 修正後: 型検査で転送抑止→不出現でGREEN
+
+## T-N4. creator不一致LDのAnnounceの中継トラフィックは観測されない (H3)
+
+H3修正 (`080f24a647` 相当) 適用までは転送されてREDが正しい。mallory署名 (creator=mallory, actor=zack) 以外は T-N1 と同一シーケンスのため図略。要点のみ:
+- 現状: 転送→ `/received` に出現しRED
+- 修正後: signer!=actor で転送抑止→不出現でGREEN
