@@ -6,7 +6,9 @@ import {
 	createAccount,
 	deliverFederationTestNote,
 	randomUsername,
+	resolveRemoteUser,
 	sleep,
+	waitFor,
 	waitForFederationTestNoteUri,
 	type FederationTestHttpMode,
 	type FederationTestLdMode,
@@ -138,6 +140,78 @@ describe('JsonLD署名検証 (チャンネル投稿)', () => {
 		test('HTTP破壊+LD型不正 は拒否される', async () => {
 			const activityId = await deliverChannelAnnounce({ ld: 'wrong-type', http: 'broken' });
 			await assertFederationTestNoteNotIngested(alice, activityId);
+		});
+	});
+
+	describe('チャンネルフォロワーへの中継 (fan-out)', () => {
+		// 未検証LDが他サーバーへ流れ出さない (AMPにならない) ことの観測。
+		// R-P1 が中継経路自体の健全性を証明し、R-N1/R-N2 の「現れない」が抑止の結果であることを保証する。
+		let bob: LoginUser;
+
+		async function waitForTimelineUri(viewer: LoginUser, uri: string, timeout = 60_000): Promise<Misskey.entities.Note> {
+			let found: Misskey.entities.Note | undefined;
+			await waitFor(async () => {
+				try {
+					const tl = await viewer.client.request('notes/timeline', { limit: 100 });
+					found = tl.find(note => note.uri === uri);
+					return found != null;
+				} catch {
+					return false;
+				}
+			}, { timeout, interval: 2_000 });
+			if (found == null) throw new Error(`relayed note not observed in timeline: ${uri}`);
+			return found;
+		}
+
+		async function assertTimelineNotContains(viewer: LoginUser, uri: string, timeout = 20_000): Promise<void> {
+			const start = Date.now();
+			for (;;) {
+				const tl = await viewer.client.request('notes/timeline', { limit: 100 });
+				if (tl.some(note => note.uri === uri)) {
+					throw new Error(`note should not have been relayed but was: ${uri}`);
+				}
+				if (Date.now() - start >= timeout) return;
+				await sleep(2_000);
+			}
+		}
+
+		beforeAll(async () => {
+			bob = await createAccount('b.test');
+			const zackInB = await resolveRemoteUser('z.test', 'zack', bob);
+			await bob.client.request('following/create', { userId: zackInB.id });
+			const chActorInB = await resolveRemoteUser('a.test', aliceCh.actorId, bob);
+			assert(chActorInB.channelId);
+			const aliceChInB = await bob.client.request('channels/show', { channelId: chActorInB.channelId });
+			await bob.client.request('channels/follow', { channelId: aliceChInB.id });
+			await waitFor(async () => {
+				const channelActor = await bob.client.request('users/show', { userId: chActorInB.id });
+				return channelActor.isFollowing ?? false;
+			}, { timeout: 30_000, interval: 1_000 });
+		});
+
+		test('HTTP有効+LD有効 のAnnounceはフォロワーのサーバーへ中継される', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'valid', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			const relayed = await waitForTimelineUri(bob, activityId);
+			strictEqual(relayed.uri, activityId);
+		});
+
+		test('HTTP有効+LD改ざん のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'tampered-body', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			await assertTimelineNotContains(bob, activityId);
+		});
+
+		test('HTTP有効+LDなし のAnnounceは取り込まれるが中継されない (AMPにならない)', async () => {
+			const activityId = await deliverChannelAnnounce({ ld: 'none', http: 'valid' });
+			const renote = await waitForFederationTestNoteUri(alice, activityId);
+			strictEqual(renote.channelId, aliceCh.id);
+
+			await assertTimelineNotContains(bob, activityId);
 		});
 	});
 });
