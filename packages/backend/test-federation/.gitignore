@@ -10,3 +10,5 @@ stub/users/zack-key.json
 stub/users/mallory
 stub/users/mallory-key.json
 stub-vendor
+test/json-ld-signature.sequence.md
+test/json-ld-channel.sequence.md
